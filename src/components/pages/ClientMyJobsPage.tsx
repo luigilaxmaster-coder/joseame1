@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { TrabajosdeServicio } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, Eye } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, Eye, Trash2 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 export default function ClientMyJobsPage() {
@@ -13,6 +13,8 @@ export default function ClientMyJobsPage() {
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'completed'>('all');
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     loadClientJobs();
@@ -30,6 +32,19 @@ export default function ClientMyJobsPage() {
       console.error('Error loading jobs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      setDeletingId(jobId);
+      await BaseCrudService.delete('servicejobs', jobId);
+      setJobs(jobs.filter(job => job._id !== jobId));
+      setShowDeleteConfirm(null);
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -158,6 +173,42 @@ export default function ClientMyJobsPage() {
                     <Eye size={16} />
                     Ver Detalles
                   </motion.button>
+                  
+                  {/* Delete Button */}
+                  {showDeleteConfirm === job._id ? (
+                    <div className="mt-3 p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                      <p className="font-paragraph text-sm text-foreground mb-3">
+                        ¿Estás seguro de que deseas eliminar este trabajo?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowDeleteConfirm(null)}
+                          className="flex-1 px-3 py-2 bg-white border border-border rounded-lg font-paragraph text-sm font-semibold hover:bg-background transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleDeleteJob(job._id)}
+                          disabled={deletingId === job._id}
+                          className="flex-1 px-3 py-2 bg-destructive text-white rounded-lg font-paragraph text-sm font-semibold hover:bg-destructive/90 transition-colors disabled:opacity-50"
+                        >
+                          {deletingId === job._id ? 'Eliminando...' : 'Eliminar'}
+                        </motion.button>
+                      </div>
+                    </div>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowDeleteConfirm(job._id)}
+                      className="w-full mt-3 px-4 py-2 bg-destructive/10 text-destructive rounded-xl font-paragraph font-semibold hover:bg-destructive/20 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Trash2 size={16} />
+                      Eliminar
+                    </motion.button>
+                  )}
                 </motion.div>
               ))}
             </div>

@@ -5,8 +5,9 @@ import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle } from 'lucide-react';
 import { Image } from '@/components/ui/image';
+import { calculatePiquetes, getExpertiseDescription, type ExpertiseLevel } from '@/lib/piquete-calculator';
 
 export default function JobDetailsPage() {
   const { jobId } = useParams();
@@ -16,10 +17,12 @@ export default function JobDetailsPage() {
   const [job, setJob] = useState<TrabajosdeServicio | null>(null);
   const [applications, setApplications] = useState<JobApplications[]>([]);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel>('beginner');
   const [applicationData, setApplicationData] = useState({
     coverLetter: '',
     proposedPrice: ''
   });
+  const [piqueteInfo, setPiqueteInfo] = useState<ReturnType<typeof calculatePiquetes> | null>(null);
 
   useEffect(() => {
     if (jobId) {
@@ -27,6 +30,14 @@ export default function JobDetailsPage() {
       loadApplications();
     }
   }, [jobId]);
+
+  // Update piquete calculation when expertise level changes
+  useEffect(() => {
+    if (job?.budget) {
+      const calculation = calculatePiquetes(job.budget, expertiseLevel);
+      setPiqueteInfo(calculation);
+    }
+  }, [expertiseLevel, job?.budget]);
 
   const loadJobDetails = async () => {
     if (!jobId) return;
@@ -43,6 +54,8 @@ export default function JobDetailsPage() {
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!piqueteInfo) return;
+    
     const newApplication: JobApplications = {
       _id: crypto.randomUUID(),
       jobId: jobId,
@@ -56,6 +69,7 @@ export default function JobDetailsPage() {
     await BaseCrudService.create('jobapplications', newApplication);
     setShowApplicationForm(false);
     setApplicationData({ coverLetter: '', proposedPrice: '' });
+    setExpertiseLevel('beginner');
     loadApplications();
   };
 
@@ -300,7 +314,10 @@ export default function JobDetailsPage() {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => setShowApplicationForm(false)}
+                          onClick={() => {
+                            setShowApplicationForm(false);
+                            setExpertiseLevel('beginner');
+                          }}
                           className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph font-semibold hover:bg-background transition-colors"
                         >
                           Cancelar
@@ -309,7 +326,7 @@ export default function JobDetailsPage() {
                           type="submit"
                           className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow"
                         >
-                          Enviar
+                          Enviar Aplicación
                         </button>
                       </div>
                     </form>
