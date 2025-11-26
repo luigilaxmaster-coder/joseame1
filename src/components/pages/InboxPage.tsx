@@ -1,36 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMember } from '@/integrations';
+import { BaseCrudService } from '@/integrations';
 import { ArrowLeft, MessageSquare, Send, User } from 'lucide-react';
 
+interface Chat {
+  id: string;
+  name: string;
+  jobTitle: string;
+  lastMessage: string;
+  time: string;
+  unread: number;
+  otherUserId: string;
+}
+
+interface Message {
+  id: string;
+  sender: 'me' | 'other';
+  text: string;
+  time: string;
+}
+
 export default function InboxPage() {
+  const { member } = useMember();
+  const navigate = useNavigate();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const chats = [
-    {
-      id: '1',
-      name: 'Juan Pérez',
-      jobTitle: 'Reparación de tubería',
-      lastMessage: 'Perfecto, nos vemos mañana',
-      time: '10:30 AM',
-      unread: 2
-    },
-    {
-      id: '2',
-      name: 'María González',
-      jobTitle: 'Instalación eléctrica',
-      lastMessage: '¿A qué hora puedes venir?',
-      time: 'Ayer',
-      unread: 0
+  useEffect(() => {
+    loadChats();
+  }, [member]);
+
+  const loadChats = async () => {
+    try {
+      setLoading(true);
+      // For now, we'll use mock data
+      // In a real app, you'd fetch chats from a database
+      const mockChats: Chat[] = [
+        {
+          id: '1',
+          name: 'Juan Pérez',
+          jobTitle: 'Reparación de tubería',
+          lastMessage: 'Perfecto, nos vemos mañana',
+          time: '10:30 AM',
+          unread: 2,
+          otherUserId: 'user-1'
+        },
+        {
+          id: '2',
+          name: 'María González',
+          jobTitle: 'Instalación eléctrica',
+          lastMessage: '¿A qué hora puedes venir?',
+          time: 'Ayer',
+          unread: 0,
+          otherUserId: 'user-2'
+        }
+      ];
+      setChats(mockChats);
+    } catch (error) {
+      console.error('Error loading chats:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const messages = selectedChat ? [
-    { id: '1', sender: 'other', text: 'Hola, estoy interesado en el trabajo', time: '9:00 AM' },
-    { id: '2', sender: 'me', text: 'Perfecto, ¿cuándo puedes empezar?', time: '9:15 AM' },
-    { id: '3', sender: 'other', text: 'Puedo empezar mañana por la mañana', time: '9:30 AM' },
-    { id: '4', sender: 'me', text: 'Perfecto, nos vemos mañana', time: '10:30 AM' }
+    { id: '1', sender: 'other' as const, text: 'Hola, estoy interesado en el trabajo', time: '9:00 AM' },
+    { id: '2', sender: 'me' as const, text: 'Perfecto, ¿cuándo puedes empezar?', time: '9:15 AM' },
+    { id: '3', sender: 'other' as const, text: 'Puedo empezar mañana por la mañana', time: '9:30 AM' },
+    { id: '4', sender: 'me' as const, text: 'Perfecto, nos vemos mañana', time: '10:30 AM' }
   ] : [];
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -40,12 +81,18 @@ export default function InboxPage() {
     }
   };
 
+  const getBackLink = () => {
+    // Determine which dashboard to go back to based on user role
+    // This would be better with a role store
+    return '/client/dashboard';
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white border-b border-border">
         <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <Link to="/client/dashboard" className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors">
+          <Link to={getBackLink()} className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors">
             <ArrowLeft size={20} />
             <span className="font-paragraph">Volver</span>
           </Link>
@@ -60,7 +107,7 @@ export default function InboxPage() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="font-heading text-4xl font-bold text-foreground mb-8">
-            Mensajes
+            Mis Mensajes
           </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-250px)]">
@@ -72,44 +119,54 @@ export default function InboxPage() {
                 </h2>
               </div>
               <div className="overflow-y-auto h-full">
-                {chats.map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => setSelectedChat(chat.id)}
-                    className={`p-4 border-b border-border cursor-pointer transition-colors ${
-                      selectedChat === chat.id ? 'bg-primary/5' : 'hover:bg-background'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
-                        <User size={24} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-heading font-semibold text-foreground truncate">
-                            {chat.name}
-                          </h3>
-                          <span className="font-paragraph text-xs text-muted-text flex-shrink-0">
-                            {chat.time}
-                          </span>
-                        </div>
-                        <p className="font-paragraph text-sm text-primary mb-1">
-                          {chat.jobTitle}
-                        </p>
-                        <p className="font-paragraph text-sm text-muted-text truncate">
-                          {chat.lastMessage}
-                        </p>
-                      </div>
-                      {chat.unread > 0 && (
-                        <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                          <span className="font-paragraph text-xs text-white font-bold">
-                            {chat.unread}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                {loading ? (
+                  <div className="p-4 text-center">
+                    <p className="font-paragraph text-muted-text">Cargando conversaciones...</p>
                   </div>
-                ))}
+                ) : chats.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className="font-paragraph text-muted-text">No tienes conversaciones aún</p>
+                  </div>
+                ) : (
+                  chats.map((chat) => (
+                    <div
+                      key={chat.id}
+                      onClick={() => setSelectedChat(chat.id)}
+                      className={`p-4 border-b border-border cursor-pointer transition-colors ${
+                        selectedChat === chat.id ? 'bg-primary/5' : 'hover:bg-background'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
+                          <User size={24} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="font-heading font-semibold text-foreground truncate">
+                              {chat.name}
+                            </h3>
+                            <span className="font-paragraph text-xs text-muted-text flex-shrink-0">
+                              {chat.time}
+                            </span>
+                          </div>
+                          <p className="font-paragraph text-sm text-primary mb-1">
+                            {chat.jobTitle}
+                          </p>
+                          <p className="font-paragraph text-sm text-muted-text truncate">
+                            {chat.lastMessage}
+                          </p>
+                        </div>
+                        {chat.unread > 0 && (
+                          <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                            <span className="font-paragraph text-xs text-white font-bold">
+                              {chat.unread}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

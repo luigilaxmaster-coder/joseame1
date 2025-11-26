@@ -17,7 +17,8 @@ import JobDetailsPage from '@/components/pages/JobDetailsPage';
 import WalletPage from '@/components/pages/WalletPage';
 import BuyPiquetesPage from '@/components/pages/BuyPiquetesPage';
 import ProfilePage from '@/components/pages/ProfilePage';
-import MyJobsPage from '@/components/pages/MyJobsPage';
+import ClientMyJobsPage from '@/components/pages/ClientMyJobsPage';
+import JoseadorMyJobsPage from '@/components/pages/JoseadorMyJobsPage';
 import InboxPage from '@/components/pages/InboxPage';
 import DisputesPage from '@/components/pages/DisputesPage';
 import DisputeDetailsPage from '@/components/pages/DisputeDetailsPage';
@@ -98,7 +99,7 @@ const router = createBrowserRouter([
         path: "client/my-jobs",
         element: (
           <MemberProtectedRoute>
-            <MyJobsPage />
+            <ClientMyJobsPage />
           </MemberProtectedRoute>
         ),
       },
@@ -147,7 +148,7 @@ const router = createBrowserRouter([
         path: "joseador/my-applications",
         element: (
           <MemberProtectedRoute>
-            <MyJobsPage />
+            <JoseadorMyJobsPage />
           </MemberProtectedRoute>
         ),
       },

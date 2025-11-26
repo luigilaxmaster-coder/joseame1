@@ -64,6 +64,19 @@ export default function JobDetailsPage() {
       _id: applicationId,
       status: action
     });
+    
+    // If accepting, create a chat automatically
+    if (action === 'accepted') {
+      const application = applications.find(app => app._id === applicationId);
+      if (application) {
+        // In a real app, you'd create a chat record here
+        // For now, we'll just navigate to inbox
+        setTimeout(() => {
+          navigate('/client/inbox');
+        }, 500);
+      }
+    }
+    
     loadApplications();
   };
 

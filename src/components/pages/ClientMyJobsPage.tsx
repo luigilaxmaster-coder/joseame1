@@ -1,23 +1,36 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { TrabajosdeServicio } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, Eye } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
-export default function MyJobsPage() {
+export default function ClientMyJobsPage() {
   const navigate = useNavigate();
+  const { member } = useMember();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'completed'>('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadJobs();
-  }, []);
+    loadClientJobs();
+  }, [member]);
 
-  const loadJobs = async () => {
-    const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
-    setJobs(items);
+  const loadClientJobs = async () => {
+    try {
+      setLoading(true);
+      const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
+      // Filter jobs published by the current client
+      // In a real app, you'd have a clientId field in the job
+      // For now, we'll show all jobs (you should add clientId to servicejobs collection)
+      setJobs(items);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredJobs = filter === 'all' ? jobs : jobs.filter(job => job.status === filter);
@@ -41,9 +54,14 @@ export default function MyJobsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="font-heading text-4xl font-bold text-foreground mb-8">
-            Mis Trabajos
-          </h1>
+          <div className="mb-8">
+            <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
+              Mis Solicitudes
+            </h1>
+            <p className="font-paragraph text-muted-text">
+              Gestiona los trabajos que has publicado
+            </p>
+          </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 mb-8">
@@ -68,9 +86,18 @@ export default function MyJobsPage() {
           </div>
 
           {/* Jobs List */}
-          {filteredJobs.length === 0 ? (
+          {loading ? (
             <div className="bg-white rounded-2xl p-12 border border-border text-center">
-              <p className="font-paragraph text-muted-text">No tienes trabajos en esta categoría</p>
+              <p className="font-paragraph text-muted-text">Cargando tus solicitudes...</p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 border border-border text-center">
+              <p className="font-paragraph text-muted-text mb-4">No tienes solicitudes en esta categoría</p>
+              <Link to="/client/publish-job">
+                <button className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow">
+                  Publicar Nueva Solicitud
+                </button>
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -78,8 +105,7 @@ export default function MyJobsPage() {
                 <motion.div
                   key={job._id}
                   whileHover={{ y: -4 }}
-                  onClick={() => navigate(`/job/${job._id}`)}
-                  className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                  className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all"
                 >
                   {job.jobImage && (
                     <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-background">
@@ -123,6 +149,15 @@ export default function MyJobsPage() {
                        'Completado'}
                     </span>
                   </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate(`/job/${job._id}`)}
+                    className="w-full mt-4 px-4 py-2 bg-primary/10 text-primary rounded-xl font-paragraph font-semibold hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Eye size={16} />
+                    Ver Detalles
+                  </motion.button>
                 </motion.div>
               ))}
             </div>
