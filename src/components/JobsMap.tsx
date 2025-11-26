@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { TrabajosdeServicio } from '@/entities';
-import { MapPin, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { MapPin, X, ZoomIn, ZoomOut, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface JobsMapProps {
   jobs: TrabajosdeServicio[];
   onJobSelect: (jobId: string) => void;
   selectedJobId?: string;
+}
+
+interface UserLocation {
+  latitude: number;
+  longitude: number;
 }
 
 export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapProps) {
@@ -16,6 +21,56 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [requestingLocation, setRequestingLocation] = useState(false);
+
+  // Request user location
+  const requestUserLocation = () => {
+    setRequestingLocation(true);
+    setLocationError(null);
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocalización no disponible en tu navegador');
+      setRequestingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setRequestingLocation(false);
+      },
+      (error) => {
+        let errorMsg = 'No se pudo obtener tu ubicación';
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = 'Permiso de ubicación denegado. Habilítalo en la configuración del navegador.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = 'Información de ubicación no disponible';
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = 'Tiempo de espera agotado al obtener ubicación';
+        }
+        setLocationError(errorMsg);
+        setRequestingLocation(false);
+      }
+    );
+  };
+
+  // Calculate distance between two points (Haversine formula)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
   // Filter jobs with valid coordinates
   const jobsWithCoords = jobs.filter(job => 
@@ -100,6 +155,36 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
     ctx.scale(zoom, zoom);
     ctx.translate(-width / 2, -height / 2);
 
+    // Draw user location if available
+    if (userLocation) {
+      const { x: userX, y: userY } = latLonToCanvas(userLocation.latitude, userLocation.longitude, bounds, width, height);
+      
+      // Draw user location circle with glow
+      ctx.fillStyle = 'rgba(14, 159, 168, 0.2)';
+      ctx.beginPath();
+      ctx.arc(userX, userY, 40, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw user marker
+      ctx.fillStyle = '#0E9FA8';
+      ctx.beginPath();
+      ctx.arc(userX, userY, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw user marker border
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(userX, userY, 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw inner circle
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(userX, userY, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     // Draw jobs
     jobsWithCoords.forEach(job => {
       const { x, y } = latLonToCanvas(job.latitude!, job.longitude!, bounds, width, height);
@@ -135,7 +220,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
     ctx.strokeStyle = '#E5E7EB';
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, width, height);
-  }, [zoom, pan, jobsWithCoords, selectedJobId, hoveredJobId]);
+  }, [zoom, pan, jobsWithCoords, selectedJobId, hoveredJobId, userLocation]);
 
   // Handle mouse move for hover detection
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -239,6 +324,16 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={requestUserLocation}
+          disabled={requestingLocation}
+          className="p-2 bg-white border border-border rounded-lg hover:bg-background transition-colors shadow-sm disabled:opacity-50"
+          title="Obtener mi ubicación"
+        >
+          <Navigation size={20} className="text-primary" />
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleZoomIn}
           className="p-2 bg-white border border-border rounded-lg hover:bg-background transition-colors shadow-sm"
           title="Zoom in"
@@ -279,10 +374,21 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-primary"></div>
-            <span className="font-paragraph text-xs text-muted-text">Trabajo destacado</span>
+            <span className="font-paragraph text-xs text-muted-text">Tu ubicación</span>
           </div>
         </div>
       </div>
+
+      {/* Error Message */}
+      {locationError && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-200 rounded-lg p-3 max-w-sm"
+        >
+          <p className="font-paragraph text-xs text-red-700">{locationError}</p>
+        </motion.div>
+      )}
 
       {/* Info Panel */}
       {hoveredJobId && (
@@ -303,6 +409,16 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
                 <MapPin size={14} />
                 {jobsWithCoords.find(j => j._id === hoveredJobId)?.locationAddress}
               </div>
+              {userLocation && jobsWithCoords.find(j => j._id === hoveredJobId) && (
+                <p className="font-paragraph text-xs text-muted-text mb-2">
+                  Distancia: {calculateDistance(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    jobsWithCoords.find(j => j._id === hoveredJobId)!.latitude!,
+                    jobsWithCoords.find(j => j._id === hoveredJobId)!.longitude!
+                  ).toFixed(1)} km
+                </p>
+              )}
               <p className="font-heading text-sm font-bold text-secondary">
                 RD$ {jobsWithCoords.find(j => j._id === hoveredJobId)?.budget?.toLocaleString()}
               </p>

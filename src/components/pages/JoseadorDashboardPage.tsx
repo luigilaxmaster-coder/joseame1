@@ -5,9 +5,14 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw } from 'lucide-react';
+import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw, Navigation } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import JobsMap from '@/components/JobsMap';
+
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+}
 
 export default function JoseadorDashboardPage() {
   const { member, actions } = useMember();
@@ -20,11 +25,59 @@ export default function JoseadorDashboardPage() {
   const [piquetesBalance] = useState(5);
   const [showMap, setShowMap] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | undefined>();
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [requestingLocation, setRequestingLocation] = useState(false);
 
   useEffect(() => {
     setUserRole('joseador');
     loadJobs();
   }, []);
+
+  const requestUserLocation = () => {
+    setRequestingLocation(true);
+    setLocationError(null);
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocalización no disponible en tu navegador');
+      setRequestingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setRequestingLocation(false);
+      },
+      (error) => {
+        let errorMsg = 'No se pudo obtener tu ubicación';
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = 'Permiso de ubicación denegado. Habilítalo en la configuración del navegador.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = 'Información de ubicación no disponible';
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = 'Tiempo de espera agotado al obtener ubicación';
+        }
+        setLocationError(errorMsg);
+        setRequestingLocation(false);
+      }
+    );
+  };
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
   const loadJobs = async () => {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
@@ -36,8 +89,29 @@ export default function JoseadorDashboardPage() {
     const matchesSearch = job.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || job.serviceCategory === categoryFilter;
-    return matchesSearch && matchesCategory;
+    
+    // Filter by proximity if user location is available
+    let matchesProximity = true;
+    if (userLocation && job.latitude && job.longitude) {
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        job.latitude,
+        job.longitude
+      );
+      matchesProximity = distance <= 50; // 50 km radius
+    }
+    
+    return matchesSearch && matchesCategory && matchesProximity;
   });
+
+  // Sort jobs by distance if user location is available
+  const sortedJobs = userLocation ? [...filteredJobs].sort((a, b) => {
+    if (!a.latitude || !a.longitude || !b.latitude || !b.longitude) return 0;
+    const distA = calculateDistance(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude);
+    const distB = calculateDistance(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude);
+    return distA - distB;
+  }) : filteredJobs;
 
   const categories = ['Plomería', 'Electricidad', 'Limpieza', 'Construcción', 'Jardinería', 'Tecnología'];
 
@@ -198,6 +272,17 @@ export default function JoseadorDashboardPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={requestUserLocation}
+              disabled={requestingLocation}
+              className="px-6 py-3 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 whitespace-nowrap bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg disabled:opacity-50"
+              title="Obtener mi ubicación"
+            >
+              <Navigation size={20} />
+              {requestingLocation ? 'Localizando...' : 'Mi Ubicación'}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowMap(!showMap)}
               className={`px-6 py-3 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
                 showMap
@@ -209,6 +294,26 @@ export default function JoseadorDashboardPage() {
               {showMap ? 'Ver Lista' : 'Ver Mapa'}
             </motion.button>
           </div>
+          {locationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 rounded-lg p-3"
+            >
+              <p className="font-paragraph text-xs text-red-700">{locationError}</p>
+            </motion.div>
+          )}
+          {userLocation && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-green-50 border border-green-200 rounded-lg p-3"
+            >
+              <p className="font-paragraph text-xs text-green-700">
+                ✓ Tu ubicación ha sido detectada. Mostrando trabajos cercanos.
+              </p>
+            </motion.div>
+          )}
         </div>
 
         {/* Map View */}
@@ -232,51 +337,67 @@ export default function JoseadorDashboardPage() {
         {/* Jobs Feed */}
         <div className="space-y-4">
           <h2 className="font-heading text-2xl font-bold text-foreground mb-4">
-            Trabajos Disponibles ({filteredJobs.length})
+            Trabajos Disponibles ({sortedJobs.length})
+            {userLocation && <span className="text-base text-muted-text font-paragraph ml-2">(ordenados por proximidad)</span>}
           </h2>
-          {filteredJobs.length === 0 ? (
+          {sortedJobs.length === 0 ? (
             <div className="bg-white rounded-2xl p-12 border border-border text-center">
-              <p className="font-paragraph text-muted-text">No hay trabajos disponibles en este momento</p>
+              <p className="font-paragraph text-muted-text">
+                {userLocation 
+                  ? 'No hay trabajos disponibles en tu zona (50 km de radio)' 
+                  : 'No hay trabajos disponibles en este momento'}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredJobs.map((job) => (
-                <motion.div
-                  key={job._id}
-                  whileHover={{ y: -4 }}
-                  onClick={() => navigate(`/job/${job._id}`)}
-                  className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all cursor-pointer"
-                >
-                  {job.jobImage && (
-                    <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-background">
-                      <Image src={job.jobImage} alt={job.jobTitle} className="w-full h-full object-cover" />
+              {sortedJobs.map((job) => {
+                const distance = userLocation && job.latitude && job.longitude
+                  ? calculateDistance(userLocation.latitude, userLocation.longitude, job.latitude, job.longitude)
+                  : null;
+
+                return (
+                  <motion.div
+                    key={job._id}
+                    whileHover={{ y: -4 }}
+                    onClick={() => navigate(`/job/${job._id}`)}
+                    className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                  >
+                    {job.jobImage && (
+                      <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-background">
+                        <Image src={job.jobImage} alt={job.jobTitle} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-paragraph rounded-full">
+                        {job.serviceCategory}
+                      </span>
+                      {distance && (
+                        <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-xs font-paragraph rounded-full">
+                          {distance.toFixed(1)} km
+                        </span>
+                      )}
                     </div>
-                  )}
-                  <div className="mb-3">
-                    <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-paragraph rounded-full">
-                      {job.serviceCategory}
-                    </span>
-                  </div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
-                    {job.jobTitle}
-                  </h3>
-                  <p className="font-paragraph text-muted-text mb-4 line-clamp-2">
-                    {job.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-muted-text mb-4">
-                    <MapPin size={16} />
-                    <span className="font-paragraph text-sm">{job.locationAddress}</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="font-heading text-xl font-bold text-secondary">
-                      RD$ {job.budget?.toLocaleString()}
-                    </span>
-                    <button className="px-4 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow">
-                      Aplicar
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
+                      {job.jobTitle}
+                    </h3>
+                    <p className="font-paragraph text-muted-text mb-4 line-clamp-2">
+                      {job.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-muted-text mb-4">
+                      <MapPin size={16} />
+                      <span className="font-paragraph text-sm">{job.locationAddress}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <span className="font-heading text-xl font-bold text-secondary">
+                        RD$ {job.budget?.toLocaleString()}
+                      </span>
+                      <button className="px-4 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow">
+                        Aplicar
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>
