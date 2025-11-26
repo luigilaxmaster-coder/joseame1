@@ -32,6 +32,13 @@ export default function JoseadorDashboardPage() {
   useEffect(() => {
     setUserRole('joseador');
     loadJobs();
+    
+    // Set up auto-refresh every 30 seconds
+    const refreshInterval = setInterval(() => {
+      loadJobs();
+    }, 30000);
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const requestUserLocation = () => {
@@ -323,6 +330,14 @@ export default function JoseadorDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
+            <div className="bg-white rounded-2xl border border-border shadow-sm p-4 mb-4">
+              <h3 className="font-heading text-lg font-semibold text-foreground mb-2">Mapa de Trabajos en Tiempo Real</h3>
+              <p className="font-paragraph text-sm text-muted-text">
+                {userLocation 
+                  ? '✓ Tu ubicación está activa. Los trabajos se actualizan automáticamente cada 30 segundos.'
+                  : 'Haz clic en "Mi Ubicación" para ver trabajos cercanos en el mapa.'}
+              </p>
+            </div>
             <JobsMap
               jobs={filteredJobs}
               onJobSelect={(jobId) => {
@@ -336,10 +351,22 @@ export default function JoseadorDashboardPage() {
 
         {/* Jobs Feed */}
         <div className="space-y-4">
-          <h2 className="font-heading text-2xl font-bold text-foreground mb-4">
-            Trabajos Disponibles ({sortedJobs.length})
-            {userLocation && <span className="text-base text-muted-text font-paragraph ml-2">(ordenados por proximidad)</span>}
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-2xl font-bold text-foreground">
+              Trabajos Disponibles ({sortedJobs.length})
+              {userLocation && <span className="text-base text-muted-text font-paragraph ml-2">(ordenados por proximidad)</span>}
+            </h2>
+            {userLocation && (
+              <motion.div
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full"
+              >
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="font-paragraph text-xs text-green-700">En vivo</span>
+              </motion.div>
+            )}
+          </div>
           {sortedJobs.length === 0 ? (
             <div className="bg-white rounded-2xl p-12 border border-border text-center">
               <p className="font-paragraph text-muted-text">
@@ -350,7 +377,7 @@ export default function JoseadorDashboardPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedJobs.map((job) => {
+              {sortedJobs.map((job, index) => {
                 const distance = userLocation && job.latitude && job.longitude
                   ? calculateDistance(userLocation.latitude, userLocation.longitude, job.latitude, job.longitude)
                   : null;
@@ -358,13 +385,21 @@ export default function JoseadorDashboardPage() {
                 return (
                   <motion.div
                     key={job._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
                     whileHover={{ y: -4 }}
                     onClick={() => navigate(`/job/${job._id}`)}
-                    className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                    className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-all cursor-pointer group"
                   >
                     {job.jobImage && (
-                      <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-background">
-                        <Image src={job.jobImage} alt={job.jobTitle} className="w-full h-full object-cover" />
+                      <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-background relative">
+                        <Image src={job.jobImage} alt={job.jobTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        {distance && distance <= 5 && (
+                          <div className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                            ¡Muy cerca!
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="mb-3 flex items-center justify-between">
@@ -372,12 +407,12 @@ export default function JoseadorDashboardPage() {
                         {job.serviceCategory}
                       </span>
                       {distance && (
-                        <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-xs font-paragraph rounded-full">
+                        <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-xs font-paragraph font-semibold rounded-full">
                           {distance.toFixed(1)} km
                         </span>
                       )}
                     </div>
-                    <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-2 line-clamp-2">
                       {job.jobTitle}
                     </h3>
                     <p className="font-paragraph text-muted-text mb-4 line-clamp-2">
@@ -385,7 +420,7 @@ export default function JoseadorDashboardPage() {
                     </p>
                     <div className="flex items-center gap-2 text-muted-text mb-4">
                       <MapPin size={16} />
-                      <span className="font-paragraph text-sm">{job.locationAddress}</span>
+                      <span className="font-paragraph text-sm line-clamp-1">{job.locationAddress}</span>
                     </div>
                     <div className="flex items-center justify-between pt-4 border-t border-border">
                       <span className="font-heading text-xl font-bold text-secondary">

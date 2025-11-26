@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { TrabajosdeServicio } from '@/entities';
-import { MapPin, X, ZoomIn, ZoomOut, Navigation } from 'lucide-react';
+import { MapPin, X, ZoomIn, ZoomOut, Navigation, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Image } from '@/components/ui/image';
 
 interface JobsMapProps {
   jobs: TrabajosdeServicio[];
@@ -14,6 +15,13 @@ interface UserLocation {
   longitude: number;
 }
 
+interface MarkerPosition {
+  jobId: string;
+  x: number;
+  y: number;
+  radius: number;
+}
+
 export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -24,6 +32,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [requestingLocation, setRequestingLocation] = useState(false);
+  const [markerPositions, setMarkerPositions] = useState<MarkerPosition[]>([]);
 
   // Request user location
   const requestUserLocation = () => {
@@ -128,6 +137,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
     const width = canvas.width;
     const height = canvas.height;
     const bounds = calculateBounds();
+    const newMarkerPositions: MarkerPosition[] = [];
 
     // Clear canvas
     ctx.fillStyle = '#F6F8FB';
@@ -185,7 +195,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
       ctx.fill();
     }
 
-    // Draw jobs
+    // Draw jobs and track marker positions
     jobsWithCoords.forEach(job => {
       const { x, y } = latLonToCanvas(job.latitude!, job.longitude!, bounds, width, height);
       const isSelected = job._id === selectedJobId;
@@ -212,6 +222,14 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
       ctx.beginPath();
       ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
       ctx.fill();
+
+      // Store marker position for click detection
+      newMarkerPositions.push({
+        jobId: job._id!,
+        x,
+        y,
+        radius
+      });
     });
 
     ctx.restore();
@@ -220,10 +238,13 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
     ctx.strokeStyle = '#E5E7EB';
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, width, height);
+
+    // Update marker positions
+    setMarkerPositions(newMarkerPositions);
   }, [zoom, pan, jobsWithCoords, selectedJobId, hoveredJobId, userLocation]);
 
   // Handle mouse move for hover detection
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isDragging) return;
 
     const canvas = canvasRef.current;
@@ -255,7 +276,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
 
     setHoveredJobId(foundJob);
     canvas.style.cursor = foundJob ? 'pointer' : 'grab';
-  };
+  }, [isDragging, jobsWithCoords, zoom, pan]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (hoveredJobId) return;
@@ -305,8 +326,8 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
       {/* Canvas */}
       <canvas
         ref={canvasRef}
-        width={800}
-        height={500}
+        width={typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 1200) : 800}
+        height={600}
         onMouseMove={(e) => {
           handleMouseMove(e);
           handleMouseMove2(e);
@@ -361,7 +382,7 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white rounded-lg border border-border shadow-sm p-4">
+      <div className="absolute bottom-4 left-4 bg-white rounded-lg border border-border shadow-sm p-4 max-w-xs">
         <h3 className="font-heading text-sm font-semibold text-foreground mb-3">Leyenda</h3>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -377,6 +398,11 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
             <span className="font-paragraph text-xs text-muted-text">Tu ubicación</span>
           </div>
         </div>
+        <div className="mt-3 pt-3 border-t border-border">
+          <p className="font-paragraph text-xs text-muted-text">
+            💡 Pasa el mouse sobre los marcadores para ver detalles
+          </p>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -390,40 +416,56 @@ export default function JobsMap({ jobs, onJobSelect, selectedJobId }: JobsMapPro
         </motion.div>
       )}
 
-      {/* Info Panel */}
-      {hoveredJobId && (
+      {/* Info Panel - Enhanced with Job Details */}
+      {hoveredJobId && jobsWithCoords.find(j => j._id === hoveredJobId) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 left-4 bg-white rounded-lg border border-border shadow-lg p-4 max-w-xs"
+          className="absolute top-4 left-4 bg-white rounded-lg border border-border shadow-lg p-4 max-w-sm"
         >
-          {jobsWithCoords.find(j => j._id === hoveredJobId) && (
-            <>
-              <h4 className="font-heading text-sm font-semibold text-foreground mb-1">
-                {jobsWithCoords.find(j => j._id === hoveredJobId)?.jobTitle}
-              </h4>
-              <p className="font-paragraph text-xs text-muted-text mb-2">
-                {jobsWithCoords.find(j => j._id === hoveredJobId)?.description?.substring(0, 50)}...
-              </p>
-              <div className="flex items-center gap-1 text-xs text-secondary font-paragraph mb-2">
-                <MapPin size={14} />
-                {jobsWithCoords.find(j => j._id === hoveredJobId)?.locationAddress}
-              </div>
-              {userLocation && jobsWithCoords.find(j => j._id === hoveredJobId) && (
+          {(() => {
+            const job = jobsWithCoords.find(j => j._id === hoveredJobId);
+            const distance = userLocation && job?.latitude && job?.longitude
+              ? calculateDistance(userLocation.latitude, userLocation.longitude, job.latitude, job.longitude)
+              : null;
+
+            return (
+              <>
+                {job?.jobImage && (
+                  <div className="w-full h-32 mb-3 rounded-lg overflow-hidden bg-background">
+                    <Image src={job.jobImage} alt={job.jobTitle} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <h4 className="font-heading text-sm font-semibold text-foreground mb-1">
+                  {job?.jobTitle}
+                </h4>
                 <p className="font-paragraph text-xs text-muted-text mb-2">
-                  Distancia: {calculateDistance(
-                    userLocation.latitude,
-                    userLocation.longitude,
-                    jobsWithCoords.find(j => j._id === hoveredJobId)!.latitude!,
-                    jobsWithCoords.find(j => j._id === hoveredJobId)!.longitude!
-                  ).toFixed(1)} km
+                  {job?.description?.substring(0, 80)}...
                 </p>
-              )}
-              <p className="font-heading text-sm font-bold text-secondary">
-                RD$ {jobsWithCoords.find(j => j._id === hoveredJobId)?.budget?.toLocaleString()}
-              </p>
-            </>
-          )}
+                <div className="flex items-center gap-1 text-xs text-secondary font-paragraph mb-2">
+                  <MapPin size={14} />
+                  {job?.locationAddress}
+                </div>
+                {distance && (
+                  <p className="font-paragraph text-xs text-accent font-semibold mb-2">
+                    📍 {distance.toFixed(1)} km de distancia
+                  </p>
+                )}
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <p className="font-heading text-sm font-bold text-secondary">
+                    RD$ {job?.budget?.toLocaleString()}
+                  </p>
+                  <button
+                    onClick={() => hoveredJobId && onJobSelect(hoveredJobId)}
+                    className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-secondary to-accent text-white rounded-lg text-xs font-semibold hover:shadow-md transition-shadow"
+                  >
+                    Ver
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </motion.div>
       )}
 
