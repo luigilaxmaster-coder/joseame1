@@ -1,11 +1,19 @@
 import { useMember } from '@/integrations';
 import { motion } from 'framer-motion';
 import { LogIn, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
-  const { actions } = useMember();
+  const { actions, isAuthenticated } = useMember();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/role-selection');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
