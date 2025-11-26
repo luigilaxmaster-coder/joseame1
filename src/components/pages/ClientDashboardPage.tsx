@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
 import { Plus, MapPin, List, Map, Search, Filter, LogOut, User, Briefcase, MessageSquare } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -10,12 +11,14 @@ import { Image } from '@/components/ui/image';
 export default function ClientDashboardPage() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
+  const { setUserRole } = useRoleStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   useEffect(() => {
+    setUserRole('client');
     loadJobs();
   }, []);
 

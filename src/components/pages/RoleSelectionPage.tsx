@@ -3,16 +3,20 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, Search, ArrowRight } from 'lucide-react';
 import { useMember } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 
 export default function RoleSelectionPage() {
   const navigate = useNavigate();
   const { member } = useMember();
   const [selectedRole, setSelectedRole] = useState<'client' | 'joseador' | null>(null);
+  const { setUserRole } = useRoleStore();
 
   const handleContinue = () => {
     if (selectedRole === 'client') {
+      setUserRole('client');
       navigate('/client/onboarding');
     } else if (selectedRole === 'joseador') {
+      setUserRole('joseador');
       navigate('/joseador/onboarding');
     }
   };

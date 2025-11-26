@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 import { ArrowLeft, User, Mail, Calendar, Shield } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 export default function ProfilePage() {
   const { member, actions } = useMember();
+  const { userRole, setUserRole } = useRoleStore();
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,24 +109,28 @@ export default function ProfilePage() {
               Cambiar Rol
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Link to="/client/dashboard">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-primary to-secondary text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-                >
-                  Ir a Dashboard Cliente
-                </motion.button>
-              </Link>
-              <Link to="/joseador/dashboard">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-secondary to-accent text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-                >
-                  Ir a Dashboard Joseador
-                </motion.button>
-              </Link>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setUserRole('client');
+                  window.location.href = '/client/dashboard';
+                }}
+                className="w-full px-6 py-4 bg-gradient-to-r from-primary to-secondary text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
+                Ir a Dashboard Cliente
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setUserRole('joseador');
+                  window.location.href = '/joseador/dashboard';
+                }}
+                className="w-full px-6 py-4 bg-gradient-to-r from-secondary to-accent text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
+                Ir a Dashboard Joseador
+              </motion.button>
             </div>
           </div>
 

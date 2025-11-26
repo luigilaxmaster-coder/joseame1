@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
+import { useMember } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -9,6 +11,8 @@ import { Image } from '@/components/ui/image';
 export default function JobDetailsPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const { member } = useMember();
+  const { userRole } = useRoleStore();
   const [job, setJob] = useState<TrabajosdeServicio | null>(null);
   const [applications, setApplications] = useState<JobApplications[]>([]);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
@@ -42,6 +46,7 @@ export default function JobDetailsPage() {
     const newApplication: JobApplications = {
       _id: crypto.randomUUID(),
       jobId: jobId,
+      joseadorId: member?.loginEmail,
       status: 'pending',
       applicationDate: new Date().toISOString(),
       coverLetter: applicationData.coverLetter,
@@ -51,6 +56,14 @@ export default function JobDetailsPage() {
     await BaseCrudService.create('jobapplications', newApplication);
     setShowApplicationForm(false);
     setApplicationData({ coverLetter: '', proposedPrice: '' });
+    loadApplications();
+  };
+
+  const handleApplicationAction = async (applicationId: string, action: 'accepted' | 'rejected') => {
+    await BaseCrudService.update('jobapplications', {
+      _id: applicationId,
+      status: action
+    });
     loadApplications();
   };
 
@@ -173,7 +186,7 @@ export default function JobDetailsPage() {
                           </span>
                         </div>
                         <p className="font-paragraph text-foreground">{app.coverLetter}</p>
-                        <div className="mt-3 pt-3 border-t border-border">
+                        <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
                             app.status === 'pending' ? 'bg-primary/10 text-primary' :
                             app.status === 'accepted' ? 'bg-accent/10 text-accent' :
@@ -183,6 +196,22 @@ export default function JobDetailsPage() {
                              app.status === 'accepted' ? 'Aceptada' :
                              'Rechazada'}
                           </span>
+                          {userRole === 'client' && app.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleApplicationAction(app._id, 'accepted')}
+                                className="px-3 py-1 bg-accent text-white text-xs font-paragraph rounded-lg hover:bg-accent/90 transition-colors"
+                              >
+                                Aceptar
+                              </button>
+                              <button
+                                onClick={() => handleApplicationAction(app._id, 'rejected')}
+                                className="px-3 py-1 bg-destructive text-white text-xs font-paragraph rounded-lg hover:bg-destructive/90 transition-colors"
+                              >
+                                Rechazar
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -200,75 +229,88 @@ export default function JobDetailsPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="bg-white rounded-2xl p-6 border border-border shadow-lg sticky top-24"
             >
-              <h3 className="font-heading text-xl font-bold text-foreground mb-4">
-                Aplicar a este Trabajo
-              </h3>
+              {userRole === 'joseador' ? (
+                <>
+                  <h3 className="font-heading text-xl font-bold text-foreground mb-4">
+                    Aplicar a este Trabajo
+                  </h3>
 
-              {!showApplicationForm ? (
-                <div>
-                  <p className="font-paragraph text-muted-text mb-6">
-                    Envía tu propuesta para este trabajo y destaca entre los demás Joseadores.
+                  {!showApplicationForm ? (
+                    <div>
+                      <p className="font-paragraph text-muted-text mb-6">
+                        Envía tu propuesta para este trabajo y destaca entre los demás Joseadores.
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowApplicationForm(true)}
+                        className="w-full px-6 py-4 bg-gradient-to-r from-secondary via-accent to-support text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+                      >
+                        Aplicar Ahora
+                      </motion.button>
+                      <p className="font-paragraph text-xs text-muted-text text-center mt-4">
+                        Costo: 1 piquete
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleApply} className="space-y-4">
+                      <div>
+                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
+                          Tu Propuesta de Precio (RD$)
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="0.01"
+                          value={applicationData.proposedPrice}
+                          onChange={(e) => setApplicationData({ ...applicationData, proposedPrice: e.target.value })}
+                          placeholder="5000"
+                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
+                          Carta de Presentación
+                        </label>
+                        <textarea
+                          required
+                          value={applicationData.coverLetter}
+                          onChange={(e) => setApplicationData({ ...applicationData, coverLetter: e.target.value })}
+                          placeholder="Explica por qué eres el mejor candidato..."
+                          rows={5}
+                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowApplicationForm(false)}
+                          className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph font-semibold hover:bg-background transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow"
+                        >
+                          Enviar
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </>
+              ) : (
+                <div className="text-center">
+                  <p className="font-paragraph text-muted-text mb-4">
+                    Como cliente, puedes aceptar o rechazar las aplicaciones que recibas.
                   </p>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowApplicationForm(true)}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-secondary via-accent to-support text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-                  >
-                    Aplicar Ahora
-                  </motion.button>
-                  <p className="font-paragraph text-xs text-muted-text text-center mt-4">
-                    Costo: 1 piquete
+                  <p className="font-paragraph text-sm text-muted-text">
+                    Revisa las aplicaciones en la sección de abajo.
                   </p>
                 </div>
-              ) : (
-                <form onSubmit={handleApply} className="space-y-4">
-                  <div>
-                    <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                      Tu Propuesta de Precio (RD$)
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      step="0.01"
-                      value={applicationData.proposedPrice}
-                      onChange={(e) => setApplicationData({ ...applicationData, proposedPrice: e.target.value })}
-                      placeholder="5000"
-                      className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                      Carta de Presentación
-                    </label>
-                    <textarea
-                      required
-                      value={applicationData.coverLetter}
-                      onChange={(e) => setApplicationData({ ...applicationData, coverLetter: e.target.value })}
-                      placeholder="Explica por qué eres el mejor candidato..."
-                      rows={5}
-                      className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowApplicationForm(false)}
-                      className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph font-semibold hover:bg-background transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow"
-                    >
-                      Enviar
-                    </button>
-                  </div>
-                </form>
               )}
             </motion.div>
           </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
 import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -10,6 +11,7 @@ import { Image } from '@/components/ui/image';
 export default function JoseadorDashboardPage() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
+  const { setUserRole } = useRoleStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -17,6 +19,7 @@ export default function JoseadorDashboardPage() {
   const [piquetesBalance] = useState(5);
 
   useEffect(() => {
+    setUserRole('joseador');
     loadJobs();
   }, []);
 
