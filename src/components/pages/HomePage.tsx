@@ -156,7 +156,7 @@ export default function HomePage() {
                 JOSEAME
               </h1>
               <p className="font-heading text-2xl md:text-3xl text-white mb-8" style={{ textShadow: '0 2px 5px rgba(0,0,0,0.2)' }}>
-                La infraestructura digital del joseo.
+                Trabajo cerca, rápido y fácil.
               </p>
               <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto">
                 Conectamos clientes con los mejores profesionales de República Dominicana. Publica un trabajo o encuentra tu próximo joseo en minutos.
@@ -317,9 +317,7 @@ export default function HomePage() {
           <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-12 md:p-20 text-center relative overflow-hidden">
             <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
             <AnimatedElement className="relative z-10">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
-                ¿Listo para resolver o josear?
-              </h2>
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">{"¿Listo para josear?"}</h2>
               <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
                 Únete a miles de dominicanos que ya están transformando la forma en que trabajan.
               </p>
