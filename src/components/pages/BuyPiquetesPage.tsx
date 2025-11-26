@@ -27,6 +27,51 @@ export default function BuyPiquetesPage() {
     }
   };
 
+  // Pricing tiers configuration
+  const pricingTiers = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      subtitle: 'Perfecto para comenzar',
+      price: 500,
+      credits: 10,
+      gradient: 'from-primary to-primary/80',
+      textColor: 'text-white',
+      features: ['10 piquetes', 'Sin expiración', 'Soporte básico']
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      subtitle: 'Para profesionales activos',
+      price: 1200,
+      credits: 30,
+      gradient: 'from-secondary to-secondary/80',
+      textColor: 'text-white',
+      features: ['30 piquetes', 'Sin expiración', 'Soporte prioritario']
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      subtitle: 'La mejor opción',
+      price: 2400,
+      credits: 75,
+      gradient: 'from-accent to-accent/80',
+      textColor: 'text-foreground',
+      featured: true,
+      features: ['75 piquetes', 'Sin expiración', 'Soporte 24/7']
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      subtitle: 'Para máximo crecimiento',
+      price: 4500,
+      credits: 200,
+      gradient: 'from-support to-support/80',
+      textColor: 'text-white',
+      features: ['200 piquetes', 'Sin expiración', 'Soporte VIP']
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -40,90 +85,97 @@ export default function BuyPiquetesPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-[1200px] mx-auto px-6 py-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
               Comprar Piquetes
             </h1>
-            <p className="font-paragraph text-lg text-muted-text">
-              Elige el paquete que mejor se adapte a tus necesidades
+            <p className="font-paragraph text-lg text-muted-text max-w-2xl mx-auto">
+              Elige el plan perfecto para potenciar tu negocio y aplicar a más trabajos
             </p>
           </div>
 
-          {/* Packages Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {packages.map((pkg, index) => (
+          {/* Pricing Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {pricingTiers.map((tier, index) => (
               <motion.div
-                key={pkg._id}
+                key={tier.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -8 }}
-                onClick={() => setSelectedPackage(pkg._id)}
-                className={`bg-white rounded-2xl p-8 border-2 cursor-pointer transition-all ${
-                  selectedPackage === pkg._id
-                    ? 'border-secondary shadow-xl'
-                    : 'border-border shadow-sm hover:shadow-lg'
+                onClick={() => setSelectedPackage(tier.id)}
+                className={`relative rounded-[24px] overflow-hidden transition-all cursor-pointer ${
+                  tier.featured ? 'lg:scale-105' : ''
+                } ${
+                  selectedPackage === tier.id
+                    ? `ring-2 shadow-xl ${
+                        tier.id === 'starter' ? 'ring-primary' :
+                        tier.id === 'business' ? 'ring-secondary' :
+                        tier.id === 'professional' ? 'ring-accent' :
+                        'ring-support'
+                      }`
+                    : 'shadow-sm hover:shadow-lg'
                 }`}
               >
-                {pkg.packageImage && (
-                  <div className="w-full h-32 mb-6 rounded-xl overflow-hidden bg-background">
-                    <Image src={pkg.packageImage} alt={pkg.name} className="w-full h-full object-cover" />
+                {/* Ribbon for Professional */}
+                {tier.featured && (
+                  <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden">
+                    <div className="absolute top-2 right-[-35px] w-32 bg-accent text-foreground text-xs font-heading font-bold py-1 px-8 transform rotate-45 flex items-center justify-center">
+                      RECOMENDADO
+                    </div>
                   </div>
                 )}
-                
-                <div className="text-center mb-6">
-                  <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
-                    {pkg.name}
+
+                <div className={`bg-gradient-to-br ${tier.gradient} p-8 h-full flex flex-col`}>
+                  <h3 className={`font-heading text-2xl font-bold ${tier.textColor} mb-2`}>
+                    {tier.name}
                   </h3>
-                  <p className="font-paragraph text-muted-text mb-4">
-                    {pkg.description}
+                  <p className={`font-paragraph ${tier.textColor === 'text-white' ? 'text-white/80' : 'text-foreground/80'} text-sm mb-6`}>
+                    {tier.subtitle}
                   </p>
-                  <div className="mb-4">
-                    <span className="font-heading text-5xl font-bold text-secondary">
-                      {pkg.credits}
-                    </span>
-                    <span className="font-paragraph text-muted-text ml-2">piquetes</span>
+                  
+                  {/* Price Pill */}
+                  <div className="bg-white rounded-full px-6 py-3 mb-8 text-center">
+                    <div className="font-heading text-2xl font-bold text-foreground">
+                      RD$ {tier.price.toLocaleString()}
+                    </div>
+                    <div className="font-paragraph text-xs text-muted-text">por compra</div>
                   </div>
-                  <div className="mb-6">
-                    <span className="font-heading text-3xl font-bold text-foreground">
-                      RD$ {pkg.price?.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-2 text-foreground">
-                    <Check size={20} className="text-accent" />
-                    <span className="font-paragraph">{pkg.credits} aplicaciones a trabajos</span>
+                  {/* Features */}
+                  <div className="space-y-3 mb-8 flex-grow">
+                    {tier.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <span className={`font-paragraph ${tier.textColor} text-sm`}>
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2 text-foreground">
-                    <Check size={20} className="text-accent" />
-                    <span className="font-paragraph">Sin fecha de expiración</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-foreground">
-                    <Check size={20} className="text-accent" />
-                    <span className="font-paragraph">Soporte prioritario</span>
-                  </div>
-                </div>
 
-                {selectedPackage === pkg._id && (
-                  <div className="flex items-center justify-center gap-2 text-secondary font-paragraph font-semibold">
-                    <Check size={20} />
-                    <span>Seleccionado</span>
-                  </div>
-                )}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full px-6 py-3 bg-foreground text-white font-heading font-semibold rounded-xl transition-all hover:bg-foreground/90"
+                  >
+                    Comprar piquetes
+                  </motion.button>
+                </div>
               </motion.div>
             ))}
           </div>
 
           {/* Purchase Button */}
-          <div className="text-center">
+          <div className="text-center mb-16">
             <motion.button
               whileHover={{ scale: selectedPackage ? 1.05 : 1 }}
               whileTap={{ scale: selectedPackage ? 0.95 : 1 }}
@@ -131,7 +183,7 @@ export default function BuyPiquetesPage() {
               disabled={!selectedPackage}
               className={`px-12 py-5 font-heading text-lg font-semibold rounded-xl transition-all ${
                 selectedPackage
-                  ? 'bg-gradient-to-r from-secondary via-accent to-support text-white shadow-lg hover:shadow-xl cursor-pointer'
+                  ? 'bg-foreground text-white shadow-lg hover:shadow-xl cursor-pointer'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
@@ -144,7 +196,7 @@ export default function BuyPiquetesPage() {
           </div>
 
           {/* Info Section */}
-          <div className="mt-16 bg-gradient-to-r from-secondary/10 via-accent/10 to-support/10 rounded-2xl p-8">
+          <div className="bg-gradient-to-r from-secondary/10 via-accent/10 to-support/10 rounded-2xl p-8">
             <h2 className="font-heading text-2xl font-bold text-foreground mb-4">
               ¿Cómo funcionan los piquetes?
             </h2>
