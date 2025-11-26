@@ -303,7 +303,7 @@ export default function HomePage() {
                       <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent"></div>
                     </div>
-                    <h3 className="font-heading text-2xl font-semibold text-foreground -mt-12 ml-6 relative z-10 text-white">{category.name}</h3>
+                    <h3 className="font-heading text-2xl font-semibold -mt-12 ml-6 relative z-10 text-primary-foreground">{category.name}</h3>
                   </motion.div>
                 </AnimatedElement>
               ))}
