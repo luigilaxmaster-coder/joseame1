@@ -295,6 +295,54 @@ export default function JobDetailsPage() {
                           placeholder="5000"
                           className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
                         />
+                        
+                        {/* Piquete Calculator */}
+                        {applicationData.proposedPrice && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-lg"
+                          >
+                            {(() => {
+                              const proposedAmount = parseFloat(applicationData.proposedPrice);
+                              const basePiquetes = Math.max(1, Math.ceil(proposedAmount / 1000));
+                              const expertiseMultipliers: Record<ExpertiseLevel, number> = {
+                                beginner: 1.0,
+                                intermediate: 1.25,
+                                expert: 1.5,
+                              };
+                              const multiplier = expertiseMultipliers[expertiseLevel];
+                              const totalPiquetes = Math.ceil(basePiquetes * multiplier);
+                              const expertiseAdjustment = Math.round((multiplier - 1) * 100);
+
+                              return (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-paragraph text-sm text-foreground">
+                                      Cálculo de Piquetes:
+                                    </span>
+                                    <span className="font-heading text-lg font-bold text-secondary">
+                                      {totalPiquetes} piquete{totalPiquetes > 1 ? 's' : ''}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-muted-text space-y-1">
+                                    <p>
+                                      • Base: {basePiquetes} piquete{basePiquetes > 1 ? 's' : ''} (RD$ {proposedAmount.toLocaleString()} ÷ 1000)
+                                    </p>
+                                    {expertiseLevel !== 'beginner' && (
+                                      <p>
+                                        • Ajuste por nivel {expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}: +{expertiseAdjustment}%
+                                      </p>
+                                    )}
+                                    <p className="pt-1 font-paragraph font-semibold text-secondary">
+                                      Total: {totalPiquetes} piquete{totalPiquetes > 1 ? 's' : ''} se cobrarán de tu cuenta
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </motion.div>
+                        )}
                       </div>
 
                       <div>
