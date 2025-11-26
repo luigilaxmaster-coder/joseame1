@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Plus, MapPin, List, Map, Search, Filter, LogOut, User, Briefcase, MessageSquare } from 'lucide-react';
+import { Plus, MapPin, List, Map, Search, Filter, LogOut, User, Briefcase, MessageSquare, RefreshCw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 export default function ClientDashboardPage() {
@@ -57,6 +57,18 @@ export default function ClientDashboardPage() {
               </Link>
             </nav>
             <div className="flex items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setUserRole('joseador');
+                  navigate('/joseador/dashboard');
+                }}
+                className="p-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-lg transition-all"
+                title="Cambiar a Joseador"
+              >
+                <RefreshCw size={20} className="text-white" />
+              </motion.button>
               <Link to="/profile">
                 <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-background transition-colors">
                   <User size={20} className="text-muted-text" />

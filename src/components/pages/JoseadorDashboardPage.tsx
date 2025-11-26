@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map } from 'lucide-react';
+import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import JobsMap from '@/components/JobsMap';
 
@@ -65,6 +65,18 @@ export default function JoseadorDashboardPage() {
               </Link>
             </nav>
             <div className="flex items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setUserRole('client');
+                  navigate('/client/dashboard');
+                }}
+                className="p-2 rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all"
+                title="Cambiar a Cliente"
+              >
+                <RefreshCw size={20} className="text-white" />
+              </motion.button>
               <Link to="/profile">
                 <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-background transition-colors">
                   <User size={20} className="text-muted-text" />
