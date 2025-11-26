@@ -5,8 +5,9 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart } from 'lucide-react';
+import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map } from 'lucide-react';
 import { Image } from '@/components/ui/image';
+import JobsMap from '@/components/JobsMap';
 
 export default function JoseadorDashboardPage() {
   const { member, actions } = useMember();
@@ -17,6 +18,8 @@ export default function JoseadorDashboardPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [walletBalance] = useState(0);
   const [piquetesBalance] = useState(5);
+  const [showMap, setShowMap] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<string | undefined>();
 
   useEffect(() => {
     setUserRole('joseador');
@@ -159,7 +162,7 @@ export default function JoseadorDashboardPage() {
 
         {/* Search and Filters */}
         <div className="bg-white rounded-2xl p-6 border border-border shadow-sm mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text" size={20} />
               <input
@@ -180,8 +183,39 @@ export default function JoseadorDashboardPage() {
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowMap(!showMap)}
+              className={`px-6 py-3 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+                showMap
+                  ? 'bg-secondary text-white'
+                  : 'bg-background border border-border text-foreground hover:bg-border'
+              }`}
+            >
+              <Map size={20} />
+              {showMap ? 'Ver Lista' : 'Ver Mapa'}
+            </motion.button>
           </div>
         </div>
+
+        {/* Map View */}
+        {showMap && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <JobsMap
+              jobs={filteredJobs}
+              onJobSelect={(jobId) => {
+                setSelectedJobId(jobId);
+                navigate(`/job/${jobId}`);
+              }}
+              selectedJobId={selectedJobId}
+            />
+          </motion.div>
+        )}
 
         {/* Jobs Feed */}
         <div className="space-y-4">
