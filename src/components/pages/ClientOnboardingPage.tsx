@@ -1,22 +1,31 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { useRoleStore } from '@/store/roleStore';
+import { ArrowRight, CheckCircle, CheckSquare, Square } from 'lucide-react';
 
 export default function ClientOnboardingPage() {
   const navigate = useNavigate();
+  const { setClientOnboardingCompleted } = useRoleStore();
   const [step, setStep] = useState(1);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSteps = 3;
 
   const handleNext = () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
+      if (dontShowAgain) {
+        setClientOnboardingCompleted(true);
+      }
       navigate('/client/dashboard');
     }
   };
 
   const handleSkip = () => {
+    if (dontShowAgain) {
+      setClientOnboardingCompleted(true);
+    }
     navigate('/client/dashboard');
   };
 
@@ -180,6 +189,23 @@ export default function ClientOnboardingPage() {
             {step === totalSteps ? 'Ir al Dashboard' : 'Continuar'}
             <ArrowRight className="inline-block ml-2" size={20} />
           </motion.button>
+
+          {/* Checkbox and Button Section */}
+          <label className="flex items-center gap-3 cursor-pointer group mt-6 p-4 bg-background rounded-xl hover:bg-border/50 transition-colors">
+            <button
+              onClick={() => setDontShowAgain(!dontShowAgain)}
+              className="flex-shrink-0 transition-colors"
+            >
+              {dontShowAgain ? (
+                <CheckSquare size={20} className="text-primary" />
+              ) : (
+                <Square size={20} className="text-border group-hover:text-muted-text" />
+              )}
+            </button>
+            <span className="font-paragraph text-sm text-muted-text group-hover:text-foreground transition-colors">
+              No volver a mostrar este onboarding
+            </span>
+          </label>
         </motion.div>
       </div>
     </div>

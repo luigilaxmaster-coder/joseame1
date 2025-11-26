@@ -1,22 +1,31 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Wallet } from 'lucide-react';
+import { useRoleStore } from '@/store/roleStore';
+import { ArrowRight, CheckCircle, Wallet, CheckSquare, Square } from 'lucide-react';
 
 export default function JoseadorOnboardingPage() {
   const navigate = useNavigate();
+  const { setJoseadorOnboardingCompleted } = useRoleStore();
   const [step, setStep] = useState(1);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSteps = 3;
 
   const handleNext = () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
+      if (dontShowAgain) {
+        setJoseadorOnboardingCompleted(true);
+      }
       navigate('/joseador/dashboard');
     }
   };
 
   const handleSkip = () => {
+    if (dontShowAgain) {
+      setJoseadorOnboardingCompleted(true);
+    }
     navigate('/joseador/dashboard');
   };
 
@@ -187,6 +196,23 @@ export default function JoseadorOnboardingPage() {
             {step === totalSteps ? 'Ir al Dashboard' : 'Continuar'}
             <ArrowRight className="inline-block ml-2" size={20} />
           </motion.button>
+
+          {/* Checkbox and Button Section */}
+          <label className="flex items-center gap-3 cursor-pointer group mt-6 p-4 bg-background rounded-xl hover:bg-border/50 transition-colors">
+            <button
+              onClick={() => setDontShowAgain(!dontShowAgain)}
+              className="flex-shrink-0 transition-colors"
+            >
+              {dontShowAgain ? (
+                <CheckSquare size={20} className="text-secondary" />
+              ) : (
+                <Square size={20} className="text-border group-hover:text-muted-text" />
+              )}
+            </button>
+            <span className="font-paragraph text-sm text-muted-text group-hover:text-foreground transition-colors">
+              No volver a mostrar este onboarding
+            </span>
+          </label>
         </motion.div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-rou
 import { ScrollToTop } from '@/lib/scroll-to-top';
 import ErrorPage from '@/integrations/errorHandlers/ErrorPage';
 import { MemberProtectedRoute } from '@/components/ui/member-protected-route';
+import { useRoleStore } from '@/store/roleStore';
 
 // Pages
 import HomePage from '@/components/pages/HomePage';
@@ -34,6 +35,24 @@ function Layout() {
       <Outlet />
     </>
   );
+}
+
+// Redirect component for client onboarding
+function ClientOnboardingRedirect() {
+  const { clientOnboardingCompleted } = useRoleStore();
+  if (clientOnboardingCompleted) {
+    return <Navigate to="/client/dashboard" replace />;
+  }
+  return <ClientOnboardingPage />;
+}
+
+// Redirect component for joseador onboarding
+function JoseadorOnboardingRedirect() {
+  const { joseadorOnboardingCompleted } = useRoleStore();
+  if (joseadorOnboardingCompleted) {
+    return <Navigate to="/joseador/dashboard" replace />;
+  }
+  return <JoseadorOnboardingPage />;
 }
 
 const router = createBrowserRouter([
@@ -75,7 +94,7 @@ const router = createBrowserRouter([
         path: "client/onboarding",
         element: (
           <MemberProtectedRoute>
-            <ClientOnboardingPage />
+            <ClientOnboardingRedirect />
           </MemberProtectedRoute>
         ),
       },
@@ -116,7 +135,7 @@ const router = createBrowserRouter([
         path: "joseador/onboarding",
         element: (
           <MemberProtectedRoute>
-            <JoseadorOnboardingPage />
+            <JoseadorOnboardingRedirect />
           </MemberProtectedRoute>
         ),
       },
