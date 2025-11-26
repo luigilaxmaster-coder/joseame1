@@ -75,7 +75,6 @@ export default function ClientDashboardPage() {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-6 py-8">
         {/* Welcome Section */}
@@ -104,8 +103,8 @@ export default function ClientDashboardPage() {
             <Link to="/client/my-jobs">
               <div className="bg-white rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg transition-shadow">
                 <Briefcase size={32} className="text-secondary mb-3" />
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-2">Mis Trabajos</h3>
-                <p className="font-paragraph text-muted-text">Ver trabajos activos y completados</p>
+                <h3 className="font-heading text-xl font-semibold text-foreground mb-2">{"Mis Solicitudes"}</h3>
+                <p className="font-paragraph text-muted-text">{"Mis Solicitudes"}</p>
               </div>
             </Link>
           </motion.div>
