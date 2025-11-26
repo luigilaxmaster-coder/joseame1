@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
-import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, MessageSquare, Send, User } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X } from 'lucide-react';
 
 interface Chat {
   id: string;
@@ -13,6 +12,7 @@ interface Chat {
   time: string;
   unread: number;
   otherUserId: string;
+  avatar?: string;
 }
 
 interface Message {
@@ -22,23 +22,45 @@ interface Message {
   time: string;
 }
 
+interface PendingRequest {
+  id: string;
+  type: 'completion' | 'renegotiate';
+  title: string;
+  expiresIn: number; // seconds
+}
+
 export default function InboxPage() {
   const { member } = useMember();
-  const navigate = useNavigate();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingRequest, setPendingRequest] = useState<PendingRequest | null>(null);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     loadChats();
   }, [member]);
 
+  useEffect(() => {
+    if (!pendingRequest) return;
+    
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          setPendingRequest(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [pendingRequest]);
+
   const loadChats = async () => {
     try {
       setLoading(true);
-      // For now, we'll use mock data
-      // In a real app, you'd fetch chats from a database
       const mockChats: Chat[] = [
         {
           id: '1',
@@ -57,9 +79,26 @@ export default function InboxPage() {
           time: 'Ayer',
           unread: 0,
           otherUserId: 'user-2'
+        },
+        {
+          id: '3',
+          name: 'Carlos López',
+          jobTitle: 'Pintura de casa',
+          lastMessage: 'El trabajo está casi listo',
+          time: 'Hace 2h',
+          unread: 1,
+          otherUserId: 'user-3'
         }
       ];
       setChats(mockChats);
+      setSelectedChat('1');
+      setPendingRequest({
+        id: '1',
+        type: 'completion',
+        title: 'Confirmar trabajo completado',
+        expiresIn: 300
+      });
+      setCountdown(300);
     } catch (error) {
       console.error('Error loading chats:', error);
     } finally {
@@ -81,158 +120,239 @@ export default function InboxPage() {
     }
   };
 
+  const formatCountdown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const getBackLink = () => {
-    // Determine which dashboard to go back to based on user role
-    // This would be better with a role store
     return '/client/dashboard';
   };
 
+  const selectedChatData = chats.find(c => c.id === selectedChat);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f5f5]">
       {/* Header */}
-      <header className="bg-white border-b border-border">
-        <div className="max-w-[100rem] mx-auto px-6 py-4">
+      <header className="bg-white border-b border-border sticky top-0 z-40">
+        <div className="max-w-[120rem] mx-auto px-6 py-4">
           <Link to={getBackLink()} className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors">
             <ArrowLeft size={20} />
-            <span className="font-paragraph">Volver</span>
+            <span className="font-paragraph text-sm">Volver</span>
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-[100rem] mx-auto px-6 py-8">
+      <div className="max-w-[120rem] mx-auto px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="h-[calc(100vh-180px)]"
         >
-          <h1 className="font-heading text-4xl font-bold text-foreground mb-8">
+          <h1 className="font-heading text-5xl font-bold text-foreground mb-8">
             Mis Mensajes
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-250px)]">
-            {/* Chat List */}
-            <div className="lg:col-span-1 bg-white rounded-2xl border border-border shadow-lg overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h2 className="font-heading text-xl font-semibold text-foreground">
+          <div className="flex gap-6 h-[calc(100vh-280px)]">
+            {/* Chat List - 25-30% */}
+            <div className="w-[28%] bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+              <div className="p-5 border-b border-border">
+                <h2 className="font-heading text-lg font-semibold text-foreground">
                   Conversaciones
                 </h2>
               </div>
-              <div className="overflow-y-auto h-full">
+              <div className="overflow-y-auto flex-1">
                 {loading ? (
                   <div className="p-4 text-center">
-                    <p className="font-paragraph text-muted-text">Cargando conversaciones...</p>
+                    <p className="font-paragraph text-sm text-muted-text">Cargando...</p>
                   </div>
                 ) : chats.length === 0 ? (
                   <div className="p-4 text-center">
-                    <p className="font-paragraph text-muted-text">No tienes conversaciones aún</p>
+                    <p className="font-paragraph text-sm text-muted-text">No tienes conversaciones</p>
                   </div>
                 ) : (
                   chats.map((chat) => (
-                    <div
+                    <motion.div
                       key={chat.id}
+                      whileHover={{ backgroundColor: selectedChat === chat.id ? undefined : '#fafafa' }}
                       onClick={() => setSelectedChat(chat.id)}
-                      className={`p-4 border-b border-border cursor-pointer transition-colors ${
-                        selectedChat === chat.id ? 'bg-primary/5' : 'hover:bg-background'
+                      className={`p-4 border-b border-border cursor-pointer transition-all ${
+                        selectedChat === chat.id 
+                          ? 'bg-primary/8 border-l-4 border-l-primary' 
+                          : 'hover:bg-[#fafafa]'
                       }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
-                          <User size={24} className="text-white" />
+                          <User size={22} className="text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-heading font-semibold text-foreground truncate">
+                            <h3 className="font-heading font-semibold text-foreground text-sm truncate">
                               {chat.name}
                             </h3>
-                            <span className="font-paragraph text-xs text-muted-text flex-shrink-0">
+                            <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-2">
                               {chat.time}
                             </span>
                           </div>
-                          <p className="font-paragraph text-sm text-primary mb-1">
+                          <p className="font-paragraph text-xs text-primary mb-1 truncate">
                             {chat.jobTitle}
                           </p>
-                          <p className="font-paragraph text-sm text-muted-text truncate">
+                          <p className="font-paragraph text-xs text-muted-text truncate">
                             {chat.lastMessage}
                           </p>
                         </div>
                         {chat.unread > 0 && (
-                          <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0"
+                          >
                             <span className="font-paragraph text-xs text-white font-bold">
                               {chat.unread}
                             </span>
-                          </div>
+                          </motion.div>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   ))
                 )}
               </div>
             </div>
 
-            {/* Chat Window */}
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-lg flex flex-col overflow-hidden">
-              {selectedChat ? (
+            {/* Chat Window - 70-75% */}
+            <div className="flex-1 bg-white rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden">
+              {selectedChat && selectedChatData ? (
                 <>
                   {/* Chat Header */}
-                  <div className="p-4 border-b border-border">
+                  <div className="p-5 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                        <User size={20} className="text-white" />
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <User size={22} className="text-white" />
                       </div>
                       <div>
-                        <h3 className="font-heading font-semibold text-foreground">
-                          {chats.find(c => c.id === selectedChat)?.name}
+                        <h3 className="font-heading font-semibold text-foreground text-base">
+                          {selectedChatData.name}
                         </h3>
-                        <p className="font-paragraph text-sm text-muted-text">
-                          {chats.find(c => c.id === selectedChat)?.jobTitle}
+                        <p className="font-paragraph text-xs text-muted-text">
+                          {selectedChatData.jobTitle}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {/* Action Buttons Bar - Sticky */}
+                  <div className="px-5 py-3 bg-[#f9f9f9] border-b border-border flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
+                    >
+                      <DollarSign size={16} />
+                      Renegociar precio
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
+                    >
+                      <CheckCircle size={16} />
+                      Trabajo completado
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-destructive rounded-lg font-paragraph text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
+                    >
+                      <X size={16} />
+                      Cancelar joseo
+                    </motion.button>
+                  </div>
+
+                  {/* Messages Area */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#fafafa]">
                     {messages.map((msg) => (
-                      <div
+                      <motion.div
                         key={msg.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
                         className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                          className={`max-w-[65%] rounded-2xl px-4 py-3 ${
                             msg.sender === 'me'
-                              ? 'bg-gradient-to-r from-primary to-secondary text-white'
-                              : 'bg-background text-foreground'
+                              ? 'bg-primary text-white'
+                              : 'bg-[#e8e8e8] text-foreground'
                           }`}
                         >
-                          <p className="font-paragraph">{msg.text}</p>
-                          <p className={`font-paragraph text-xs mt-1 ${
+                          <p className="font-paragraph text-sm">{msg.text}</p>
+                          <p className={`font-paragraph text-xs mt-1.5 ${
                             msg.sender === 'me' ? 'text-white/70' : 'text-muted-text'
                           }`}>
                             {msg.time}
                           </p>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
+                  {/* Pending Request Banner - Sticky */}
+                  {pendingRequest && (
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="px-5 py-4 bg-primary/5 border-t border-primary/20 border-b border-primary/20"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-heading text-sm font-semibold text-foreground mb-1">
+                            {pendingRequest.title}
+                          </p>
+                          <p className="font-paragraph text-xs text-muted-text">
+                            Expira en: <span className="font-semibold text-primary">{formatCountdown(countdown)}</span>
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-xs font-semibold hover:bg-primary/90 transition-colors"
+                          >
+                            Aceptar
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setPendingRequest(null)}
+                            className="px-4 py-2 bg-white border border-border text-foreground rounded-lg font-paragraph text-xs font-semibold hover:bg-[#f5f5f5] transition-colors"
+                          >
+                            Rechazar
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Message Input */}
-                  <form onSubmit={handleSendMessage} className="p-4 border-t border-border">
+                  <form onSubmit={handleSendMessage} className="p-5 border-t border-border bg-white">
                     <div className="flex gap-3">
                       <input
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Escribe un mensaje..."
-                        className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="submit"
-                        className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow"
+                        className="px-5 py-3 bg-primary text-white rounded-xl font-paragraph font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
                       >
-                        <Send size={20} />
+                        <Send size={18} />
                       </motion.button>
                     </div>
                   </form>
