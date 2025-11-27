@@ -253,7 +253,7 @@ export default function HomePage() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="font-paragraph text-lg pt-2.5 text-primary-foreground">{item.text}</p>
+                        <p className="pt-2.5 text-[#030303] text-lg font-heading">{item.text}</p>
                       </div>
                     </AnimatedElement>
                   ))}
@@ -276,7 +276,7 @@ export default function HomePage() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="font-paragraph text-lg pt-2.5 text-primary-foreground">{item.text}</p>
+                        <p className="font-paragraph text-lg pt-2.5 text-foreground">{item.text}</p>
                       </div>
                     </AnimatedElement>
                   ))}
