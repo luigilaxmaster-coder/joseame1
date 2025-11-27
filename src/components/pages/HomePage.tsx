@@ -79,6 +79,7 @@ const FloatingOrbs = () => {
 export default function HomePage() {
   const features = [
     {
+      id: 'feature-fast-easy',
       icon: Zap,
       title: 'Rápido y Fácil',
       description: 'Publica trabajos o aplica a oportunidades en minutos con nuestra interfaz intuitiva.',
@@ -86,6 +87,7 @@ export default function HomePage() {
       bgColor: 'bg-primary/10'
     },
     {
+      id: 'feature-secure',
       icon: Shield,
       title: 'Seguro y Confiable',
       description: 'Con sistema de pagos protegido y perfiles verificados, tu tranquilidad es nuestra prioridad.',
@@ -93,6 +95,7 @@ export default function HomePage() {
       bgColor: 'bg-secondary/10'
     },
     {
+      id: 'feature-community',
       icon: Users,
       title: 'Comunidad Local',
       description: 'Conecta con el talento y los clientes de tu propia comunidad en República Dominicana.',
@@ -100,6 +103,7 @@ export default function HomePage() {
       bgColor: 'bg-accent/10'
     },
     {
+      id: 'feature-services',
       icon: Briefcase,
       title: 'Múltiples Servicios',
       description: 'Desde reparaciones del hogar y tecnología hasta consultoría profesional y creativa.',
@@ -109,26 +113,26 @@ export default function HomePage() {
   ];
 
   const clientSteps = [
-    { step: '1', text: 'Publica tu trabajo con detalles claros y tu presupuesto.' },
-    { step: '2', text: 'Recibe aplicaciones de Joseadores calificados y revisa sus perfiles.' },
-    { step: '3', text: 'Elige al mejor profesional y formaliza el acuerdo en la plataforma.' },
-    { step: '4', text: 'Realiza el pago de forma segura. Los fondos se liberan al completar el trabajo.' }
+    { id: 'client-step-1', step: '1', text: 'Publica tu trabajo con detalles claros y tu presupuesto.' },
+    { id: 'client-step-2', step: '2', text: 'Recibe aplicaciones de Joseadores calificados y revisa sus perfiles.' },
+    { id: 'client-step-3', step: '3', text: 'Elige al mejor profesional y formaliza el acuerdo en la plataforma.' },
+    { id: 'client-step-4', step: '4', text: 'Realiza el pago de forma segura. Los fondos se liberan al completar el trabajo.' }
   ];
 
   const joseadorSteps = [
-    { step: '1', text: 'Crea tu perfil profesional, destaca tus habilidades y verifica tu identidad.' },
-    { step: '2', text: 'Explora un feed de trabajos relevantes para ti, filtrados por categoría y ubicación.' },
-    { step: '3', text: 'Envía propuestas atractivas para los trabajos que te interesen.' },
-    { step: '4', text: 'Completa el trabajo con excelencia y recibe tu pago directamente en tu wallet.' }
+    { id: 'joseador-step-1', step: '1', text: 'Crea tu perfil profesional, destaca tus habilidades y verifica tu identidad.' },
+    { id: 'joseador-step-2', step: '2', text: 'Explora un feed de trabajos relevantes para ti, filtrados por categoría y ubicación.' },
+    { id: 'joseador-step-3', step: '3', text: 'Envía propuestas atractivas para los trabajos que te interesen.' },
+    { id: 'joseador-step-4', step: '4', text: 'Completa el trabajo con excelencia y recibe tu pago directamente en tu wallet.' }
   ];
   
   const popularCategories = [
-    { name: "Reparaciones del Hogar", image: "https://static.wixstatic.com/media/307f6c_61f95d8473ac41ca814dfe229da11d7c~mv2.png?originWidth=320&originHeight=448" },
-    { name: "Diseño Gráfico y Creativo", image: "https://static.wixstatic.com/media/307f6c_8ccdf3d4e86f4f5f8a61a88014e52c49~mv2.png?originWidth=320&originHeight=448" },
-    { name: "Desarrollo Web y App", image: "https://static.wixstatic.com/media/307f6c_f778337da6854a3dba5db8beb618ee53~mv2.png?originWidth=320&originHeight=448" },
-    { name: "Servicios de Limpieza", image: "https://static.wixstatic.com/media/307f6c_8c037a2899024e9aa708cadcc6975cb6~mv2.png?originWidth=320&originHeight=448" },
-    { name: "Consultoría de Negocios", image: "https://static.wixstatic.com/media/307f6c_e2795e63b1c2467b88994052f4fa0535~mv2.png?originWidth=320&originHeight=448" },
-    { name: "Clases y Tutorías", image: "https://static.wixstatic.com/media/307f6c_ca9a52e42a0c41b4b7a7518af1bc2036~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-home-repairs', name: "Reparaciones del Hogar", image: "https://static.wixstatic.com/media/307f6c_61f95d8473ac41ca814dfe229da11d7c~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-graphic-design', name: "Diseño Gráfico y Creativo", image: "https://static.wixstatic.com/media/307f6c_8ccdf3d4e86f4f5f8a61a88014e52c49~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-web-dev', name: "Desarrollo Web y App", image: "https://static.wixstatic.com/media/307f6c_f778337da6854a3dba5db8beb618ee53~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-cleaning', name: "Servicios de Limpieza", image: "https://static.wixstatic.com/media/307f6c_8c037a2899024e9aa708cadcc6975cb6~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-business', name: "Consultoría de Negocios", image: "https://static.wixstatic.com/media/307f6c_e2795e63b1c2467b88994052f4fa0535~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-tutoring', name: "Clases y Tutorías", image: "https://static.wixstatic.com/media/307f6c_ca9a52e42a0c41b4b7a7518af1bc2036~mv2.png?originWidth=320&originHeight=448" },
   ];
 
   return (
@@ -367,8 +371,8 @@ export default function HomePage() {
                 </AnimatedElement>
               </div>
               <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {features.map((feature, index) => (
-                  <AnimatedElement key={index} delay={index * 100}>
+                {features.map((feature) => (
+                  <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
                     <motion.div
                       whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300 } }}
                       className="card-hover bg-white rounded-2xl p-8 h-full border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
@@ -420,8 +424,8 @@ export default function HomePage() {
                   </div>
                 </AnimatedElement>
                 <div className="space-y-8 mt-8 lg:mt-0">
-                  {clientSteps.map((item, index) => (
-                    <AnimatedElement key={index} delay={index * 150}>
+                  {clientSteps.map((item) => (
+                    <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
                       <motion.div
                         whileHover={{ x: 8 }}
                         className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
@@ -446,8 +450,8 @@ export default function HomePage() {
                   </div>
                 </AnimatedElement>
                 <div className="space-y-8 mt-8 lg:mt-0">
-                  {joseadorSteps.map((item, index) => (
-                    <AnimatedElement key={index} delay={index * 150}>
+                  {joseadorSteps.map((item) => (
+                    <AnimatedElement key={item.id} delay={joseadorSteps.indexOf(item) * 150}>
                       <motion.div
                         whileHover={{ x: 8 }}
                         className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
@@ -479,8 +483,8 @@ export default function HomePage() {
           </div>
           <div className="w-full relative">
             <div className="flex gap-8 pb-8 px-6 md:px-12 overflow-x-auto">
-              {popularCategories.map((category, index) => (
-                <AnimatedElement key={index} delay={index * 100} className="flex-shrink-0 w-[300px] sm:w-[350px]">
+              {popularCategories.map((category) => (
+                <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[300px] sm:w-[350px]">
                   <motion.div whileHover={{ y: -8 }} className="group card-hover">
                     <div className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-lg category-card-mask">
                       <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={350} />
@@ -556,7 +560,7 @@ export default function HomePage() {
                   color: 'from-accent to-secondary'
                 }
               ].map((benefit, index) => (
-                <AnimatedElement key={index} delay={index * 100}>
+                <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
                   <motion.div
                     whileHover={{ y: -8 }}
                     className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-8 border border-border/50 shadow-sm hover:shadow-xl"
