@@ -21,10 +21,8 @@ export default function BuyPiquetesPage() {
     setPackages(activePackages);
   };
 
-  const handlePurchase = () => {
-    if (selectedPackage) {
-      navigate('/checkout', { state: { packageId: selectedPackage } });
-    }
+  const handlePurchase = (packageId: string) => {
+    navigate('/checkout', { state: { packageId } });
   };
 
   // Pricing tiers configuration
@@ -165,6 +163,7 @@ export default function BuyPiquetesPage() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => handlePurchase(tier.id)}
                     className="w-full px-6 py-3 bg-foreground text-white font-heading font-semibold rounded-xl transition-all hover:bg-foreground/90"
                   >
                     Comprar piquetes
@@ -179,7 +178,11 @@ export default function BuyPiquetesPage() {
             <motion.button
               whileHover={{ scale: selectedPackage ? 1.05 : 1 }}
               whileTap={{ scale: selectedPackage ? 0.95 : 1 }}
-              onClick={handlePurchase}
+              onClick={() => {
+                if (selectedPackage) {
+                  handlePurchase(selectedPackage);
+                }
+              }}
               disabled={!selectedPackage}
               className={`px-12 py-5 font-heading text-lg font-semibold rounded-xl transition-all ${
                 selectedPackage

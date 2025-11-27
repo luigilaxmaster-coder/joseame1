@@ -2,16 +2,27 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
+import { useMember } from '@/integrations';
 import { PiquetePackages } from '@/entities';
-import { ArrowLeft, CreditCard, Lock, Check } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Check, AlertCircle } from 'lucide-react';
+import { addPiquetes } from '@/lib/piquete-service';
 
 export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { member } = useMember();
   const packageId = location.state?.packageId;
   const [selectedPackage, setSelectedPackage] = useState<PiquetePackages | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [processing, setProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [cardData, setCardData] = useState({
+    cardNumber: '',
+    expiry: '',
+    cvv: '',
+    cardholderName: ''
+  });
 
   useEffect(() => {
     if (packageId) {
@@ -27,19 +38,93 @@ export default function CheckoutPage() {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    setProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    if (!selectedPackage || !member?.loginEmail) {
+      setPaymentError('Información incompleta. Por favor intenta de nuevo.');
+      return;
+    }
+
+    // Validate card data
+    if (!cardData.cardNumber || !cardData.expiry || !cardData.cvv || !cardData.cardholderName) {
+      setPaymentError('Por favor completa todos los campos de la tarjeta.');
+      return;
+    }
+
+    // Basic card validation
+    if (cardData.cardNumber.replace(/\s/g, '').length < 13) {
+      setPaymentError('Número de tarjeta inválido.');
+      return;
+    }
+
+    if (cardData.cvv.length < 3) {
+      setPaymentError('CVV inválido.');
+      return;
+    }
+
+    setProcessing(true);
+    setPaymentError(null);
+
+    try {
+      // Simulate payment processing (in production, this would call a payment gateway)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Add piquetes to user's balance
+      const addResult = await addPiquetes(
+        member.loginEmail,
+        selectedPackage.credits || 0,
+        member.profile?.nickname || member.loginEmail
+      );
+
+      if (!addResult.success) {
+        setPaymentError('Error al procesar la compra. Por favor intenta de nuevo.');
+        setProcessing(false);
+        return;
+      }
+
+      // Payment successful
+      setPaymentSuccess(true);
+
+      // Redirect to wallet after 2 seconds
+      setTimeout(() => {
+        navigate('/joseador/wallet', { state: { purchaseSuccess: true } });
+      }, 2000);
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError('Error al procesar el pago. Por favor intenta de nuevo.');
       setProcessing(false);
-      navigate('/joseador/wallet', { state: { purchaseSuccess: true } });
-    }, 2000);
+    }
   };
 
   if (!selectedPackage) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="font-paragraph text-muted-text">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (paymentSuccess) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-6">
+            <Check size={40} className="text-accent" />
+          </div>
+          <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
+            ¡Compra Exitosa!
+          </h1>
+          <p className="font-paragraph text-lg text-muted-text mb-6">
+            Se han agregado {selectedPackage.credits} piquetes a tu cuenta
+          </p>
+          <p className="font-paragraph text-sm text-muted-text">
+            Redirigiendo a tu wallet...
+          </p>
+        </motion.div>
       </div>
     );
   }
@@ -106,6 +191,8 @@ export default function CheckoutPage() {
                       type="text"
                       required
                       placeholder="1234 5678 9012 3456"
+                      value={cardData.cardNumber}
+                      onChange={(e) => setCardData({ ...cardData, cardNumber: e.target.value })}
                       className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
@@ -119,6 +206,8 @@ export default function CheckoutPage() {
                         type="text"
                         required
                         placeholder="MM/AA"
+                        value={cardData.expiry}
+                        onChange={(e) => setCardData({ ...cardData, expiry: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -130,6 +219,8 @@ export default function CheckoutPage() {
                         type="text"
                         required
                         placeholder="123"
+                        value={cardData.cvv}
+                        onChange={(e) => setCardData({ ...cardData, cvv: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -143,10 +234,24 @@ export default function CheckoutPage() {
                       type="text"
                       required
                       placeholder="Juan Pérez"
+                      value={cardData.cardholderName}
+                      onChange={(e) => setCardData({ ...cardData, cardholderName: e.target.value })}
                       className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
+
+                {/* Error Message */}
+                {paymentError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3"
+                  >
+                    <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="font-paragraph text-sm text-red-700">{paymentError}</p>
+                  </motion.div>
+                )}
 
                 {/* Security Notice */}
                 <div className="bg-accent/10 rounded-xl p-4 flex items-start gap-3">
