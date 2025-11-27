@@ -387,73 +387,91 @@ export default function JoseadorDashboardPage() {
                   variants={itemVariants}
                   whileHover={{ y: -12, transition: { duration: 0.3 } }}
                   onClick={() => navigate(`/job/${job._id}`)}
-                  className="group relative cursor-pointer"
+                  className="group relative cursor-pointer h-full"
                 >
                   {/* Card Glow Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all opacity-0 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all opacity-0 group-hover:opacity-100 -z-10" />
 
                   {/* Card Content */}
-                  <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/50 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col">
+                  <div className="relative bg-white rounded-3xl overflow-hidden border border-border shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col">
                     {/* Image Section */}
-                    {job.jobImage && (
-                      <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-secondary/20 to-accent/20">
+                    <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center flex-shrink-0">
+                      {job.jobImage ? (
                         <Image
                           src={job.jobImage}
-                          alt={job.jobTitle}
+                          alt={job.jobTitle || 'Trabajo'}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          width={300}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-2 text-secondary/50">
+                          <Briefcase size={40} />
+                          <span className="font-paragraph text-xs text-center">Sin imagen</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+                    </div>
 
                     {/* Content Section */}
-                    <div className="p-6 flex flex-col flex-grow">
+                    <div className="p-6 flex flex-col flex-grow gap-3">
                       {/* Category Badge */}
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="mb-4"
-                      >
-                        <span className="inline-block px-4 py-2 bg-gradient-to-r from-secondary/20 to-accent/20 text-secondary text-xs font-paragraph font-semibold rounded-full border border-secondary/20">
-                          {job.serviceCategory}
-                        </span>
-                      </motion.div>
+                      {job.serviceCategory && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 }}
+                        >
+                          <span className="inline-block px-4 py-2 bg-secondary/10 text-secondary text-xs font-paragraph font-semibold rounded-full border border-secondary/30">
+                            {job.serviceCategory}
+                          </span>
+                        </motion.div>
+                      )}
 
                       {/* Title */}
-                      <h3 className="font-heading text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-secondary transition-colors">
-                        {job.jobTitle}
-                      </h3>
+                      <div>
+                        <h3 className="font-heading text-lg font-bold text-foreground line-clamp-2 group-hover:text-secondary transition-colors">
+                          {job.jobTitle || 'Sin título'}
+                        </h3>
+                      </div>
 
                       {/* Description */}
-                      <p className="font-paragraph text-muted-text mb-4 line-clamp-2 flex-grow">
-                        {job.description}
-                      </p>
+                      {job.description && (
+                        <p className="font-paragraph text-sm text-muted-text line-clamp-2">
+                          {job.description}
+                        </p>
+                      )}
 
-                      {/* Location */}
-                      <div className="flex items-center gap-2 text-muted-text mb-4 pb-4 border-t border-border/50 pt-4">
-                        <MapPin size={16} className="text-secondary flex-shrink-0" />
-                        <span className="font-paragraph text-sm line-clamp-1">{job.locationAddress}</span>
+                      {/* Location and Budget */}
+                      <div className="space-y-2 py-3 border-t border-border/50 border-b border-border/50">
+                        {job.locationAddress && (
+                          <div className="flex items-center gap-2 text-muted-text">
+                            <MapPin size={14} className="text-secondary flex-shrink-0" />
+                            <span className="font-paragraph text-xs line-clamp-1">{job.locationAddress}</span>
+                          </div>
+                        )}
+                        {job.budget && (
+                          <div className="flex items-center justify-between">
+                            <span className="font-paragraph text-xs text-muted-text">Presupuesto:</span>
+                            <span className="font-heading text-lg font-bold text-secondary">
+                              RD$ {job.budget.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Budget and Action */}
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading text-2xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
-                          RD$ {job.budget?.toLocaleString()}
-                        </span>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/job/${job._id}`);
-                          }}
-                          className="px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-2xl font-paragraph font-semibold hover:shadow-lg transition-all flex items-center gap-2"
-                        >
-                          <Eye size={16} />
-                          Ver
-                        </motion.button>
-                      </div>
+                      {/* Action Button */}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/job/${job._id}`);
+                        }}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-auto"
+                      >
+                        <Eye size={16} />
+                        Ver Detalles
+                      </motion.button>
                     </div>
                   </div>
                 </motion.div>
