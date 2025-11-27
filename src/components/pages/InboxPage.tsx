@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
-import { ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X } from 'lucide-react';
+import { useRoleStore } from '@/store/roleStore';
+import { ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock } from 'lucide-react';
 
 interface Chat {
   id: string;
@@ -31,6 +32,7 @@ interface PendingRequest {
 
 export default function InboxPage() {
   const { member } = useMember();
+  const { userRole } = useRoleStore();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
@@ -127,10 +129,67 @@ export default function InboxPage() {
   };
 
   const getBackLink = () => {
-    return '/client/dashboard';
+    return userRole === 'joseador' ? '/joseador/dashboard' : '/client/dashboard';
   };
 
   const selectedChatData = chats.find(c => c.id === selectedChat);
+
+  // Render different message styles based on user role
+  const renderMessage = (msg: Message) => {
+    const isMyMessage = msg.sender === 'me';
+    
+    if (userRole === 'joseador') {
+      // Joseador-specific styling with green gradient
+      return (
+        <motion.div
+          key={msg.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[65%] rounded-2xl px-4 py-3 ${
+              isMyMessage
+                ? 'bg-gradient-to-r from-secondary to-accent text-white shadow-md'
+                : 'bg-[#e8e8e8] text-foreground border border-border'
+            }`}
+          >
+            <p className="font-paragraph text-sm">{msg.text}</p>
+            <p className={`font-paragraph text-xs mt-1.5 ${
+              isMyMessage ? 'text-white/70' : 'text-muted-text'
+            }`}>
+              {msg.time}
+            </p>
+          </div>
+        </motion.div>
+      );
+    } else {
+      // Client-specific styling with primary blue
+      return (
+        <motion.div
+          key={msg.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[65%] rounded-2xl px-4 py-3 ${
+              isMyMessage
+                ? 'bg-primary text-white'
+                : 'bg-[#e8e8e8] text-foreground'
+            }`}
+          >
+            <p className="font-paragraph text-sm">{msg.text}</p>
+            <p className={`font-paragraph text-xs mt-1.5 ${
+              isMyMessage ? 'text-white/70' : 'text-muted-text'
+            }`}>
+              {msg.time}
+            </p>
+          </div>
+        </motion.div>
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -246,57 +305,66 @@ export default function InboxPage() {
 
                   {/* Action Buttons Bar - Sticky */}
                   <div className="px-5 py-3 bg-[#f9f9f9] border-b border-border flex gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
-                    >
-                      <DollarSign size={16} />
-                      Renegociar precio
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
-                    >
-                      <CheckCircle size={16} />
-                      Trabajo completado
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-destructive rounded-lg font-paragraph text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
-                    >
-                      <X size={16} />
-                      Cancelar joseo
-                    </motion.button>
+                    {userRole === 'joseador' ? (
+                      <>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-sm font-medium hover:shadow-md transition-all"
+                        >
+                          <Clock size={16} />
+                          Proponer horario
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
+                        >
+                          <AlertCircle size={16} />
+                          Reportar problema
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-destructive rounded-lg font-paragraph text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
+                        >
+                          <X size={16} />
+                          Rechazar trabajo
+                        </motion.button>
+                      </>
+                    ) : (
+                      <>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg font-paragraph text-sm font-medium text-foreground hover:bg-[#f5f5f5] transition-colors"
+                        >
+                          <DollarSign size={16} />
+                          Renegociar precio
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg font-paragraph text-sm font-medium hover:bg-primary/90 transition-colors"
+                        >
+                          <CheckCircle size={16} />
+                          Trabajo completado
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-destructive rounded-lg font-paragraph text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
+                        >
+                          <X size={16} />
+                          Cancelar joseo
+                        </motion.button>
+                      </>
+                    )}
                   </div>
 
                   {/* Messages Area */}
                   <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#fafafa]">
-                    {messages.map((msg) => (
-                      <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[65%] rounded-2xl px-4 py-3 ${
-                            msg.sender === 'me'
-                              ? 'bg-primary text-white'
-                              : 'bg-[#e8e8e8] text-foreground'
-                          }`}
-                        >
-                          <p className="font-paragraph text-sm">{msg.text}</p>
-                          <p className={`font-paragraph text-xs mt-1.5 ${
-                            msg.sender === 'me' ? 'text-white/70' : 'text-muted-text'
-                          }`}>
-                            {msg.time}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
+                    {messages.map((msg) => renderMessage(msg))}
                   </div>
 
                   {/* Pending Request Banner - Sticky */}
