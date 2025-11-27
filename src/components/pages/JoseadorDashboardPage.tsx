@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye } from 'lucide-react';
+import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Clock, AlertCircle, TrendingDown } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { getPiqueteBalance } from '@/lib/piquete-service';
 
@@ -18,6 +18,7 @@ export default function JoseadorDashboardPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [walletBalance] = useState(0);
   const [piquetesBalance, setPiquetesBalance] = useState(0);
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   useEffect(() => {
     setUserRole('joseador');
@@ -34,9 +35,22 @@ export default function JoseadorDashboardPage() {
   }, [member?.loginEmail]);
 
   const loadJobs = async () => {
-    const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
-    const openJobs = items.filter(job => job.status === 'open');
-    setJobs(openJobs);
+    setLoadingJobs(true);
+    try {
+      const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
+      const openJobs = items.filter(job => job.status === 'open' || job.status === 'active');
+      // Sort by most recent first
+      const sortedJobs = openJobs.sort((a, b) => {
+        const dateA = new Date(a.postedDate || 0).getTime();
+        const dateB = new Date(b.postedDate || 0).getTime();
+        return dateB - dateA;
+      });
+      setJobs(sortedJobs);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    } finally {
+      setLoadingJobs(false);
+    }
   };
 
   const loadPiqueteBalance = async () => {
@@ -384,10 +398,22 @@ export default function JoseadorDashboardPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <h2 className="font-heading text-3xl font-bold text-foreground mb-8">
-            Trabajos Disponibles
-            <span className="ml-3 text-2xl text-secondary">({filteredJobs.length})</span>
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <Briefcase size={32} className="text-secondary" />
+              <h2 className="font-heading text-3xl font-bold text-foreground">
+                Trabajos Disponibles
+                <span className="ml-3 text-2xl text-secondary">({filteredJobs.length})</span>
+              </h2>
+            </div>
+            {loadingJobs && (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-6 h-6 rounded-full border-2 border-secondary border-t-transparent"
+              />
+            )}
+          </div>
           {filteredJobs.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -426,6 +452,7 @@ export default function JoseadorDashboardPage() {
                           src={job.jobImage}
                           alt={job.jobTitle}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          width={400}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                       </div>
@@ -461,8 +488,18 @@ export default function JoseadorDashboardPage() {
                         <span className="font-paragraph text-sm line-clamp-1">{job.locationAddress}</span>
                       </div>
 
+                      {/* Posted Date */}
+                      {job.postedDate && (
+                        <div className="flex items-center gap-2 text-muted-text mb-4 text-xs">
+                          <Clock size={14} className="text-accent flex-shrink-0" />
+                          <span className="font-paragraph">
+                            {new Date(job.postedDate).toLocaleDateString('es-DO')}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Budget and Action */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between pt-4 border-t border-border/50">
                         <span className="font-heading text-2xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
                           RD$ {job.budget?.toLocaleString()}
                         </span>
