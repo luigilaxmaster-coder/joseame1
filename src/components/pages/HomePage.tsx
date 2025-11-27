@@ -1,5 +1,5 @@
 // HPI 1.6-V
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
@@ -49,6 +49,78 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
       <motion.div style={{ y }} className="h-[140%] w-full">
         <Image src={src} alt={alt} className="w-full h-full object-cover" />
       </motion.div>
+    </div>
+  );
+};
+
+// Component for steps with dynamic blur effect
+const StepsWithBlurEffect = ({ steps, primaryColor, secondaryColor, imageUrl, imageAlt, title }: {
+  steps: { step: string; text: string }[];
+  primaryColor: string;
+  secondaryColor: string;
+  imageUrl: string;
+  imageAlt: string;
+  title: string;
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const [blurOpacity, setBlurOpacity] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!stepsContainerRef.current) return;
+
+      const stepsRect = stepsContainerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      // Calculate how much of the steps are visible in the viewport
+      // When steps are at the top of viewport (scrolled up), opacity increases
+      const stepsTop = stepsRect.top;
+      const stepsHeight = stepsRect.height;
+
+      // Calculate opacity based on scroll position
+      // When steps are completely above viewport (stepsTop < 0), blur is at max
+      // When steps are below viewport, blur is at min
+      let opacity = 0;
+
+      if (stepsTop < 0) {
+        // Steps are scrolled up, increase blur
+        opacity = Math.min(1, Math.abs(stepsTop) / (stepsHeight * 0.5));
+      }
+
+      setBlurOpacity(opacity);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="flex flex-col gap-8">
+      <AnimatedElement className="lg:sticky top-32">
+        <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
+          <Image src={imageUrl} alt={imageAlt} className="w-full h-full object-cover" />
+          {/* Dynamic blur overlay that increases as steps scroll up */}
+          <motion.div
+            className={`absolute inset-0 bg-gradient-to-t ${primaryColor} to-transparent`}
+            style={{ opacity: blurOpacity }}
+            transition={{ duration: 0.3 }}
+          ></motion.div>
+          <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">{title}</h3>
+        </div>
+      </AnimatedElement>
+      <div ref={stepsContainerRef} className="space-y-8 mt-8 lg:mt-0">
+        {steps.map((item, index) => (
+          <AnimatedElement key={index} delay={index * 150}>
+            <div className="flex items-start gap-6">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${primaryColor} ${secondaryColor} flex items-center justify-center flex-shrink-0 shadow-md`}>
+                <span className="font-heading text-xl font-bold text-white">{item.step}</span>
+              </div>
+              <p className="pt-2.5 text-lg font-heading text-border font-bold">{item.text}</p>
+            </div>
+          </AnimatedElement>
+        ))}
+      </div>
     </div>
   );
 };
@@ -238,50 +310,24 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16">
               {/* Para Clientes */}
-              <div className="flex flex-col gap-8">
-                <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
-                    <Image src="https://static.wixstatic.com/media/307f6c_0f0b096f090b48e3b9e4bdf58656d343~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
-                  </div>
-                </AnimatedElement>
-                <div className="space-y-8 mt-8 lg:mt-0">
-                  {clientSteps.map((item, index) => (
-                    <AnimatedElement key={index} delay={index * 150}>
-                      <div className="flex items-start gap-6">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-xl font-bold text-white">{item.step}</span>
-                        </div>
-                        <p className="pt-2.5 text-lg font-heading text-border font-bold">{item.text}</p>
-                      </div>
-                    </AnimatedElement>
-                  ))}
-                </div>
-              </div>
+              <StepsWithBlurEffect
+                steps={clientSteps}
+                primaryColor="from-primary"
+                secondaryColor="to-secondary"
+                imageUrl="https://static.wixstatic.com/media/307f6c_0f0b096f090b48e3b9e4bdf58656d343~mv2.png?originWidth=576&originHeight=384"
+                imageAlt="Cliente planificando un proyecto en una tableta"
+                title="Para Clientes"
+              />
 
               {/* Para Joseadores */}
-              <div className="flex flex-col gap-8">
-                <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
-                    <Image src="https://static.wixstatic.com/media/307f6c_93d7ce30c69841d593741cbc0b6527f6~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Joseadores</h3>
-                  </div>
-                </AnimatedElement>
-                <div className="space-y-8 mt-8 lg:mt-0">
-                  {joseadorSteps.map((item, index) => (
-                    <AnimatedElement key={index} delay={index * 150}>
-                      <div className="flex items-start gap-6">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-xl font-bold text-white">{item.step}</span>
-                        </div>
-                        <p className="font-paragraph text-lg pt-2.5 font-bold text-primary-foreground">{item.text}</p>
-                      </div>
-                    </AnimatedElement>
-                  ))}
-                </div>
-              </div>
+              <StepsWithBlurEffect
+                steps={joseadorSteps}
+                primaryColor="from-secondary"
+                secondaryColor="to-accent"
+                imageUrl="https://static.wixstatic.com/media/307f6c_93d7ce30c69841d593741cbc0b6527f6~mv2.png?originWidth=576&originHeight=384"
+                imageAlt="Joseador trabajando en su laptop en un café"
+                title="Para Joseadores"
+              />
             </div>
           </div>
         </section>
