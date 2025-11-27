@@ -77,38 +77,42 @@ export default function JoseadorDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
+      {/* Animated background elements - hidden on mobile for performance */}
+      <div className="hidden sm:block absolute top-0 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
+      <div className="hidden sm:block absolute bottom-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
+      <div className="hidden sm:block absolute top-1/2 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-support/10 rounded-full blur-3xl -z-10" />
 
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="font-heading text-2xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
+        <div className="max-w-[100rem] mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <Link to="/" className="font-heading text-lg sm:text-2xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent flex-shrink-0">
               JOSEAME
             </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link to="/joseador/dashboard" className="font-paragraph text-foreground font-semibold hover:text-secondary transition-colors relative group">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1 ml-6 lg:ml-8">
+              <Link to="/joseador/dashboard" className="font-paragraph text-sm lg:text-base text-foreground font-semibold hover:text-secondary transition-colors relative group whitespace-nowrap">
                 Inicio
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
               </Link>
-              <Link to="/joseador/my-applications" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+              <Link to="/joseador/my-applications" className="font-paragraph text-sm lg:text-base text-foreground hover:text-secondary transition-colors relative group whitespace-nowrap">
                 Mis Aplicaciones
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
               </Link>
-              <Link to="/joseador/wallet" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+              <Link to="/joseador/wallet" className="font-paragraph text-sm lg:text-base text-foreground hover:text-secondary transition-colors relative group whitespace-nowrap">
                 Wallet
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
               </Link>
-              <Link to="/joseador/inbox" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+              <Link to="/joseador/inbox" className="font-paragraph text-sm lg:text-base text-foreground hover:text-secondary transition-colors relative group whitespace-nowrap">
                 Mensajes
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
               </Link>
             </nav>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+            
+            {/* Right Actions */}
+            <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+              <div className="hidden sm:flex items-center gap-2">
                 <span className="font-paragraph text-xs text-muted-text font-medium">Joseador</span>
                 <motion.button
                   whileHover={{ scale: 1.05, rotate: 180 }}
@@ -117,44 +121,62 @@ export default function JoseadorDashboardPage() {
                     setUserRole('client');
                     navigate('/client/dashboard');
                   }}
-                  className="p-2 rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all text-white"
+                  className="p-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all text-white flex-shrink-0"
                   title="Cambiar a Cliente"
                 >
-                  <RefreshCw size={20} />
+                  <RefreshCw size={16} className="sm:hidden" />
+                  <RefreshCw size={18} className="hidden sm:block" />
                 </motion.button>
               </div>
-              <Link to="/profile">
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-background transition-colors">
-                  <User size={20} className="text-muted-text" />
-                  <span className="font-paragraph text-sm text-foreground hidden md:block">
-                    {member?.profile?.nickname || 'Perfil'}
-                  </span>
+              
+              {/* Mobile Menu Button */}
+              <div className="md:hidden flex items-center gap-2">
+                <Link to="/profile" className="p-2 rounded-lg hover:bg-background transition-colors flex-shrink-0">
+                  <User size={18} className="text-muted-text" />
+                </Link>
+                <button
+                  onClick={actions.logout}
+                  className="p-2 text-muted-text hover:text-foreground transition-colors flex-shrink-0"
+                >
+                  <LogOut size={18} />
                 </button>
-              </Link>
-              <button
-                onClick={actions.logout}
-                className="flex items-center gap-2 px-4 py-2 text-muted-text hover:text-foreground transition-colors"
-              >
-                <LogOut size={20} />
-              </button>
+              </div>
+              
+              {/* Desktop Menu */}
+              <div className="hidden md:flex items-center gap-2">
+                <Link to="/profile">
+                  <button className="flex items-center gap-2 px-3 lg:px-4 py-2 rounded-lg lg:rounded-xl hover:bg-background transition-colors">
+                    <User size={18} className="text-muted-text" />
+                    <span className="font-paragraph text-xs lg:text-sm text-foreground hidden lg:block">
+                      {member?.profile?.nickname || 'Perfil'}
+                    </span>
+                  </button>
+                </Link>
+                <button
+                  onClick={actions.logout}
+                  className="flex items-center gap-2 px-3 lg:px-4 py-2 text-muted-text hover:text-foreground transition-colors"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-[100rem] mx-auto px-6 py-12 relative z-10">
+      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <h1 className="font-heading text-5xl md:text-6xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent mb-3">
+          <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent mb-2 sm:mb-3">
             ¡Bienvenido, {member?.profile?.nickname || 'Joseador'}!
           </h1>
-          <p className="font-paragraph text-xl text-muted-text max-w-2xl">
+          <p className="font-paragraph text-base sm:text-lg md:text-xl text-muted-text max-w-2xl">
             Encuentra trabajos, crece tu negocio y gestiona tus ganancias
           </p>
         </motion.div>
@@ -164,67 +186,70 @@ export default function JoseadorDashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative mb-12 group"
+          className="relative mb-8 sm:mb-12 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-          <div className="relative bg-gradient-to-br from-secondary via-accent to-support rounded-3xl p-8 md:p-10 text-white shadow-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+          <div className="relative bg-gradient-to-br from-secondary via-accent to-support rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-2xl overflow-hidden">
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -ml-20 -mb-20" />
+            <div className="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-white/10 rounded-full blur-3xl -mr-16 sm:-mr-20 -mt-16 sm:-mt-20" />
+            <div className="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 bg-white/10 rounded-full blur-3xl -ml-16 sm:-ml-20 -mb-16 sm:-mb-20" />
 
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <motion.div
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0"
                   >
-                    <Wallet size={32} />
+                    <Wallet size={24} className="sm:hidden" />
+                    <Wallet size={32} className="hidden sm:block" />
                   </motion.div>
                   <div>
-                    <p className="font-paragraph text-white/80 text-sm">Mi Wallet</p>
-                    <h2 className="font-heading text-3xl font-bold">Gestiona tus Fondos</h2>
+                    <p className="font-paragraph text-white/80 text-xs sm:text-sm">Mi Wallet</p>
+                    <h2 className="font-heading text-xl sm:text-3xl font-bold">Gestiona tus Fondos</h2>
                   </div>
                 </div>
-                <Link to="/joseador/wallet">
+                <Link to="/joseador/wallet" className="w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-white/20 hover:bg-white/30 rounded-2xl font-paragraph font-semibold transition-all backdrop-blur-sm border border-white/20"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 hover:bg-white/30 rounded-lg sm:rounded-2xl font-paragraph text-sm sm:text-base font-semibold transition-all backdrop-blur-sm border border-white/20"
                   >
                     Ver Detalles
                   </motion.button>
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
                 {/* Balance Card */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                  className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-2xl p-4 sm:p-6 border border-white/20"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                      <DollarSign size={20} />
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <DollarSign size={16} className="sm:hidden" />
+                      <DollarSign size={20} className="hidden sm:block" />
                     </div>
-                    <p className="font-paragraph text-white/80 text-sm">Balance Disponible</p>
+                    <p className="font-paragraph text-white/80 text-xs sm:text-sm">Balance Disponible</p>
                   </div>
-                  <p className="font-heading text-4xl font-bold">RD$ {walletBalance.toLocaleString()}</p>
-                  <p className="font-paragraph text-white/60 text-sm mt-2">Fondos listos para retirar</p>
+                  <p className="font-heading text-2xl sm:text-4xl font-bold">RD$ {walletBalance.toLocaleString()}</p>
+                  <p className="font-paragraph text-white/60 text-xs sm:text-sm mt-2">Fondos listos para retirar</p>
                 </motion.div>
 
                 {/* Piquetes Card */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                  className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-2xl p-4 sm:p-6 border border-white/20"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                        <Zap size={20} />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                        <Zap size={16} className="sm:hidden" />
+                        <Zap size={20} className="hidden sm:block" />
                       </div>
-                      <p className="font-paragraph text-white/80 text-sm">Piquetes Disponibles</p>
+                      <p className="font-paragraph text-white/80 text-xs sm:text-sm">Piquetes Disponibles</p>
                     </div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
