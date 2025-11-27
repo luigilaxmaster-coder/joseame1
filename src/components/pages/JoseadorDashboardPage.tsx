@@ -108,18 +108,21 @@ export default function JoseadorDashboardPage() {
               </Link>
             </nav>
             <div className="flex items-center gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05, rotate: 180 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setUserRole('client');
-                  navigate('/client/dashboard');
-                }}
-                className="p-2 rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all text-white"
-                title="Cambiar a Cliente"
-              >
-                <RefreshCw size={20} />
-              </motion.button>
+              <div className="flex items-center gap-2">
+                <span className="font-paragraph text-xs text-muted-text font-medium">Joseador</span>
+                <motion.button
+                  whileHover={{ scale: 1.05, rotate: 180 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setUserRole('client');
+                    navigate('/client/dashboard');
+                  }}
+                  className="p-2 rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all text-white"
+                  title="Cambiar a Cliente"
+                >
+                  <RefreshCw size={20} />
+                </motion.button>
+              </div>
               <Link to="/profile">
                 <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-background transition-colors">
                   <User size={20} className="text-muted-text" />
