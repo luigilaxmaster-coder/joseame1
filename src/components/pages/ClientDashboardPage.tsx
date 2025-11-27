@@ -74,7 +74,6 @@ export default function ClientDashboardPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-6 py-4">
@@ -127,7 +126,6 @@ export default function ClientDashboardPage() {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-6 py-12 relative z-10">
         {/* Welcome Section */}
@@ -140,9 +138,7 @@ export default function ClientDashboardPage() {
           <h1 className="font-heading text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-3">
             ¡Bienvenido, {member?.profile?.nickname || 'Cliente'}!
           </h1>
-          <p className="font-paragraph text-xl text-muted-text max-w-2xl">
-            Gestiona tus trabajos, encuentra profesionales y supervisa tus proyectos
-          </p>
+          <p className="font-paragraph text-xl text-muted-text max-w-2xl">{"Gestiona tus trabajos, encuentra joseadores y supervisa tus proyectos"}</p>
         </motion.div>
 
         {/* Stats Section */}
