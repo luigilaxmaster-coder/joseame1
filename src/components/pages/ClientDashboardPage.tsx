@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Plus, MapPin, List, Map, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, MapPin, List, Map, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
 
@@ -15,9 +15,11 @@ export default function ClientDashboardPage() {
   const { setUserRole } = useRoleStore();
   const { setJobToDuplicate } = useJobStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
+  const [availableJobs, setAvailableJobs] = useState<TrabajosdeServicio[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   useEffect(() => {
     setUserRole('client');
@@ -25,8 +27,25 @@ export default function ClientDashboardPage() {
   }, []);
 
   const loadJobs = async () => {
-    const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
-    setJobs(items);
+    setLoadingJobs(true);
+    try {
+      const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
+      setJobs(items);
+      
+      // Filter available jobs (open or active status)
+      const openJobs = items.filter(job => job.status === 'open' || job.status === 'active');
+      // Sort by most recent first
+      const sortedJobs = openJobs.sort((a, b) => {
+        const dateA = new Date(a.postedDate || 0).getTime();
+        const dateB = new Date(b.postedDate || 0).getTime();
+        return dateB - dateA;
+      });
+      setAvailableJobs(sortedJobs);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    } finally {
+      setLoadingJobs(false);
+    }
   };
 
   const handleDuplicateJob = (job: TrabajosdeServicio) => {
@@ -35,6 +54,13 @@ export default function ClientDashboardPage() {
   };
 
   const filteredJobs = jobs.filter(job => {
+    const matchesSearch = job.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         job.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || job.serviceCategory === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredAvailableJobs = availableJobs.filter(job => {
     const matchesSearch = job.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || job.serviceCategory === categoryFilter;
@@ -343,9 +369,15 @@ export default function ClientDashboardPage() {
         >
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8">
             Trabajos Disponibles
-            <span className="ml-2 sm:ml-3 text-xl sm:text-2xl text-primary">({filteredJobs.length})</span>
+            <span className="ml-2 sm:ml-3 text-xl sm:text-2xl text-primary">({filteredAvailableJobs.length})</span>
           </h2>
-          {filteredJobs.length === 0 ? (
+          {loadingJobs ? (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent mx-auto my-12"
+            />
+          ) : filteredAvailableJobs.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -363,7 +395,7 @@ export default function ClientDashboardPage() {
               animate="visible"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
             >
-              {filteredJobs.map((job) => (
+              {filteredAvailableJobs.map((job) => (
                 <motion.div
                   key={job._id}
                   variants={itemVariants}
@@ -427,33 +459,28 @@ export default function ClientDashboardPage() {
                         </div>
                       </div>
 
-                      {/* Status and Action */}
+                      {/* Posted Date and Action */}
                       <div className="space-y-2 sm:space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-paragraph font-semibold border ${
-                            job.status === 'open' ? 'bg-accent/10 text-accent border-accent/30' :
-                            job.status === 'in_progress' ? 'bg-secondary/10 text-secondary border-secondary/30' :
-                            'bg-muted-text/10 text-muted-text border-muted-text/30'
-                          }`}>
-                            {job.status === 'open' ? '🔓 Abierto' :
-                             job.status === 'in_progress' ? '⏳ En Progreso' :
-                             '✓ Completado'}
-                          </span>
-                        </div>
-                        {job.status === 'completed' && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDuplicateJob(job);
-                            }}
-                            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-accent/20 to-support/20 text-accent rounded-lg sm:rounded-2xl font-paragraph text-xs sm:text-sm font-semibold hover:from-accent/30 hover:to-support/30 transition-all flex items-center justify-center gap-2 border border-accent/20"
-                          >
-                            <RotateCcw size={14} />
-                            Solicitar de Nuevo
-                          </motion.button>
+                        {job.postedDate && (
+                          <div className="flex items-center gap-2 text-muted-text text-xs">
+                            <Clock size={14} className="text-primary flex-shrink-0" />
+                            <span className="font-paragraph">
+                              {new Date(job.postedDate).toLocaleDateString('es-DO')}
+                            </span>
+                          </div>
                         )}
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/job/${job._id}`);
+                          }}
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg sm:rounded-2xl font-paragraph text-xs sm:text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                        >
+                          <Eye size={14} />
+                          Ver Detalles
+                        </motion.button>
                       </div>
                     </div>
                   </div>
