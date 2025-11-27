@@ -67,6 +67,10 @@ export interface PiqueteBalances {
   _updatedDate?: Date;
   /** @wixFieldType text */
   joseadorId?: string;
+  /** @wixFieldType number */
+  freeQuotaBalance?: number;
+  /** @wixFieldType text */
+  joseadorEmail?: string;
   /** @wixFieldType text */
   joseadorName?: string;
   /** @wixFieldType number */

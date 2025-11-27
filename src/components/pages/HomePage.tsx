@@ -243,7 +243,7 @@ export default function HomePage() {
                   <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
                     <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent"></div>
-                    <h3 className="absolute top-8 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
+                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
                   </div>
                 </AnimatedElement>
                 <div className="space-y-8 mt-8 lg:mt-0">
@@ -266,7 +266,7 @@ export default function HomePage() {
                   <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
                     <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-accent/70 to-transparent"></div>
-                    <h3 className="absolute top-8 right-8 font-heading text-4xl font-bold text-white">Para Joseadores</h3>
+                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Joseadores</h3>
                   </div>
                 </AnimatedElement>
                 <div className="space-y-8 mt-8 lg:mt-0">
