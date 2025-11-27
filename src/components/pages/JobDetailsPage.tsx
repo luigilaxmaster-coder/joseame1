@@ -5,9 +5,10 @@ import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { calculatePiquetes, getExpertiseDescription, type ExpertiseLevel } from '@/lib/piquete-calculator';
+import { deductPiquetes, getPiqueteBalance } from '@/lib/piquete-service';
 
 export default function JobDetailsPage() {
   const { jobId } = useParams();
@@ -23,13 +24,20 @@ export default function JobDetailsPage() {
     proposedPrice: ''
   });
   const [piqueteInfo, setPiqueteInfo] = useState<ReturnType<typeof calculatePiquetes> | null>(null);
+  const [currentPiqueteBalance, setCurrentPiqueteBalance] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (jobId) {
       loadJobDetails();
       loadApplications();
     }
-  }, [jobId]);
+    // Load piquete balance for joseador
+    if (userRole === 'joseador' && member?.loginEmail) {
+      loadPiqueteBalance();
+    }
+  }, [jobId, userRole, member?.loginEmail]);
 
   // Update piquete calculation when expertise level changes
   useEffect(() => {
@@ -38,6 +46,12 @@ export default function JobDetailsPage() {
       setPiqueteInfo(calculation);
     }
   }, [expertiseLevel, job?.budget]);
+
+  const loadPiqueteBalance = async () => {
+    if (!member?.loginEmail) return;
+    const balance = await getPiqueteBalance(member.loginEmail);
+    setCurrentPiqueteBalance(balance);
+  };
 
   const loadJobDetails = async () => {
     if (!jobId) return;
@@ -54,23 +68,55 @@ export default function JobDetailsPage() {
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!piqueteInfo) return;
+    if (!piqueteInfo || !member?.loginEmail) return;
     
-    const newApplication: JobApplications = {
-      _id: crypto.randomUUID(),
-      jobId: jobId,
-      joseadorId: member?.loginEmail,
-      status: 'pending',
-      applicationDate: new Date().toISOString(),
-      coverLetter: applicationData.coverLetter,
-      proposedPrice: parseFloat(applicationData.proposedPrice)
-    };
+    setIsSubmitting(true);
+    setSubmissionError(null);
 
-    await BaseCrudService.create('jobapplications', newApplication);
-    setShowApplicationForm(false);
-    setApplicationData({ coverLetter: '', proposedPrice: '' });
-    setExpertiseLevel('beginner');
-    loadApplications();
+    try {
+      // Deduct piquetes from joseador's balance
+      const deductionResult = await deductPiquetes(
+        member.loginEmail,
+        job?.budget || 0,
+        expertiseLevel
+      );
+
+      if (!deductionResult.success) {
+        setSubmissionError(deductionResult.error || 'Error al deducir piquetes');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create application record
+      const newApplication: JobApplications = {
+        _id: crypto.randomUUID(),
+        jobId: jobId,
+        joseadorId: member.loginEmail,
+        status: 'pending',
+        applicationDate: new Date().toISOString(),
+        coverLetter: applicationData.coverLetter,
+        proposedPrice: parseFloat(applicationData.proposedPrice)
+      };
+
+      await BaseCrudService.create('jobapplications', newApplication);
+      
+      // Update UI
+      setShowApplicationForm(false);
+      setApplicationData({ coverLetter: '', proposedPrice: '' });
+      setExpertiseLevel('beginner');
+      
+      // Reload data
+      await loadApplications();
+      await loadPiqueteBalance();
+      
+      // Show success message
+      setSubmissionError(null);
+    } catch (error) {
+      console.error('Error applying to job:', error);
+      setSubmissionError('Error al enviar la aplicación. Intenta de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleApplicationAction = async (applicationId: string, action: 'accepted' | 'rejected') => {
@@ -262,6 +308,15 @@ export default function JobDetailsPage() {
                     Aplicar a este Trabajo
                   </h3>
 
+                  {/* Piquete Balance Display */}
+                  <div className="mb-6 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap size={18} className="text-secondary" />
+                      <span className="font-paragraph text-sm text-muted-text">Piquetes Disponibles</span>
+                    </div>
+                    <p className="font-heading text-3xl font-bold text-secondary">{currentPiqueteBalance}</p>
+                  </div>
+
                   {!showApplicationForm ? (
                     <div>
                       <p className="font-paragraph text-muted-text mb-6">
@@ -275,9 +330,11 @@ export default function JobDetailsPage() {
                       >
                         Aplicar Ahora
                       </motion.button>
-                      <p className="font-paragraph text-xs text-muted-text text-center mt-4">
-                        Costo: 1 piquete
-                      </p>
+                      {piqueteInfo && (
+                        <p className="font-paragraph text-xs text-muted-text text-center mt-4">
+                          Costo: {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <form onSubmit={handleApply} className="space-y-4">
@@ -297,50 +354,57 @@ export default function JobDetailsPage() {
                         />
                         
                         {/* Piquete Calculator */}
-                        {applicationData.proposedPrice && (
+                        {applicationData.proposedPrice && piqueteInfo && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="mt-3 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-lg"
                           >
-                            {(() => {
-                              const proposedAmount = parseFloat(applicationData.proposedPrice);
-                              const basePiquetes = Math.max(1, Math.ceil(proposedAmount / 1000));
-                              const expertiseMultipliers: Record<ExpertiseLevel, number> = {
-                                beginner: 1.0,
-                                intermediate: 1.25,
-                                expert: 1.5,
-                              };
-                              const multiplier = expertiseMultipliers[expertiseLevel];
-                              const totalPiquetes = Math.ceil(basePiquetes * multiplier);
-                              const expertiseAdjustment = Math.round((multiplier - 1) * 100);
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="font-paragraph text-sm text-foreground">
+                                  Cálculo de Piquetes:
+                                </span>
+                                <span className="font-heading text-lg font-bold text-secondary">
+                                  {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}
+                                </span>
+                              </div>
+                              <div className="text-xs text-muted-text space-y-1">
+                                <p>
+                                  • Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''} (RD$ {parseFloat(applicationData.proposedPrice).toLocaleString()} ÷ 1000)
+                                </p>
+                                {expertiseLevel !== 'beginner' && (
+                                  <p>
+                                    • Ajuste por nivel {expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}: +{Math.round((piqueteInfo.expertiseMultiplier - 1) * 100)}%
+                                  </p>
+                                )}
+                                <p className="pt-1 font-paragraph font-semibold text-secondary">
+                                  Total: {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''} se cobrarán de tu cuenta
+                                </p>
+                              </div>
 
-                              return (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-paragraph text-sm text-foreground">
-                                      Cálculo de Piquetes:
-                                    </span>
-                                    <span className="font-heading text-lg font-bold text-secondary">
-                                      {totalPiquetes} piquete{totalPiquetes > 1 ? 's' : ''}
-                                    </span>
-                                  </div>
-                                  <div className="text-xs text-muted-text space-y-1">
-                                    <p>
-                                      • Base: {basePiquetes} piquete{basePiquetes > 1 ? 's' : ''} (RD$ {proposedAmount.toLocaleString()} ÷ 1000)
+                              {/* Insufficient Balance Warning */}
+                              {currentPiqueteBalance < piqueteInfo.totalPiquetes && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: -5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2"
+                                >
+                                  <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="font-paragraph text-xs font-semibold text-red-700">
+                                      Piquetes insuficientes
                                     </p>
-                                    {expertiseLevel !== 'beginner' && (
-                                      <p>
-                                        • Ajuste por nivel {expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}: +{expertiseAdjustment}%
-                                      </p>
-                                    )}
-                                    <p className="pt-1 font-paragraph font-semibold text-secondary">
-                                      Total: {totalPiquetes} piquete{totalPiquetes > 1 ? 's' : ''} se cobrarán de tu cuenta
+                                    <p className="font-paragraph text-xs text-red-600 mt-1">
+                                      Necesitas {piqueteInfo.totalPiquetes} piquetes pero solo tienes {currentPiqueteBalance}. 
+                                      <Link to="/joseador/buy-piquetes" className="font-semibold underline ml-1">
+                                        Compra más piquetes
+                                      </Link>
                                     </p>
                                   </div>
-                                </div>
-                              );
-                            })()}
+                                </motion.div>
+                              )}
+                            </div>
                           </motion.div>
                         )}
                       </div>
@@ -359,12 +423,25 @@ export default function JobDetailsPage() {
                         />
                       </div>
 
+                      {/* Error Message */}
+                      {submissionError && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2"
+                        >
+                          <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                          <p className="font-paragraph text-xs text-red-700">{submissionError}</p>
+                        </motion.div>
+                      )}
+
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => {
                             setShowApplicationForm(false);
                             setExpertiseLevel('beginner');
+                            setSubmissionError(null);
                           }}
                           className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph font-semibold hover:bg-background transition-colors"
                         >
@@ -372,9 +449,10 @@ export default function JobDetailsPage() {
                         </button>
                         <button
                           type="submit"
-                          className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow"
+                          disabled={isSubmitting || (piqueteInfo && currentPiqueteBalance < piqueteInfo.totalPiquetes)}
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Enviar Aplicación
+                          {isSubmitting ? 'Enviando...' : 'Enviar Aplicación'}
                         </button>
                       </div>
                     </form>

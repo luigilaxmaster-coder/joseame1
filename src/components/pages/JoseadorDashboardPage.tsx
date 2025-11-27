@@ -5,9 +5,10 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw, Navigation } from 'lucide-react';
+import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw, Navigation, Zap } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import JobsMap from '@/components/JobsMap';
+import { getPiqueteBalance } from '@/lib/piquete-service';
 
 interface UserLocation {
   latitude: number;
@@ -22,7 +23,7 @@ export default function JoseadorDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [walletBalance] = useState(0);
-  const [piquetesBalance] = useState(5);
+  const [piquetesBalance, setPiquetesBalance] = useState(0);
   const [showMap, setShowMap] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | undefined>();
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
@@ -32,14 +33,16 @@ export default function JoseadorDashboardPage() {
   useEffect(() => {
     setUserRole('joseador');
     loadJobs();
+    loadPiqueteBalance();
     
     // Set up auto-refresh every 30 seconds
     const refreshInterval = setInterval(() => {
       loadJobs();
+      loadPiqueteBalance();
     }, 30000);
 
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [member?.loginEmail]);
 
   const requestUserLocation = () => {
     setRequestingLocation(true);
@@ -90,6 +93,12 @@ export default function JoseadorDashboardPage() {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
     const openJobs = items.filter(job => job.status === 'open');
     setJobs(openJobs);
+  };
+
+  const loadPiqueteBalance = async () => {
+    if (!member?.loginEmail) return;
+    const balance = await getPiqueteBalance(member.loginEmail);
+    setPiquetesBalance(balance);
   };
 
   const filteredJobs = jobs.filter(job => {

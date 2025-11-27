@@ -58,6 +58,29 @@ export interface DisputasdeTrabajos {
 
 
 /**
+ * Collection ID: piquetebalances
+ * Interface for PiqueteBalances
+ */
+export interface PiqueteBalances {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType text */
+  joseadorName?: string;
+  /** @wixFieldType number */
+  currentBalance?: number;
+  /** @wixFieldType number */
+  totalPiquetesEarned?: number;
+  /** @wixFieldType number */
+  totalPiquetesSpent?: number;
+  /** @wixFieldType datetime */
+  lastUpdated?: Date | string;
+}
+
+
+/**
  * Collection ID: piquetepackages
  * Interface for PiquetePackages
  */
