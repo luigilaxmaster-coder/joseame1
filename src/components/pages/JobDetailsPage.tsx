@@ -5,10 +5,23 @@ import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap, Info } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { calculatePiquetes, getExpertiseDescription, type ExpertiseLevel } from '@/lib/piquete-calculator';
 import { deductPiquetes, getPiqueteBalance } from '@/lib/piquete-service';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+interface JoseadorInfo {
+  email: string;
+  name: string;
+  nickname?: string;
+  photo?: string;
+}
 
 export default function JobDetailsPage() {
   const { jobId } = useParams();
@@ -17,6 +30,7 @@ export default function JobDetailsPage() {
   const { userRole } = useRoleStore();
   const [job, setJob] = useState<TrabajosdeServicio | null>(null);
   const [applications, setApplications] = useState<JobApplications[]>([]);
+  const [joseadorInfoMap, setJoseadorInfoMap] = useState<Record<string, JoseadorInfo>>({});
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel>('beginner');
   const [applicationData, setApplicationData] = useState({
@@ -27,6 +41,8 @@ export default function JobDetailsPage() {
   const [currentPiqueteBalance, setCurrentPiqueteBalance] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [selectedJoseador, setSelectedJoseador] = useState<JoseadorInfo | null>(null);
+  const [showJoseadorModal, setShowJoseadorModal] = useState(false);
 
   useEffect(() => {
     if (jobId) {
@@ -38,6 +54,13 @@ export default function JobDetailsPage() {
       loadPiqueteBalance();
     }
   }, [jobId, userRole, member?.loginEmail]);
+
+  // Load joseador info when applications are loaded
+  useEffect(() => {
+    if (applications.length > 0) {
+      loadJoseadorInfo();
+    }
+  }, [applications]);
 
   // Update piquete calculation when expertise level or proposed price changes
   useEffect(() => {
@@ -71,6 +94,37 @@ export default function JobDetailsPage() {
     const { items } = await BaseCrudService.getAll<JobApplications>('jobapplications');
     const jobApps = items.filter(app => app.jobId === jobId);
     setApplications(jobApps);
+  };
+
+  const loadJoseadorInfo = async () => {
+    const infoMap: Record<string, JoseadorInfo> = {};
+    
+    for (const app of applications) {
+      if (app.joseadorId && !infoMap[app.joseadorId]) {
+        // Try to get member info from Members/FullData collection
+        const { items } = await BaseCrudService.getAll('Members/FullData');
+        const memberData = items.find((m: any) => m.loginEmail === app.joseadorId);
+        
+        if (memberData) {
+          infoMap[app.joseadorId] = {
+            email: memberData.loginEmail,
+            name: memberData.contact?.firstName && memberData.contact?.lastName 
+              ? `${memberData.contact.firstName} ${memberData.contact.lastName}`
+              : memberData.profile?.nickname || memberData.loginEmail,
+            nickname: memberData.profile?.nickname,
+            photo: memberData.profile?.photo?.url
+          };
+        } else {
+          // Fallback if member not found
+          infoMap[app.joseadorId] = {
+            email: app.joseadorId,
+            name: app.joseadorId
+          };
+        }
+      }
+    }
+    
+    setJoseadorInfoMap(infoMap);
   };
 
   const handleApply = async (e: React.FormEvent) => {
@@ -495,6 +549,46 @@ export default function JobDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Joseador Info Modal */}
+      <Dialog open={showJoseadorModal} onOpenChange={setShowJoseadorModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl">Información del Joseador</DialogTitle>
+          </DialogHeader>
+          {selectedJoseador && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="space-y-4"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center mb-4">
+                  {selectedJoseador.photo ? (
+                    <Image src={selectedJoseador.photo} alt={selectedJoseador.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <User size={40} className="text-white" />
+                  )}
+                </div>
+                <h3 className="font-heading text-xl font-bold text-foreground">
+                  {selectedJoseador.name}
+                </h3>
+                {selectedJoseador.nickname && (
+                  <p className="font-paragraph text-sm text-muted-text">
+                    @{selectedJoseador.nickname}
+                  </p>
+                )}
+              </div>
+              <div className="bg-background rounded-xl p-4 border border-border">
+                <p className="font-paragraph text-sm text-muted-text mb-2">Correo Electrónico</p>
+                <p className="font-paragraph font-semibold text-foreground break-all">
+                  {selectedJoseador.email}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
