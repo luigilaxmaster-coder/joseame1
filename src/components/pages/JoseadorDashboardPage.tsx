@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye } from 'lucide-react';
+import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Flame, Clock } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { getPiqueteBalance } from '@/lib/piquete-service';
 
@@ -14,21 +14,24 @@ export default function JoseadorDashboardPage() {
   const navigate = useNavigate();
   const { setUserRole } = useRoleStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
+  const [newJobIds, setNewJobIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [walletBalance] = useState(0);
   const [piquetesBalance, setPiquetesBalance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const previousJobsRef = useRef<string[]>([]);
 
   useEffect(() => {
     setUserRole('joseador');
     loadJobs();
     loadPiqueteBalance();
     
-    // Set up auto-refresh every 30 seconds
+    // Set up auto-refresh every 5 seconds for live updates
     const refreshInterval = setInterval(() => {
       loadJobs();
       loadPiqueteBalance();
-    }, 30000);
+    }, 5000);
 
     return () => clearInterval(refreshInterval);
   }, [member?.loginEmail]);
@@ -36,6 +39,20 @@ export default function JoseadorDashboardPage() {
   const loadJobs = async () => {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
     const openJobs = items.filter(job => job.status === 'open');
+    
+    // Detect new jobs
+    const currentJobIds = openJobs.map(job => job._id);
+    const newIds = currentJobIds.filter(id => !previousJobsRef.current.includes(id));
+    
+    if (newIds.length > 0) {
+      setNewJobIds(new Set(newIds));
+      // Remove "new" badge after 10 seconds
+      setTimeout(() => {
+        setNewJobIds(new Set());
+      }, 10000);
+    }
+    
+    previousJobsRef.current = currentJobIds;
     setJobs(openJobs);
   };
 
@@ -326,10 +343,10 @@ export default function JoseadorDashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border border-border/50 shadow-lg mb-12"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white rounded-3xl p-6 border border-border shadow-lg mb-8"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1 relative group">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text group-focus-within:text-secondary transition-colors" size={20} />
               <input
@@ -350,24 +367,54 @@ export default function JoseadorDashboardPage() {
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setIsRefreshing(true);
+                loadJobs().then(() => setIsRefreshing(false));
+              }}
+              disabled={isRefreshing}
+              className="px-6 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-2xl font-paragraph font-semibold hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+              Actualizar
+            </motion.button>
           </div>
         </motion.div>
 
-        {/* Jobs Feed */}
+        {/* Jobs Feed - Live Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h2 className="font-heading text-3xl font-bold text-foreground mb-8">
-            Trabajos Disponibles
-            <span className="ml-3 text-2xl text-secondary">({filteredJobs.length})</span>
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <h2 className="font-heading text-3xl font-bold text-foreground">
+                Trabajos Disponibles
+              </h2>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-secondary/20 to-accent/20 rounded-full border border-secondary/30"
+              >
+                <motion.div
+                  animate={{ opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-2 h-2 rounded-full bg-secondary"
+                />
+                <span className="font-paragraph text-xs font-semibold text-secondary">En vivo</span>
+              </motion.div>
+              <span className="font-paragraph text-sm text-muted-text ml-2">({filteredJobs.length})</span>
+            </div>
+          </div>
+
           {filteredJobs.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-16 border border-border/50 text-center"
+              className="bg-white rounded-3xl p-16 border border-border text-center"
             >
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mx-auto mb-4">
                 <Search className="text-secondary" size={40} />
@@ -381,101 +428,144 @@ export default function JoseadorDashboardPage() {
               animate="visible"
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filteredJobs.map((job) => (
-                <motion.div
-                  key={job._id}
-                  variants={itemVariants}
-                  whileHover={{ y: -12, transition: { duration: 0.3 } }}
-                  onClick={() => navigate(`/job/${job._id}`)}
-                  className="group relative cursor-pointer h-full"
-                >
-                  {/* Card Glow Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all opacity-0 group-hover:opacity-100 -z-10" />
+              <AnimatePresence mode="popLayout">
+                {filteredJobs.map((job) => {
+                  const isNew = newJobIds.has(job._id);
+                  return (
+                    <motion.div
+                      key={job._id}
+                      variants={itemVariants}
+                      whileHover={{ y: -12, transition: { duration: 0.3 } }}
+                      onClick={() => navigate(`/job/${job._id}`)}
+                      layout
+                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : undefined}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.4 }}
+                      className="group relative cursor-pointer h-full"
+                    >
+                      {/* New Job Badge */}
+                      <AnimatePresence>
+                        {isNew && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="absolute top-4 right-4 z-20"
+                          >
+                            <motion.div
+                              animate={{ rotate: [0, 10, -10, 0] }}
+                              transition={{ duration: 0.6, repeat: Infinity }}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-full text-xs font-semibold shadow-lg"
+                            >
+                              <Flame size={14} />
+                              Nuevo
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
-                  {/* Card Content */}
-                  <div className="relative bg-white rounded-3xl overflow-hidden border border-border shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col">
-                    {/* Image Section */}
-                    <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center flex-shrink-0">
-                      {job.jobImage ? (
-                        <Image
-                          src={job.jobImage}
-                          alt={job.jobTitle || 'Trabajo'}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          width={300}
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center gap-2 text-secondary/50">
-                          <Briefcase size={40} />
-                          <span className="font-paragraph text-xs text-center">Sin imagen</span>
+                      {/* Card Glow Background */}
+                      <div className={`absolute inset-0 rounded-3xl blur-xl group-hover:blur-2xl transition-all opacity-0 group-hover:opacity-100 -z-10 ${
+                        isNew 
+                          ? 'bg-gradient-to-br from-secondary/30 to-accent/30' 
+                          : 'bg-gradient-to-br from-secondary/10 to-accent/10'
+                      }`} />
+
+                      {/* Card Content */}
+                      <div className={`relative rounded-3xl overflow-hidden border shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col ${
+                        isNew
+                          ? 'bg-gradient-to-br from-white to-secondary/5 border-secondary/30'
+                          : 'bg-white border-border'
+                      }`}>
+                        {/* Image Section */}
+                        <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center flex-shrink-0">
+                          {job.jobImage ? (
+                            <Image
+                              src={job.jobImage}
+                              alt={job.jobTitle || 'Trabajo'}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              width={300}
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center gap-2 text-secondary/50">
+                              <Briefcase size={40} />
+                              <span className="font-paragraph text-xs text-center">Sin imagen</span>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-                    </div>
 
-                    {/* Content Section */}
-                    <div className="p-6 flex flex-col flex-grow gap-3">
-                      {/* Category Badge */}
-                      {job.serviceCategory && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          <span className="inline-block px-4 py-2 bg-secondary/10 text-secondary text-xs font-paragraph font-semibold rounded-full border border-secondary/30">
-                            {job.serviceCategory}
-                          </span>
-                        </motion.div>
-                      )}
+                        {/* Content Section */}
+                        <div className="p-6 flex flex-col flex-grow gap-3">
+                          {/* Category Badge */}
+                          {job.serviceCategory && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.1 }}
+                            >
+                              <span className="inline-block px-4 py-2 bg-secondary/10 text-secondary text-xs font-paragraph font-semibold rounded-full border border-secondary/30">
+                                {job.serviceCategory}
+                              </span>
+                            </motion.div>
+                          )}
 
-                      {/* Title */}
-                      <div>
-                        <h3 className="font-heading text-lg font-bold text-foreground line-clamp-2 group-hover:text-secondary transition-colors">
-                          {job.jobTitle || 'Sin título'}
-                        </h3>
-                      </div>
-
-                      {/* Description */}
-                      {job.description && (
-                        <p className="font-paragraph text-sm text-muted-text line-clamp-2">
-                          {job.description}
-                        </p>
-                      )}
-
-                      {/* Location and Budget */}
-                      <div className="space-y-2 py-3 border-t border-border/50 border-b border-border/50">
-                        {job.locationAddress && (
-                          <div className="flex items-center gap-2 text-muted-text">
-                            <MapPin size={14} className="text-secondary flex-shrink-0" />
-                            <span className="font-paragraph text-xs line-clamp-1">{job.locationAddress}</span>
+                          {/* Title */}
+                          <div>
+                            <h3 className="font-heading text-lg font-bold text-foreground line-clamp-2 group-hover:text-secondary transition-colors">
+                              {job.jobTitle || 'Sin título'}
+                            </h3>
                           </div>
-                        )}
-                        {job.budget && (
-                          <div className="flex items-center justify-between">
-                            <span className="font-paragraph text-xs text-muted-text">Presupuesto:</span>
-                            <span className="font-heading text-lg font-bold text-secondary">
-                              RD$ {job.budget.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Action Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/job/${job._id}`);
-                        }}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-auto"
-                      >
-                        <Eye size={16} />
-                        Ver Detalles
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                          {/* Description */}
+                          {job.description && (
+                            <p className="font-paragraph text-sm text-muted-text line-clamp-2">
+                              {job.description}
+                            </p>
+                          )}
+
+                          {/* Location and Budget */}
+                          <div className="space-y-2 py-3 border-t border-border/50 border-b border-border/50">
+                            {job.locationAddress && (
+                              <div className="flex items-center gap-2 text-muted-text">
+                                <MapPin size={14} className="text-secondary flex-shrink-0" />
+                                <span className="font-paragraph text-xs line-clamp-1">{job.locationAddress}</span>
+                              </div>
+                            )}
+                            {job.budget && (
+                              <div className="flex items-center justify-between">
+                                <span className="font-paragraph text-xs text-muted-text">Presupuesto:</span>
+                                <span className="font-heading text-lg font-bold text-secondary">
+                                  RD$ {job.budget.toLocaleString()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Button */}
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/job/${job._id}`);
+                            }}
+                            className={`w-full px-4 py-3 text-white rounded-xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-auto ${
+                              isNew
+                                ? 'bg-gradient-to-r from-secondary via-accent to-support'
+                                : 'bg-gradient-to-r from-secondary to-accent'
+                            }`}
+                          >
+                            <Eye size={16} />
+                            Ver Detalles
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </motion.div>
           )}
         </motion.div>
