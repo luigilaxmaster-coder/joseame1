@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
@@ -11,6 +11,7 @@ import { ProfilePhotos, UserRatings } from '@/entities';
 function ProfilePage() {
   const { member, actions } = useMember();
   const { userRole, setUserRole } = useRoleStore();
+  const navigate = useNavigate();
   const [profilePhotos, setProfilePhotos] = useState<ProfilePhotos[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -19,6 +20,16 @@ function ProfilePage() {
   const [tempDescription, setTempDescription] = useState('');
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [photoCaption, setPhotoCaption] = useState('');
+
+  // Determine the back button destination based on user role
+  const getBackButtonPath = () => {
+    if (userRole === 'client') {
+      return '/client/dashboard';
+    } else if (userRole === 'joseador') {
+      return '/joseador/dashboard';
+    }
+    return '/';
+  };
 
   useEffect(() => {
     loadProfileData();
@@ -107,10 +118,13 @@ function ProfilePage() {
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-50">
         <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors">
+          <button 
+            onClick={() => navigate(getBackButtonPath())}
+            className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors"
+          >
             <ArrowLeft size={20} />
             <span className="font-paragraph">Volver</span>
-          </Link>
+          </button>
         </div>
       </header>
 
