@@ -3,7 +3,14 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
-import { ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, Info, Briefcase } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Image } from '@/components/ui/image';
 
 interface Chat {
   id: string;
@@ -30,6 +37,15 @@ interface PendingRequest {
   expiresIn: number; // seconds
 }
 
+interface UserInfo {
+  name: string;
+  email: string;
+  phone?: string;
+  photo?: string;
+  rating?: number;
+  jobsCompleted?: number;
+}
+
 export default function InboxPage() {
   const { member } = useMember();
   const { userRole } = useRoleStore();
@@ -39,6 +55,8 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true);
   const [pendingRequest, setPendingRequest] = useState<PendingRequest | null>(null);
   const [countdown, setCountdown] = useState(0);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedUserInfo, setSelectedUserInfo] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     loadChats();
@@ -106,6 +124,17 @@ export default function InboxPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleShowUserInfo = (chat: Chat) => {
+    setSelectedUserInfo({
+      name: chat.name,
+      email: `${chat.name.toLowerCase().replace(' ', '.')}@email.com`,
+      phone: '+1 (555) 123-4567',
+      rating: 4.8,
+      jobsCompleted: 24
+    });
+    setShowUserModal(true);
   };
 
   const messages = selectedChat ? [
@@ -288,18 +317,29 @@ export default function InboxPage() {
                 <>
                   {/* Chat Header */}
                   <div className="p-5 border-b border-border">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                        <User size={22} className="text-white" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                          <User size={22} className="text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-heading font-semibold text-foreground text-base">
+                            {selectedChatData.name}
+                          </h3>
+                          <p className="font-paragraph text-xs text-muted-text">
+                            {selectedChatData.jobTitle}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-heading font-semibold text-foreground text-base">
-                          {selectedChatData.name}
-                        </h3>
-                        <p className="font-paragraph text-xs text-muted-text">
-                          {selectedChatData.jobTitle}
-                        </p>
-                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleShowUserInfo(selectedChatData)}
+                        className="p-2 rounded-lg hover:bg-background transition-colors text-muted-text hover:text-primary"
+                        title="Ver información del usuario"
+                      >
+                        <Info size={20} />
+                      </motion.button>
                     </div>
                   </div>
 
@@ -439,6 +479,99 @@ export default function InboxPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* User Info Modal */}
+      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Información del Usuario</DialogTitle>
+          </DialogHeader>
+          {selectedUserInfo && (
+            <div className="space-y-6">
+              {/* User Avatar and Name */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4">
+                  <User size={40} className="text-white" />
+                </div>
+                <h2 className="font-heading text-xl font-semibold text-foreground">
+                  {selectedUserInfo.name}
+                </h2>
+              </div>
+
+              {/* User Details */}
+              <div className="space-y-4">
+                {/* Email */}
+                <div className="flex items-start gap-3 p-3 bg-background rounded-lg">
+                  <div className="flex-shrink-0 mt-1">
+                    <User size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-paragraph text-xs text-muted-text mb-1">Correo Electrónico</p>
+                    <p className="font-paragraph text-sm text-foreground break-all">
+                      {selectedUserInfo.email}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Phone */}
+                {selectedUserInfo.phone && (
+                  <div className="flex items-start gap-3 p-3 bg-background rounded-lg">
+                    <div className="flex-shrink-0 mt-1">
+                      <AlertCircle size={18} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-paragraph text-xs text-muted-text mb-1">Teléfono</p>
+                      <p className="font-paragraph text-sm text-foreground">
+                        {selectedUserInfo.phone}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rating */}
+                {selectedUserInfo.rating && (
+                  <div className="flex items-start gap-3 p-3 bg-background rounded-lg">
+                    <div className="flex-shrink-0 mt-1">
+                      <CheckCircle size={18} className="text-accent" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-paragraph text-xs text-muted-text mb-1">Calificación</p>
+                      <p className="font-paragraph text-sm text-foreground font-semibold">
+                        {selectedUserInfo.rating} ⭐
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Jobs Completed */}
+                {selectedUserInfo.jobsCompleted !== undefined && (
+                  <div className="flex items-start gap-3 p-3 bg-background rounded-lg">
+                    <div className="flex-shrink-0 mt-1">
+                      <Briefcase size={18} className="text-secondary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-paragraph text-xs text-muted-text mb-1">Trabajos Completados</p>
+                      <p className="font-paragraph text-sm text-foreground font-semibold">
+                        {selectedUserInfo.jobsCompleted}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Close Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowUserModal(false)}
+                className="w-full px-4 py-3 bg-primary text-white rounded-lg font-paragraph font-semibold hover:bg-primary/90 transition-colors"
+              >
+                Cerrar
+              </motion.button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
