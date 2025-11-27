@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw, Navigation, Zap } from 'lucide-react';
+import { Wallet, MapPin, Search, Filter, LogOut, User, Briefcase, MessageSquare, ShoppingCart, Map, RefreshCw, Navigation } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import JobsMap from '@/components/JobsMap';
 import { getPiqueteBalance } from '@/lib/piquete-service';
@@ -29,7 +29,6 @@ export default function JoseadorDashboardPage() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [requestingLocation, setRequestingLocation] = useState(false);
-  const [isRecharging, setIsRecharging] = useState(false);
 
   useEffect(() => {
     setUserRole('joseador');
@@ -100,42 +99,6 @@ export default function JoseadorDashboardPage() {
     if (!member?.loginEmail) return;
     const balance = await getPiqueteBalance(member.loginEmail);
     setPiquetesBalance(balance);
-  };
-
-  const rechargeBalance = async () => {
-    if (!member?.loginEmail || !member?.profile?.nickname) return;
-    
-    setIsRecharging(true);
-    
-    const { items } = await BaseCrudService.getAll('piquetebalances');
-    const existingBalance = items.find((item: any) => item.joseadorEmail === member.loginEmail);
-    
-    if (existingBalance) {
-      // Update existing balance
-      await BaseCrudService.update('piquetebalances', {
-        _id: existingBalance._id,
-        currentBalance: (existingBalance.currentBalance || 0) + 100,
-        totalPiquetesEarned: (existingBalance.totalPiquetesEarned || 0) + 100,
-        lastUpdated: new Date().toISOString()
-      });
-    } else {
-      // Create new balance record
-      await BaseCrudService.create('piquetebalances', {
-        _id: crypto.randomUUID(),
-        joseadorId: member.loginEmail,
-        joseadorEmail: member.loginEmail,
-        joseadorName: member.profile.nickname,
-        currentBalance: 100,
-        freeQuotaBalance: 0,
-        totalPiquetesEarned: 100,
-        totalPiquetesSpent: 0,
-        lastUpdated: new Date().toISOString()
-      });
-    }
-    
-    // Reload balance
-    await loadPiqueteBalance();
-    setIsRecharging(false);
   };
 
   const filteredJobs = jobs.filter(job => {
@@ -257,16 +220,6 @@ export default function JoseadorDashboardPage() {
               <p className="font-paragraph text-white/80 mb-2">Piquetes Disponibles</p>
               <p className="font-heading text-4xl font-bold">{piquetesBalance}</p>
               <div className="flex gap-2 mt-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={rechargeBalance}
-                  disabled={isRecharging}
-                  className="px-4 py-2 bg-white text-secondary rounded-xl font-paragraph font-semibold hover:bg-white/90 transition-colors flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Zap size={18} />
-                  {isRecharging ? 'Recargando...' : 'Recargar +100'}
-                </motion.button>
                 <Link to="/joseador/buy-piquetes">
                   <button className="px-4 py-2 bg-white text-secondary rounded-xl font-paragraph font-semibold hover:bg-white/90 transition-colors flex items-center gap-2">
                     <ShoppingCart size={18} />
