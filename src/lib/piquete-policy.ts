@@ -10,15 +10,15 @@ export const PIQUETE_POLICY = {
   // ============================================
   costCalculation: {
     baseRate: {
-      description: '10% of job budget (minimum 1) + 1 piquete per 1000 RD$',
-      formula: 'Math.max(1, Math.ceil(jobBudget * 0.1)) + Math.floor(jobBudget / 1000)',
+      description: '1 piquete per 1000 RD$ of job budget (minimum 1)',
+      formula: 'Math.max(1, Math.ceil(jobBudget / 1000))',
       minimum: 1,
       example: {
-        budget500: '1 piquete (10% = 0.5, rounded to 1 minimum)',
-        budget1000: '2 piquetes (10% = 1 + 1 per 1000)',
-        budget2500: '3 piquetes (10% = 2.5 rounded to 3 + 2 per 2000)',
-        budget5000: '6 piquetes (10% = 5 + 5 per 5000)',
-        budget10000: '11 piquetes (10% = 10 + 10 per 10000)'
+        budget500: '1 piquete (minimum)',
+        budget1000: '1 piquete',
+        budget2500: '3 piquetes',
+        budget5000: '5 piquetes',
+        budget10000: '10 piquetes'
       }
     },
     
@@ -42,9 +42,9 @@ export const PIQUETE_POLICY = {
         }
       },
       example: {
-        budget5000_beginner: '6 piquetes (5000 × 0.1 = 5, + 5 per 1000 = 5, total 10, wait: ceil(5000 * 0.1) = 50? No. Let me recalculate: 10% of 5000 = 500 RD$, but we need piquetes. The formula is: ceil(5000 * 0.1) + floor(5000 / 1000) = ceil(500) + 5 = 500 + 5 = 505? That\'s too high. I think the policy means: 10% as a percentage of the base rate. Base rate = 1 per 1000 RD$. So for 5000 RD$: base = 5 piquetes. 10% of 5 = 0.5. Total = 5.5 ≈ 6 piquetes.',
-        budget5000_intermediate: '8 piquetes (6 × 1.25 = 7.5 ≈ 8)',
-        budget5000_expert: '9 piquetes (6 × 1.5 = 9)'
+        budget5000_beginner: '5 piquetes (5000 ÷ 1000 × 1.0)',
+        budget5000_intermediate: '7 piquetes (5000 ÷ 1000 × 1.25, rounded up)',
+        budget5000_expert: '8 piquetes (5000 ÷ 1000 × 1.5, rounded up)'
       }
     }
   },
@@ -94,22 +94,22 @@ export const PIQUETE_POLICY = {
     
     examples: {
       scenario1: {
-        situation: 'Joseador applies with 6 piquetes, client rejects',
-        deduction: 6,
-        refund: 6,
+        situation: 'Joseador applies with 5 piquetes, client rejects',
+        deduction: 5,
+        refund: 5,
         finalBalance: 0
       },
       scenario2: {
-        situation: 'Joseador applies with 6 piquetes, job completes',
-        deduction: 6,
+        situation: 'Joseador applies with 5 piquetes, job completes',
+        deduction: 5,
         refund: 0,
-        finalBalance: -6
+        finalBalance: -5
       },
       scenario3: {
-        situation: 'Joseador applies with 6 piquetes, client cancels',
-        deduction: 6,
-        refund: 3,
-        finalBalance: -3
+        situation: 'Joseador applies with 5 piquetes, client cancels',
+        deduction: 5,
+        refund: 2.5,
+        finalBalance: -2.5
       }
     }
   },

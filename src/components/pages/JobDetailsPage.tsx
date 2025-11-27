@@ -39,9 +39,10 @@ export default function JobDetailsPage() {
     }
   }, [jobId, userRole, member?.loginEmail]);
 
-  // Update piquete calculation when expertise level changes
+  // Update piquete calculation when expertise level changes or job budget changes
   useEffect(() => {
     if (job?.budget) {
+      // Calculate based on client's budget offer
       const calculation = calculatePiquetes(job.budget, expertiseLevel);
       setPiqueteInfo(calculation);
     }
@@ -371,13 +372,7 @@ export default function JobDetailsPage() {
                               </div>
                               <div className="text-xs text-muted-text space-y-1">
                                 <p>
-                                  • 10% del presupuesto: {piqueteInfo.percentagePiquetes} piquete{piqueteInfo.percentagePiquetes > 1 ? 's' : ''} (RD$ {parseFloat(applicationData.proposedPrice).toLocaleString()} × 0.1)
-                                </p>
-                                <p>
-                                  • Por cada 1000 RD$: {piqueteInfo.additionalPiquetes} piquete{piqueteInfo.additionalPiquetes > 1 ? 's' : ''} (RD$ {parseFloat(applicationData.proposedPrice).toLocaleString()} ÷ 1000)
-                                </p>
-                                <p>
-                                  • Subtotal: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''}
+                                  • Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''} (RD$ {job?.budget?.toLocaleString()} ÷ 1000)
                                 </p>
                                 {expertiseLevel !== 'beginner' && (
                                   <p>
