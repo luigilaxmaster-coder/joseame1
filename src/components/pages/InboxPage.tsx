@@ -464,8 +464,8 @@ export default function InboxPage() {
                           whileTap={{ scale: 0.95 }}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-2xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
-                          <Calendar size={16} />
-                          Proponer horario
+                          <DollarSign size={16} />
+                          Renegociar precio
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
