@@ -5,13 +5,15 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Plus, MapPin, List, Map, Search, Filter, LogOut, User, Briefcase, MessageSquare, RefreshCw } from 'lucide-react';
+import { Plus, MapPin, List, Map, Search, Filter, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
+import { useJobStore } from '@/store/jobStore';
 
 export default function ClientDashboardPage() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
   const { setUserRole } = useRoleStore();
+  const { setJobToDuplicate } = useJobStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +27,11 @@ export default function ClientDashboardPage() {
   const loadJobs = async () => {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
     setJobs(items);
+  };
+
+  const handleDuplicateJob = (job: TrabajosdeServicio) => {
+    setJobToDuplicate(job);
+    navigate('/client/publish-job');
   };
 
   const filteredJobs = jobs.filter(job => {
@@ -210,15 +217,28 @@ export default function ClientDashboardPage() {
                     </span>
                   </div>
                   <div className="mt-4 pt-4 border-t border-border">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
-                      job.status === 'open' ? 'bg-accent/10 text-accent' :
-                      job.status === 'in_progress' ? 'bg-secondary/10 text-secondary' :
-                      'bg-muted-text/10 text-muted-text'
-                    }`}>
-                      {job.status === 'open' ? 'Abierto' :
-                       job.status === 'in_progress' ? 'En Progreso' :
-                       'Completado'}
-                    </span>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph ${
+                        job.status === 'open' ? 'bg-accent/10 text-accent' :
+                        job.status === 'in_progress' ? 'bg-secondary/10 text-secondary' :
+                        'bg-muted-text/10 text-muted-text'
+                      }`}>
+                        {job.status === 'open' ? 'Abierto' :
+                         job.status === 'in_progress' ? 'En Progreso' :
+                         'Completado'}
+                      </span>
+                    </div>
+                    {job.status === 'completed' && (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDuplicateJob(job)}
+                        className="w-full px-3 py-2 bg-accent/10 text-accent rounded-lg font-paragraph text-sm font-semibold hover:bg-accent/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <RotateCcw size={14} />
+                        Solicitar de Nuevo
+                      </motion.button>
+                    )}
                   </div>
                 </motion.div>
               ))}
