@@ -58,7 +58,7 @@ export default function JoseadorDashboardPage() {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
+      opacity: 0,
       transition: {
         staggerChildren: 0.1,
         delayChildren: 0.2,
@@ -69,7 +69,7 @@ export default function JoseadorDashboardPage() {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
-      opacity: 1,
+      opacity: 0,
       y: 0,
       transition: { duration: 0.5 },
     },
