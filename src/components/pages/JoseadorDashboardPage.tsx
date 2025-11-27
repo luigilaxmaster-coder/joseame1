@@ -38,7 +38,7 @@ export default function JoseadorDashboardPage() {
     setLoadingJobs(true);
     try {
       const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
-      const openJobs = items.filter(job => job.status === 'open' || job.status === 'active');
+      const openJobs = items.filter(job => job.status !== 'completed');
       // Sort by most recent first
       const sortedJobs = openJobs.sort((a, b) => {
         const dateA = new Date(a.postedDate || 0).getTime();
