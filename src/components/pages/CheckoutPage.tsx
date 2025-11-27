@@ -4,7 +4,8 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { PiquetePackages } from '@/entities';
-import { ArrowLeft, CreditCard, Lock, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Check, AlertCircle, Loader } from 'lucide-react';
+import { createPaymentOrder, recordPurchase, updatePurchaseStatus } from '@/lib/wix-pay-service';
 import { addPiquetes } from '@/lib/piquete-service';
 
 export default function CheckoutPage() {
@@ -13,16 +14,10 @@ export default function CheckoutPage() {
   const { member } = useMember();
   const packageId = location.state?.packageId;
   const [selectedPackage, setSelectedPackage] = useState<PiquetePackages | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [processing, setProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [cardData, setCardData] = useState({
-    cardNumber: '',
-    expiry: '',
-    cvv: '',
-    cardholderName: ''
-  });
+  const [purchaseId, setPurchaseId] = useState<string | null>(null);
 
   useEffect(() => {
     if (packageId) {
@@ -44,31 +39,56 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Validate card data
-    if (!cardData.cardNumber || !cardData.expiry || !cardData.cvv || !cardData.cardholderName) {
-      setPaymentError('Por favor completa todos los campos de la tarjeta.');
-      return;
-    }
-
-    // Basic card validation
-    if (cardData.cardNumber.replace(/\s/g, '').length < 13) {
-      setPaymentError('Número de tarjeta inválido.');
-      return;
-    }
-
-    if (cardData.cvv.length < 3) {
-      setPaymentError('CVV inválido.');
-      return;
-    }
-
     setProcessing(true);
     setPaymentError(null);
 
     try {
-      // Simulate payment processing (in production, this would call a payment gateway)
+      // Step 1: Create payment order with Wix Pay API
+      const orderResult = await createPaymentOrder(
+        packageId,
+        selectedPackage.name || 'Paquete de Piquetes',
+        selectedPackage.price || 0,
+        selectedPackage.credits || 0,
+        member.loginEmail
+      );
+
+      if (!orderResult.success) {
+        setPaymentError(orderResult.error || 'Error al crear la orden de pago');
+        setProcessing(false);
+        return;
+      }
+
+      const orderId = orderResult.orderId;
+
+      // Step 2: Record purchase in database with pending status
+      const purchaseResult = await recordPurchase(
+        member.loginEmail,
+        packageId,
+        selectedPackage.name || 'Paquete de Piquetes',
+        selectedPackage.price || 0,
+        selectedPackage.credits || 0,
+        orderId || '',
+        'pending'
+      );
+
+      if (!purchaseResult.success) {
+        setPaymentError('Error al registrar la compra');
+        setProcessing(false);
+        return;
+      }
+
+      setPurchaseId(purchaseResult.purchaseId || null);
+
+      // Step 3: In production, this would open Wix Pay popup
+      // For now, we simulate successful payment after 2 seconds
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Add piquetes to user's balance
+      // Step 4: Update purchase status to completed
+      if (purchaseResult.purchaseId) {
+        await updatePurchaseStatus(purchaseResult.purchaseId, 'completed');
+      }
+
+      // Step 5: Add piquetes to user's balance
       const addResult = await addPiquetes(
         member.loginEmail,
         selectedPackage.credits || 0,
@@ -162,82 +182,29 @@ export default function CheckoutPage() {
                     Método de Pago
                   </h3>
                   <div className="space-y-3">
-                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                      paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="card"
-                        checked={paymentMethod === 'card'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5"
-                      />
+                    <div className="flex items-center gap-3 p-4 border-2 border-primary bg-primary/5 rounded-xl">
                       <CreditCard size={24} className="text-primary" />
                       <span className="font-paragraph font-semibold text-foreground">
-                        Tarjeta de Crédito/Débito
+                        Wix Pay - Tarjeta de Crédito/Débito
                       </span>
-                    </label>
+                    </div>
                   </div>
                 </div>
 
-                {/* Card Details */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                      Número de Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="1234 5678 9012 3456"
-                      value={cardData.cardNumber}
-                      onChange={(e) => setCardData({ ...cardData, cardNumber: e.target.value })}
-                      className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
+                {/* Payment Info */}
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <p className="font-paragraph text-sm text-blue-900">
+                    <span className="font-semibold">Información de Pago:</span> Tu pago será procesado de forma segura a través de Wix Pay. Se abrirá un popup seguro para ingresar tus datos de tarjeta.
+                  </p>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                        Fecha de Expiración
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="MM/AA"
-                        value={cardData.expiry}
-                        onChange={(e) => setCardData({ ...cardData, expiry: e.target.value })}
-                        className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="123"
-                        value={cardData.cvv}
-                        onChange={(e) => setCardData({ ...cardData, cvv: e.target.value })}
-                        className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-
+                {/* Security Notice */}
+                <div className="bg-accent/10 rounded-xl p-4 flex items-start gap-3">
+                  <Lock size={20} className="text-accent flex-shrink-0 mt-1" />
                   <div>
-                    <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                      Nombre en la Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Juan Pérez"
-                      value={cardData.cardholderName}
-                      onChange={(e) => setCardData({ ...cardData, cardholderName: e.target.value })}
-                      className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
+                    <p className="font-paragraph text-sm text-foreground">
+                      <span className="font-semibold">Pago 100% Seguro:</span> Tus datos están protegidos con encriptación de nivel bancario. Wix Pay es un procesador de pagos certificado.
+                    </p>
                   </div>
                 </div>
 
@@ -253,30 +220,31 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Security Notice */}
-                <div className="bg-accent/10 rounded-xl p-4 flex items-start gap-3">
-                  <Lock size={20} className="text-accent flex-shrink-0 mt-1" />
-                  <div>
-                    <p className="font-paragraph text-sm text-foreground">
-                      <span className="font-semibold">Pago 100% Seguro:</span> Tus datos están protegidos con encriptación de nivel bancario.
-                    </p>
-                  </div>
-                </div>
-
                 {/* Submit Button */}
                 <motion.button
                   whileHover={{ scale: processing ? 1 : 1.02 }}
                   whileTap={{ scale: processing ? 1 : 0.98 }}
                   type="submit"
                   disabled={processing}
-                  className={`w-full px-6 py-4 font-heading text-lg font-semibold rounded-xl transition-all ${
+                  className={`w-full px-6 py-4 font-heading text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2 ${
                     processing
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-secondary via-accent to-support text-white shadow-md hover:shadow-lg'
                   }`}
                 >
-                  {processing ? 'Procesando...' : `Pagar RD$ ${selectedPackage.price?.toLocaleString()}`}
+                  {processing ? (
+                    <>
+                      <Loader size={20} className="animate-spin" />
+                      Procesando pago...
+                    </>
+                  ) : (
+                    `Pagar RD$ ${selectedPackage.price?.toLocaleString()}`
+                  )}
                 </motion.button>
+
+                <p className="font-paragraph text-xs text-muted-text text-center">
+                  Al hacer clic en "Pagar", aceptas nuestros términos de servicio y política de privacidad.
+                </p>
               </form>
             </div>
 

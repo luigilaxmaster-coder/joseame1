@@ -104,6 +104,33 @@ export interface PiquetePackages {
 
 
 /**
+ * Collection ID: piquetepurchases
+ * Interface for PiquetePurchases
+ */
+export interface PiquetePurchases {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorEmail?: string;
+  /** @wixFieldType text */
+  packageId?: string;
+  /** @wixFieldType text */
+  packageName?: string;
+  /** @wixFieldType number */
+  amountPaid?: number;
+  /** @wixFieldType number */
+  piquetesQuantity?: number;
+  /** @wixFieldType text */
+  paymentStatus?: string;
+  /** @wixFieldType text */
+  wixPayOrderId?: string;
+  /** @wixFieldType datetime */
+  purchaseDateTime?: Date | string;
+}
+
+
+/**
  * Collection ID: servicejobs
  * Interface for TrabajosdeServicio
  */
