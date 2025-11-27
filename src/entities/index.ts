@@ -185,46 +185,6 @@ export interface TrabajosdeServicio {
   jobImage?: string;
 }
 
-/**
- * Collection ID: profilephotos
- * Interface for Profile Photos
- */
-export interface ProfilePhotos {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType image */
-  photo?: string;
-  /** @wixFieldType text */
-  caption?: string;
-  /** @wixFieldType datetime */
-  uploadDate?: Date | string;
-  /** @wixFieldType number */
-  likeCount?: number;
-  /** @wixFieldType text */
-  uploaderId?: string;
-}
-
-/**
- * Collection ID: userratings
- * Interface for User Ratings
- */
-export interface UserRatings {
-  _id: string;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-  /** @wixFieldType number */
-  ratingValue?: number;
-  /** @wixFieldType text */
-  reviewText?: string;
-  /** @wixFieldType datetime */
-  ratingDate?: Date | string;
-  /** @wixFieldType text */
-  ratedUserIdentifier?: string;
-  /** @wixFieldType text */
-  reviewerIdentifier?: string;
-}
-
 
 /**
  * Collection ID: userratings
