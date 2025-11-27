@@ -242,7 +242,7 @@ export default function HomePage() {
                 <AnimatedElement className="lg:sticky top-32">
                   <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
                     <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent opacity-[1]"></div>
                     <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
                   </div>
                 </AnimatedElement>
@@ -253,7 +253,7 @@ export default function HomePage() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="pt-2.5 text-[#030303] text-lg font-heading">{item.text}</p>
+                        <p className="pt-2.5 text-lg font-heading text-border font-bold">{item.text}</p>
                       </div>
                     </AnimatedElement>
                   ))}
@@ -276,7 +276,7 @@ export default function HomePage() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="font-paragraph text-lg pt-2.5 text-foreground">{item.text}</p>
+                        <p className="font-paragraph text-lg pt-2.5 font-bold text-primary-foreground">{item.text}</p>
                       </div>
                     </AnimatedElement>
                   ))}
