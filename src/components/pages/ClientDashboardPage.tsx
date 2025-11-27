@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
-import { TrabajosdeServicio } from '@/entities';
-import { Plus, MapPin, List, Map, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { TrabajosdeServicio, JobApplications } from '@/entities';
+import { Plus, MapPin, List, Map, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
 
@@ -15,18 +15,50 @@ export default function ClientDashboardPage() {
   const { setUserRole } = useRoleStore();
   const { setJobToDuplicate } = useJobStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
+  const [applications, setApplications] = useState<JobApplications[]>([]);
+  const [newAppIds, setNewAppIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const previousAppsRef = useRef<string[]>([]);
 
   useEffect(() => {
     setUserRole('client');
     loadJobs();
+    loadApplications();
+    
+    // Set up auto-refresh every 5 seconds for live updates
+    const refreshInterval = setInterval(() => {
+      loadJobs();
+      loadApplications();
+    }, 5000);
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const loadJobs = async () => {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
     setJobs(items);
+  };
+
+  const loadApplications = async () => {
+    const { items } = await BaseCrudService.getAll<JobApplications>('jobapplications');
+    
+    // Detect new applications
+    const currentAppIds = items.map(app => app._id);
+    const newIds = currentAppIds.filter(id => !previousAppsRef.current.includes(id));
+    
+    if (newIds.length > 0) {
+      setNewAppIds(new Set(newIds));
+      // Remove "new" badge after 10 seconds
+      setTimeout(() => {
+        setNewAppIds(new Set());
+      }, 10000);
+    }
+    
+    previousAppsRef.current = currentAppIds;
+    setApplications(items);
   };
 
   const handleDuplicateJob = (job: TrabajosdeServicio) => {
@@ -265,11 +297,204 @@ export default function ClientDashboardPage() {
           </motion.div>
         </motion.div>
 
+        {/* Applications Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="mb-16"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <h2 className="font-heading text-3xl font-bold text-foreground">
+                Solicitudes Recibidas
+              </h2>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full border border-primary/30"
+              >
+                <motion.div
+                  animate={{ opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-2 h-2 rounded-full bg-primary"
+                />
+                <span className="font-paragraph text-xs font-semibold text-primary">En vivo</span>
+              </motion.div>
+              <span className="font-paragraph text-sm text-muted-text ml-2">({applications.length})</span>
+            </div>
+          </div>
+
+          {applications.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl p-16 border border-border/50 text-center"
+            >
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
+                <Users className="text-primary" size={40} />
+              </div>
+              <p className="font-paragraph text-lg text-muted-text">No hay solicitudes recibidas aún</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
+              <AnimatePresence mode="popLayout">
+                {applications.map((app) => {
+                  const relatedJob = jobs.find(j => j._id === app.jobId);
+                  const isNew = newAppIds.has(app._id);
+                  return (
+                    <motion.div
+                      key={app._id}
+                      variants={itemVariants}
+                      whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                      layout
+                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : undefined}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.4 }}
+                      className="group relative"
+                    >
+                      {/* New App Badge */}
+                      <AnimatePresence>
+                        {isNew && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="absolute top-4 right-4 z-20"
+                          >
+                            <motion.div
+                              animate={{ rotate: [0, 10, -10, 0] }}
+                              transition={{ duration: 0.6, repeat: Infinity }}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-primary to-secondary text-white rounded-full text-xs font-semibold shadow-lg"
+                            >
+                              <Flame size={14} />
+                              Nuevo
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Card Glow Background */}
+                      <div className={`absolute inset-0 rounded-3xl blur-xl group-hover:blur-2xl transition-all opacity-0 group-hover:opacity-100 -z-10 ${
+                        isNew 
+                          ? 'bg-gradient-to-br from-primary/30 to-secondary/30' 
+                          : 'bg-gradient-to-br from-primary/10 to-secondary/10'
+                      }`} />
+
+                      {/* Card Content */}
+                      <div className={`relative rounded-3xl overflow-hidden border shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col p-6 ${
+                        isNew
+                          ? 'bg-gradient-to-br from-white to-primary/5 border-primary/30'
+                          : 'bg-white border-border'
+                      }`}>
+                        {/* Header with Status */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-heading text-xl font-bold text-foreground mb-1">
+                              {relatedJob?.jobTitle || 'Trabajo'}
+                            </h3>
+                            <p className="font-paragraph text-sm text-muted-text">
+                              Solicitud de {app.joseadorId}
+                            </p>
+                          </div>
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-paragraph font-semibold border ${
+                            app.status === 'pending' ? 'bg-accent/10 text-accent border-accent/30' :
+                            app.status === 'accepted' ? 'bg-secondary/10 text-secondary border-secondary/30' :
+                            'bg-muted-text/10 text-muted-text border-muted-text/30'
+                          }`}>
+                            {app.status === 'pending' ? '⏳ Pendiente' :
+                             app.status === 'accepted' ? '✓ Aceptada' :
+                             '✕ Rechazada'}
+                          </span>
+                        </div>
+
+                        {/* Joseador Info */}
+                        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-2xl p-4 mb-4 border border-primary/10">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text mb-1">Joseador</p>
+                              <p className="font-heading text-sm font-bold text-foreground">
+                                {app.joseadorId}
+                              </p>
+                            </div>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => navigate(`/profile`)}
+                              className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                              title="Ver perfil del Joseador"
+                            >
+                              <Eye size={18} />
+                            </motion.button>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        {app.coverLetter && (
+                          <div className="mb-4">
+                            <p className="font-paragraph text-xs text-muted-text mb-2">Carta de Presentación</p>
+                            <p className="font-paragraph text-sm text-foreground line-clamp-3">
+                              {app.coverLetter}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Proposed Price */}
+                        <div className="py-3 border-t border-border/50 border-b border-border/50 mb-4">
+                          <div className="flex items-center justify-between">
+                            <span className="font-paragraph text-sm text-muted-text">Precio Propuesto:</span>
+                            <span className="font-heading text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                              RD$ {app.proposedPrice?.toLocaleString() || '0'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Application Date */}
+                        <p className="font-paragraph text-xs text-muted-text mb-4">
+                          Enviada: {app.applicationDate ? new Date(app.applicationDate).toLocaleDateString('es-ES') : 'N/A'}
+                        </p>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 mt-auto">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate(`/job/${app.jobId}`)}
+                            className="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                          >
+                            <Eye size={16} />
+                            Ver Solicitud
+                          </motion.button>
+                          {app.status === 'pending' && (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex-1 px-4 py-3 bg-accent/10 text-accent rounded-xl font-paragraph text-sm font-semibold hover:bg-accent/20 transition-all border border-accent/30"
+                            >
+                              Responder
+                            </motion.button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </motion.div>
+
         {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border border-border/50 shadow-lg mb-12"
         >
           <div className="flex flex-col md:flex-row gap-4">
@@ -297,10 +522,15 @@ export default function ClientDashboardPage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
-                className="px-4 py-3 border border-border rounded-2xl hover:bg-primary/10 hover:border-primary transition-all font-paragraph font-semibold text-foreground"
+                onClick={() => {
+                  setIsRefreshing(true);
+                  loadJobs().then(() => setIsRefreshing(false));
+                }}
+                disabled={isRefreshing}
+                className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-paragraph font-semibold hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
               >
-                {viewMode === 'list' ? <Map size={20} /> : <List size={20} />}
+                <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                Actualizar
               </motion.button>
             </div>
           </div>
@@ -310,12 +540,28 @@ export default function ClientDashboardPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <h2 className="font-heading text-3xl font-bold text-foreground mb-8">
-            Trabajos Disponibles
-            <span className="ml-3 text-2xl text-primary">({filteredJobs.length})</span>
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <h2 className="font-heading text-3xl font-bold text-foreground">
+                Trabajos Disponibles
+              </h2>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full border border-primary/30"
+              >
+                <motion.div
+                  animate={{ opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-2 h-2 rounded-full bg-primary"
+                />
+                <span className="font-paragraph text-xs font-semibold text-primary">En vivo</span>
+              </motion.div>
+              <span className="font-paragraph text-sm text-muted-text ml-2">({filteredJobs.length})</span>
+            </div>
+          </div>
           {filteredJobs.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
