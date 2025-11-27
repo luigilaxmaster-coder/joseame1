@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
-import { ArrowRight, Briefcase, Users, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, CheckCircle, Star, Rocket, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type AnimatedElementProps = {
@@ -47,8 +47,31 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   return (
     <div ref={ref} className={cn("overflow-clip", className)}>
       <motion.div style={{ y }} className="h-[140%] w-full">
-        <Image src={src} alt={alt} className="w-full h-full object-cover" />
+        <Image src={src} alt={alt} className="w-full h-full object-cover" width={1600} />
       </motion.div>
+    </div>
+  );
+};
+
+// Floating Orbs Background Component
+const FloatingOrbs = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <motion.div
+        animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-accent/20 to-support/10 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ y: [0, 20, 0], x: [0, 30, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-secondary/15 to-accent/10 rounded-full blur-3xl"
+      />
     </div>
   );
 };
@@ -59,25 +82,29 @@ export default function HomePage() {
       icon: Zap,
       title: 'Rápido y Fácil',
       description: 'Publica trabajos o aplica a oportunidades en minutos con nuestra interfaz intuitiva.',
-      color: 'from-primary to-secondary'
+      color: 'from-primary to-secondary',
+      bgColor: 'bg-primary/10'
     },
     {
       icon: Shield,
       title: 'Seguro y Confiable',
       description: 'Con sistema de pagos protegido y perfiles verificados, tu tranquilidad es nuestra prioridad.',
-      color: 'from-secondary to-accent'
+      color: 'from-secondary to-accent',
+      bgColor: 'bg-secondary/10'
     },
     {
       icon: Users,
       title: 'Comunidad Local',
       description: 'Conecta con el talento y los clientes de tu propia comunidad en República Dominicana.',
-      color: 'from-accent to-support'
+      color: 'from-accent to-support',
+      bgColor: 'bg-accent/10'
     },
     {
       icon: Briefcase,
       title: 'Múltiples Servicios',
       description: 'Desde reparaciones del hogar y tecnología hasta consultoría profesional y creativa.',
-      color: 'from-support to-primary'
+      color: 'from-support to-primary',
+      bgColor: 'bg-support/10'
     }
   ];
 
@@ -130,11 +157,25 @@ export default function HomePage() {
         .category-card-mask {
           clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
         }
+        .gradient-text {
+          background: linear-gradient(135deg, #0E9FA8 0%, #3AB689 50%, #71D261 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .card-hover {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(14, 159, 168, 0.15);
+        }
       `}</style>
-      <div className="min-h-screen bg-background text-foreground font-paragraph overflow-clip">
+      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
         
         {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center w-full overflow-hidden">
+        <section className="relative min-h-screen flex items-center justify-center w-full overflow-hidden pt-20">
+          <FloatingOrbs />
           <div className="absolute inset-0 z-0">
             <ParallaxImage 
               src="https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896"
@@ -152,13 +193,23 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className="relative z-20"
             >
-              <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-8"
+              >
+                <Sparkles size={18} className="text-yellow-300" />
+                <span className="text-white font-heading font-semibold">Bienvenido a la revolución del trabajo</span>
+              </motion.div>
+
+              <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
                 JOSEAME
               </h1>
-              <p className="font-heading text-2xl md:text-3xl text-white mb-8" style={{ textShadow: '0 2px 5px rgba(0,0,0,0.2)' }}>
+              <p className="font-heading text-2xl md:text-3xl text-white mb-8 font-semibold">
                 Trabajo cerca, rápido y fácil.
               </p>
-              <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
                 Conectamos clientes con los mejores profesionales de República Dominicana. Publica un trabajo o encuentra tu próximo joseo en minutos.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -186,8 +237,41 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Stats Section */}
+        <section className="py-16 md:py-24 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { number: '10K+', label: 'Profesionales Activos', icon: Users },
+                { number: '50K+', label: 'Trabajos Completados', icon: CheckCircle },
+                { number: '4.9★', label: 'Calificación Promedio', icon: Star }
+              ].map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.2 }}
+                  className="text-center p-8 rounded-2xl bg-gradient-to-br from-background to-white border border-border/50"
+                >
+                  <div className="flex justify-center mb-4">
+                    <div className="p-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl">
+                      <stat.icon className="text-primary" size={32} />
+                    </div>
+                  </div>
+                  <h3 className="font-heading text-4xl font-bold gradient-text mb-2">{stat.number}</h3>
+                  <p className="text-muted-text font-paragraph">{stat.label}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Features Section */}
-        <section className="py-20 md:py-32 bg-white">
+        <section className="py-20 md:py-32 bg-gradient-to-b from-background to-white">
           <div className="max-w-[120rem] mx-auto px-6 md:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-16">
               <div className="lg:sticky top-32 h-fit">
@@ -205,17 +289,20 @@ export default function HomePage() {
                   <AnimatedElement key={index} delay={index * 100}>
                     <motion.div
                       whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300 } }}
-                      className="bg-background rounded-2xl p-8 h-full border border-border/50 shadow-sm hover:shadow-lg transition-shadow duration-300"
+                      className="card-hover bg-white rounded-2xl p-8 h-full border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
                     >
-                      <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-md`}>
-                        <feature.icon className="text-white" size={32} />
+                      <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      <div className="relative z-10">
+                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-md`}>
+                          <feature.icon className="text-white" size={32} />
+                        </div>
+                        <h3 className="font-heading text-2xl font-semibold text-foreground mb-3">
+                          {feature.title}
+                        </h3>
+                        <p className="text-muted-text">
+                          {feature.description}
+                        </p>
                       </div>
-                      <h3 className="font-heading text-2xl font-semibold text-foreground mb-3">
-                        {feature.title}
-                      </h3>
-                      <p className="text-muted-text">
-                        {feature.description}
-                      </p>
                     </motion.div>
                   </AnimatedElement>
                 ))}
@@ -225,8 +312,12 @@ export default function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20 md:py-32 bg-background">
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12">
+        <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-16 md:mb-24">
               <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
                 Simple, Transparente y Directo.
@@ -240,8 +331,8 @@ export default function HomePage() {
               {/* Para Clientes */}
               <div className="flex flex-col gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
-                    <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover" />
+                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                    <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent opacity-[1]"></div>
                     <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
                   </div>
@@ -249,12 +340,15 @@ export default function HomePage() {
                 <div className="space-y-8 mt-8 lg:mt-0">
                   {clientSteps.map((item, index) => (
                     <AnimatedElement key={index} delay={index * 150}>
-                      <div className="flex items-start gap-6">
+                      <motion.div
+                        whileHover={{ x: 8 }}
+                        className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
+                      >
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
                         <p className="pt-2.5 text-lg font-heading font-bold text-foreground">{item.text}</p>
-                      </div>
+                      </motion.div>
                     </AnimatedElement>
                   ))}
                 </div>
@@ -263,8 +357,8 @@ export default function HomePage() {
               {/* Para Joseadores */}
               <div className="flex flex-col gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl">
-                    <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover" />
+                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                    <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
                     <div className="absolute inset-0 bg-gradient-to-t from-accent/70 to-transparent"></div>
                     <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Joseadores</h3>
                   </div>
@@ -272,12 +366,15 @@ export default function HomePage() {
                 <div className="space-y-8 mt-8 lg:mt-0">
                   {joseadorSteps.map((item, index) => (
                     <AnimatedElement key={index} delay={index * 150}>
-                      <div className="flex items-start gap-6">
+                      <motion.div
+                        whileHover={{ x: 8 }}
+                        className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
+                      >
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
                           <span className="font-heading text-xl font-bold text-white">{item.step}</span>
                         </div>
                         <p className="font-paragraph text-lg pt-2.5 font-bold text-foreground">{item.text}</p>
-                      </div>
+                      </motion.div>
                     </AnimatedElement>
                   ))}
                 </div>
@@ -287,8 +384,12 @@ export default function HomePage() {
         </section>
         
         {/* Popular Categories Section */}
-        <section className="py-20 md:py-32 bg-white w-full">
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12">
+        <section className="py-20 md:py-32 bg-gradient-to-b from-white to-background w-full relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
             <AnimatedElement className="mb-12">
               <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Encuentra el talento que necesitas</h2>
               <p className="text-lg text-muted-text mt-2">Desde tareas rápidas hasta proyectos complejos.</p>
@@ -298,26 +399,118 @@ export default function HomePage() {
             <div className="flex gap-8 pb-8 px-6 md:px-12 overflow-x-auto">
               {popularCategories.map((category, index) => (
                 <AnimatedElement key={index} delay={index * 100} className="flex-shrink-0 w-[300px] sm:w-[350px]">
-                  <motion.div whileHover={{ y: -5 }} className="group">
+                  <motion.div whileHover={{ y: -8 }} className="group card-hover">
                     <div className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-lg category-card-mask">
-                      <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent"></div>
-                      <h3 className="absolute top-8 left-8 font-heading text-4xl font-bold text-white">{category.name}</h3>
+                      <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={350} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                      <motion.h3
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="absolute bottom-6 left-8 right-8 font-heading text-2xl font-bold text-white"
+                      >
+                        {category.name}
+                      </motion.h3>
                     </div>
                   </motion.div>
                 </AnimatedElement>
               ))}
             </div>
-            <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden"></div>
+          </div>
+        </section>
+
+        {/* Benefits Section */}
+        <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-16">
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
+                ¿Por qué elegir JOSEAME?
+              </h2>
+              <p className="text-lg text-muted-text max-w-3xl mx-auto">
+                Somos más que una plataforma, somos tu aliado en el crecimiento profesional.
+              </p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Rocket,
+                  title: 'Crecimiento Rápido',
+                  description: 'Expande tu negocio o carrera profesional con acceso a miles de oportunidades.',
+                  color: 'from-primary to-secondary'
+                },
+                {
+                  icon: Target,
+                  title: 'Precisión en Búsqueda',
+                  description: 'Encuentra exactamente lo que necesitas con nuestros filtros inteligentes.',
+                  color: 'from-secondary to-accent'
+                },
+                {
+                  icon: TrendingUp,
+                  title: 'Ingresos Consistentes',
+                  description: 'Acceso a un flujo constante de trabajos bien pagados y verificados.',
+                  color: 'from-accent to-support'
+                },
+                {
+                  icon: Shield,
+                  title: 'Protección Total',
+                  description: 'Pagos seguros, garantía de calidad y resolución de disputas justa.',
+                  color: 'from-support to-primary'
+                },
+                {
+                  icon: Users,
+                  title: 'Comunidad Fuerte',
+                  description: 'Conecta con profesionales, aprende y crece junto a otros joseadores.',
+                  color: 'from-primary to-accent'
+                },
+                {
+                  icon: Sparkles,
+                  title: 'Soporte 24/7',
+                  description: 'Equipo dedicado listo para ayudarte en cualquier momento.',
+                  color: 'from-accent to-secondary'
+                }
+              ].map((benefit, index) => (
+                <AnimatedElement key={index} delay={index * 100}>
+                  <motion.div
+                    whileHover={{ y: -8 }}
+                    className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-8 border border-border/50 shadow-sm hover:shadow-xl"
+                  >
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-6 shadow-md`}>
+                      <benefit.icon className="text-white" size={28} />
+                    </div>
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-muted-text text-sm">
+                      {benefit.description}
+                    </p>
+                  </motion.div>
+                </AnimatedElement>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="py-24 md:py-32 px-6 md:px-12">
           <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-12 md:p-20 text-center relative overflow-hidden">
+            <FloatingOrbs />
             <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
             <AnimatedElement className="relative z-10">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">{"¿Listo para josear?"}</h2>
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-8"
+              >
+                <Sparkles size={18} className="text-yellow-300" />
+                <span className="text-white font-heading font-semibold">Únete a la revolución</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">¿Listo para josear?</h2>
               <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
                 Únete a miles de dominicanos que ya están transformando la forma en que trabajan.
               </p>
