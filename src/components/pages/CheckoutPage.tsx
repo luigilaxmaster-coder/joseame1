@@ -4,9 +4,9 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { PiquetePackages } from '@/entities';
-import { ArrowLeft, CreditCard, Lock, Check, AlertCircle, Loader } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Check, AlertCircle, Loader, Zap } from 'lucide-react';
 import { createPaymentOrder, recordPurchase, updatePurchaseStatus } from '@/lib/wix-pay-service';
-import { addPiquetes } from '@/lib/piquete-service';
+import { addPiquetes, getPiqueteBalance } from '@/lib/piquete-service';
 
 export default function CheckoutPage() {
   const location = useLocation();
@@ -18,6 +18,7 @@ export default function CheckoutPage() {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [purchaseId, setPurchaseId] = useState<string | null>(null);
+  const [newBalance, setNewBalance] = useState<number>(0);
 
   useEffect(() => {
     if (packageId) {
@@ -101,13 +102,17 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Step 6: Get updated balance to display
+      const updatedBalance = await getPiqueteBalance(member.loginEmail);
+      setNewBalance(updatedBalance);
+
       // Payment successful
       setPaymentSuccess(true);
 
-      // Redirect to wallet after 2 seconds
+      // Redirect to wallet after 3 seconds
       setTimeout(() => {
         navigate('/joseador/wallet', { state: { purchaseSuccess: true } });
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error('Payment error:', error);
       setPaymentError('Error al procesar el pago. Por favor intenta de nuevo.');
@@ -130,7 +135,7 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="text-center max-w-md"
         >
           <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-6">
             <Check size={40} className="text-accent" />
@@ -138,9 +143,26 @@ export default function CheckoutPage() {
           <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
             ¡Compra Exitosa!
           </h1>
-          <p className="font-paragraph text-lg text-muted-text mb-6">
-            Se han agregado {selectedPackage.credits} piquetes a tu cuenta
+          <p className="font-paragraph text-lg text-muted-text mb-4">
+            Se han agregado {selectedPackage?.credits} piquetes a tu cuenta
           </p>
+          
+          {/* Balance Update Display */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-xl p-4 mb-6"
+          >
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Zap size={20} className="text-secondary" />
+              <span className="font-paragraph text-sm text-muted-text">Saldo Actualizado</span>
+            </div>
+            <p className="font-heading text-3xl font-bold text-secondary">
+              {newBalance} piquetes
+            </p>
+          </motion.div>
+
           <p className="font-paragraph text-sm text-muted-text">
             Redirigiendo a tu wallet...
           </p>
