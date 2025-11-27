@@ -3,15 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle } from 'lucide-react';
 import { Image } from '@/components/ui/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings } from '@/entities';
+import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 
 function ProfilePage() {
   const { member, actions } = useMember();
   const { userRole, setUserRole } = useRoleStore();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [profilePhotos, setProfilePhotos] = useState<ProfilePhotos[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -20,6 +22,9 @@ function ProfilePage() {
   const [tempDescription, setTempDescription] = useState('');
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [photoCaption, setPhotoCaption] = useState('');
+  const [uploadError, setUploadError] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Determine the back button destination based on user role
   const getBackButtonPath = () => {
@@ -62,27 +67,69 @@ function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !member?.loginEmail) return;
 
+    // Validate file
+    if (!isValidImageFile(file)) {
+      setUploadError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 10MB.');
+      return;
+    }
+
+    setUploadError('');
+    setIsUploadingPhoto(true);
+    
+    try {
+      // Create preview URL for immediate display
+      const preview = await createPreviewUrl(file);
+      setPreviewUrl(preview);
+      setSelectedFile(file);
+    } catch (error) {
+      setUploadError(getUploadErrorMessage(error));
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!selectedFile || !member?.loginEmail || !previewUrl) return;
+
     setIsUploadingPhoto(true);
     try {
-      // In a real app, you would upload to a storage service
-      // For now, we'll create a placeholder URL
-      const photoUrl = URL.createObjectURL(file);
-      
+      // Save photo to database with preview URL
+      // In production, this would be replaced with actual Wix Media upload
       await BaseCrudService.create('profilephotos', {
         _id: crypto.randomUUID(),
-        photo: photoUrl,
+        photo: previewUrl,
         caption: photoCaption || 'Sin descripción',
         uploadDate: new Date().toISOString(),
         likeCount: 0,
         uploaderId: member.loginEmail
       });
 
+      // Reset form
       setPhotoCaption('');
+      setPreviewUrl('');
+      setSelectedFile(null);
+      setUploadError('');
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      // Reload photos
       await loadProfileData();
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      setUploadError(getUploadErrorMessage(error));
     } finally {
       setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setPreviewUrl('');
+    setSelectedFile(null);
+    setPhotoCaption('');
+    setUploadError('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -325,49 +372,111 @@ function ProfilePage() {
           <div className="bg-white rounded-3xl p-8 border border-border shadow-xl">
             <h3 className="font-heading text-2xl font-bold text-foreground mb-6">Mi Galería</h3>
             
-            {/* Upload Form */}
-            <div className="mb-8 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border-2 border-dashed border-primary/30">
-              <div className="flex flex-col items-center gap-4">
-                <div className="p-4 bg-white rounded-full">
-                  <Upload size={32} className="text-primary" />
-                </div>
-                <div className="text-center">
-                  <p className="font-heading font-semibold text-foreground mb-2">Sube una foto a tu perfil</p>
-                  <p className="font-paragraph text-sm text-muted-text">Comparte momentos de tu trabajo</p>
-                </div>
-                <label className="relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleUploadPhoto}
-                    disabled={isUploadingPhoto}
-                    className="hidden"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-paragraph font-semibold rounded-lg cursor-pointer hover:shadow-lg transition-all"
-                  >
-                    {isUploadingPhoto ? 'Subiendo...' : 'Seleccionar Foto'}
-                  </motion.button>
-                </label>
-              </div>
+            {/* Error Message */}
+            {uploadError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3"
+              >
+                <AlertCircle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
+                <p className="font-paragraph text-sm text-destructive">{uploadError}</p>
+              </motion.div>
+            )}
 
-              {/* Caption Input */}
-              <div className="mt-6">
-                <input
-                  type="text"
-                  value={photoCaption}
-                  onChange={(e) => setPhotoCaption(e.target.value)}
-                  placeholder="Agrega una descripción (opcional)"
-                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
+            {/* Upload Form - Show preview or upload interface */}
+            {previewUrl ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-8 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border-2 border-primary/30"
+              >
+                <div className="space-y-4">
+                  {/* Preview Image */}
+                  <div className="relative rounded-xl overflow-hidden bg-gray-200 h-64 flex items-center justify-center">
+                    <Image
+                      src={previewUrl}
+                      alt="Vista previa"
+                      className="w-full h-full object-cover"
+                      width={400}
+                    />
+                  </div>
 
-            {/* Photos Grid */}
+                  {/* Caption Input */}
+                  <div>
+                    <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">
+                      Descripción (opcional)
+                    </label>
+                    <input
+                      type="text"
+                      value={photoCaption}
+                      onChange={(e) => setPhotoCaption(e.target.value)}
+                      placeholder="Agrega una descripción para tu foto..."
+                      className="w-full px-4 py-3 border border-border rounded-lg font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleConfirmUpload}
+                      disabled={isUploadingPhoto}
+                      className="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white font-paragraph font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <Check size={18} />
+                      {isUploadingPhoto ? 'Subiendo...' : 'Confirmar y Subir'}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCancelUpload}
+                      disabled={isUploadingPhoto}
+                      className="flex-1 px-4 py-3 border border-border text-foreground font-paragraph font-semibold rounded-lg hover:bg-background transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancelar
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="mb-8 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border-2 border-dashed border-primary/30">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="p-4 bg-white rounded-full">
+                    <Upload size={32} className="text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-heading font-semibold text-foreground mb-2">Sube una foto a tu perfil</p>
+                    <p className="font-paragraph text-sm text-muted-text">Comparte momentos de tu trabajo</p>
+                  </div>
+                  <label className="relative">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadPhoto}
+                      disabled={isUploadingPhoto}
+                      className="hidden"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-paragraph font-semibold rounded-lg cursor-pointer hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isUploadingPhoto}
+                    >
+                      {isUploadingPhoto ? 'Procesando...' : 'Seleccionar Foto'}
+                    </motion.button>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* Photos Grid - Instagram-style feed */}
             {profilePhotos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-6">
+                <h4 className="font-heading text-lg font-semibold text-foreground">Mis Fotos</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {profilePhotos.map((photo, index) => (
                   <motion.div
                     key={photo._id}
@@ -425,6 +534,7 @@ function ProfilePage() {
                     </div>
                   </motion.div>
                 ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-12">
