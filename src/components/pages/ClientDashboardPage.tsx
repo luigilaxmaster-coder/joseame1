@@ -343,17 +343,16 @@ export default function ClientDashboardPage() {
               animate="visible"
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="wait">
                 {applications.map((app) => {
                   const relatedJob = jobs.find(j => j._id === app.jobId);
                   const isNew = newAppIds.has(app._id);
                   return (
                     <motion.div
-                      key={app._id}
+                      key={`app-${app._id}`}
                       variants={itemVariants}
                       whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                      layout
-                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : undefined}
+                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : { opacity: 1, scale: 1, y: 0 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ duration: 0.4 }}

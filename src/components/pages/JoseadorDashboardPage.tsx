@@ -428,17 +428,16 @@ export default function JoseadorDashboardPage() {
               animate="visible"
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="wait">
                 {filteredJobs.map((job) => {
                   const isNew = newJobIds.has(job._id);
                   return (
                     <motion.div
-                      key={job._id}
+                      key={`job-${job._id}`}
                       variants={itemVariants}
                       whileHover={{ y: -12, transition: { duration: 0.3 } }}
                       onClick={() => navigate(`/job/${job._id}`)}
-                      layout
-                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : undefined}
+                      initial={isNew ? { opacity: 0, scale: 0.8, y: 20 } : { opacity: 1, scale: 1, y: 0 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ duration: 0.4 }}
