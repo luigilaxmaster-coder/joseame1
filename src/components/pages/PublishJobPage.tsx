@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { TrabajosdeServicio } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Briefcase, FileText } from 'lucide-react';
+import { useJobStore } from '@/store/jobStore';
 
 export default function PublishJobPage() {
   const navigate = useNavigate();
+  const { jobToDuplicate, clearJobToDuplicate } = useJobStore();
   const [formData, setFormData] = useState({
     jobTitle: '',
     description: '',
@@ -15,6 +17,19 @@ export default function PublishJobPage() {
     locationAddress: '',
     jobImage: ''
   });
+
+  useEffect(() => {
+    if (jobToDuplicate) {
+      setFormData({
+        jobTitle: jobToDuplicate.jobTitle || '',
+        description: jobToDuplicate.description || '',
+        serviceCategory: jobToDuplicate.serviceCategory || '',
+        budget: jobToDuplicate.budget?.toString() || '',
+        locationAddress: jobToDuplicate.locationAddress || '',
+        jobImage: jobToDuplicate.jobImage || ''
+      });
+    }
+  }, [jobToDuplicate]);
 
   const categories = ['Plomería', 'Electricidad', 'Limpieza', 'Construcción', 'Jardinería', 'Tecnología', 'Otro'];
 
@@ -34,6 +49,7 @@ export default function PublishJobPage() {
     };
 
     await BaseCrudService.create('servicejobs', newJob);
+    clearJobToDuplicate();
     navigate('/client/dashboard');
   };
 
@@ -58,10 +74,10 @@ export default function PublishJobPage() {
         >
           <div className="mb-8">
             <h1 className="font-heading text-4xl font-bold text-foreground mb-3">
-              Publicar Nuevo Trabajo
+              {jobToDuplicate ? 'Solicitar Trabajo de Nuevo' : 'Publicar Nuevo Trabajo'}
             </h1>
             <p className="font-paragraph text-lg text-muted-text">
-              Completa los detalles de tu trabajo para recibir aplicaciones de Joseadores
+              {jobToDuplicate ? 'Estás creando una nueva solicitud basada en un trabajo anterior' : 'Completa los detalles de tu trabajo para recibir aplicaciones de Joseadores'}
             </p>
           </div>
 
@@ -179,7 +195,7 @@ export default function PublishJobPage() {
                 type="submit"
                 className="w-full px-6 py-4 bg-gradient-to-r from-primary via-secondary to-accent text-white font-heading text-lg font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                Publicar Trabajo
+                {jobToDuplicate ? 'Crear Nueva Solicitud' : 'Publicar Trabajo'}
               </motion.button>
               <p className="font-paragraph text-sm text-muted-text text-center mt-4">
                 Tu trabajo será visible para todos los Joseadores inmediatamente

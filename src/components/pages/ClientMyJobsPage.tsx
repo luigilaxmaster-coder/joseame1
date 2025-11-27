@@ -4,12 +4,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { TrabajosdeServicio } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, Eye, Trash2 } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, Eye, Trash2, RotateCcw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
+import { useJobStore } from '@/store/jobStore';
 
 export default function ClientMyJobsPage() {
   const navigate = useNavigate();
   const { member } = useMember();
+  const { setJobToDuplicate } = useJobStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'completed'>('all');
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,11 @@ export default function ClientMyJobsPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleDuplicateJob = (job: TrabajosdeServicio) => {
+    setJobToDuplicate(job);
+    navigate('/client/publish-job');
   };
 
   const filteredJobs = filter === 'all' ? jobs : jobs.filter(job => job.status === filter);
@@ -173,6 +180,19 @@ export default function ClientMyJobsPage() {
                     <Eye size={16} />
                     Ver Detalles
                   </motion.button>
+
+                  {/* Duplicate Button - Only for completed jobs */}
+                  {job.status === 'completed' && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDuplicateJob(job)}
+                      className="w-full mt-3 px-4 py-2 bg-accent/10 text-accent rounded-xl font-paragraph font-semibold hover:bg-accent/20 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <RotateCcw size={16} />
+                      Solicitar de Nuevo
+                    </motion.button>
+                  )}
                   
                   {/* Delete Button */}
                   {showDeleteConfirm === job._id ? (
