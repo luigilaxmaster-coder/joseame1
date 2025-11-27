@@ -159,12 +159,175 @@ export default function JoseadorDashboardPage() {
           </p>
         </motion.div>
 
-        {/* Search and Filters */}
+        {/* Wallet Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white rounded-3xl p-6 border border-border shadow-lg mb-8"
+          className="relative mb-12 group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+          <div className="relative bg-gradient-to-br from-secondary via-accent to-support rounded-3xl p-8 md:p-10 text-white shadow-2xl overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -ml-20 -mb-20" />
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <motion.div
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center"
+                  >
+                    <Wallet size={32} />
+                  </motion.div>
+                  <div>
+                    <p className="font-paragraph text-white/80 text-sm">Mi Wallet</p>
+                    <h2 className="font-heading text-3xl font-bold">Gestiona tus Fondos</h2>
+                  </div>
+                </div>
+                <Link to="/joseador/wallet">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-white/20 hover:bg-white/30 rounded-2xl font-paragraph font-semibold transition-all backdrop-blur-sm border border-white/20"
+                  >
+                    Ver Detalles
+                  </motion.button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Balance Card */}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                      <DollarSign size={20} />
+                    </div>
+                    <p className="font-paragraph text-white/80 text-sm">Balance Disponible</p>
+                  </div>
+                  <p className="font-heading text-4xl font-bold">RD$ {walletBalance.toLocaleString()}</p>
+                  <p className="font-paragraph text-white/60 text-sm mt-2">Fondos listos para retirar</p>
+                </motion.div>
+
+                {/* Piquetes Card */}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                        <Zap size={20} />
+                      </div>
+                      <p className="font-paragraph text-white/80 text-sm">Piquetes Disponibles</p>
+                    </div>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="text-2xl font-bold"
+                    >
+                      {piquetesBalance}
+                    </motion.div>
+                  </div>
+                  <p className="font-paragraph text-white/60 text-sm mb-4">Créditos para aplicar a trabajos</p>
+                  <Link to="/joseador/buy-piquetes">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full px-4 py-3 bg-white text-secondary rounded-xl font-paragraph font-semibold hover:bg-white/90 transition-all flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart size={18} />
+                      Comprar Piquetes
+                    </motion.button>
+                  </Link>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+        >
+          <motion.div variants={itemVariants} whileHover={{ y: -8 }} className="group">
+            <Link to="/joseador/my-applications">
+              <div className="relative overflow-hidden rounded-3xl h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                  <div>
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-4"
+                    >
+                      <Briefcase className="text-secondary" size={32} />
+                    </motion.div>
+                    <h3 className="font-heading text-2xl font-bold text-foreground mb-2">Mis Aplicaciones</h3>
+                  </div>
+                  <p className="font-paragraph text-muted-text">Gestiona tus solicitudes enviadas</p>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div variants={itemVariants} whileHover={{ y: -8 }} className="group">
+            <Link to="/joseador/inbox">
+              <div className="relative overflow-hidden rounded-3xl h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-support/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                  <div>
+                    <motion.div
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-4"
+                    >
+                      <MessageSquare className="text-accent" size={32} />
+                    </motion.div>
+                    <h3 className="font-heading text-2xl font-bold text-foreground mb-2">Mensajes</h3>
+                  </div>
+                  <p className="font-paragraph text-muted-text">Chatea con clientes</p>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div variants={itemVariants} whileHover={{ y: -8 }} className="group">
+            <Link to="/joseador/wallet">
+              <div className="relative overflow-hidden rounded-3xl h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-support/20 to-secondary/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-support/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                  <div>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-support/20 to-secondary/20 flex items-center justify-center mb-4"
+                    >
+                      <Wallet className="text-support" size={32} />
+                    </motion.div>
+                    <h3 className="font-heading text-2xl font-bold text-foreground mb-2">Wallet</h3>
+                  </div>
+                  <p className="font-paragraph text-muted-text">Gestiona tus fondos</p>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border border-border/50 shadow-lg mb-12"
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative group">
@@ -194,8 +357,7 @@ export default function JoseadorDashboardPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-12"
+          transition={{ duration: 0.6, delay: 0.4 }}
         >
           <h2 className="font-heading text-3xl font-bold text-foreground mb-8">
             Trabajos Disponibles
