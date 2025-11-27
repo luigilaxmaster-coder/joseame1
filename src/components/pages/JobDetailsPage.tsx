@@ -39,14 +39,21 @@ export default function JobDetailsPage() {
     }
   }, [jobId, userRole, member?.loginEmail]);
 
-  // Update piquete calculation when expertise level changes or job budget changes
+  // Update piquete calculation when expertise level or proposed price changes
   useEffect(() => {
-    if (job?.budget) {
-      // Calculate based on client's budget offer
+    if (applicationData.proposedPrice) {
+      // Calculate based on joseador's proposed price
+      const proposedAmount = parseFloat(applicationData.proposedPrice);
+      if (!isNaN(proposedAmount) && proposedAmount > 0) {
+        const calculation = calculatePiquetes(proposedAmount, expertiseLevel);
+        setPiqueteInfo(calculation);
+      }
+    } else if (job?.budget) {
+      // Show calculation based on client's budget when no proposed price is entered
       const calculation = calculatePiquetes(job.budget, expertiseLevel);
       setPiqueteInfo(calculation);
     }
-  }, [expertiseLevel, job?.budget]);
+  }, [expertiseLevel, applicationData.proposedPrice, job?.budget]);
 
   const loadPiqueteBalance = async () => {
     if (!member?.loginEmail) return;
@@ -354,8 +361,8 @@ export default function JobDetailsPage() {
                           className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
                         />
                         
-                        {/* Piquete Calculator */}
-                        {applicationData.proposedPrice && piqueteInfo && (
+                        {/* Piquete Calculator - Shows dynamically based on proposed price */}
+                        {piqueteInfo && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -372,7 +379,7 @@ export default function JobDetailsPage() {
                               </div>
                               <div className="text-xs text-muted-text space-y-1">
                                 <p>
-                                  • Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''} (RD$ {job?.budget?.toLocaleString()} ÷ 1000)
+                                  • Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''} (RD$ {applicationData.proposedPrice ? parseFloat(applicationData.proposedPrice).toLocaleString() : job?.budget?.toLocaleString()} ÷ 1000)
                                 </p>
                                 {expertiseLevel !== 'beginner' && (
                                   <p>
@@ -408,6 +415,21 @@ export default function JobDetailsPage() {
                             </div>
                           </motion.div>
                         )}
+                      </div>
+
+                      <div>
+                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
+                          Nivel de Experiencia
+                        </label>
+                        <select
+                          value={expertiseLevel}
+                          onChange={(e) => setExpertiseLevel(e.target.value as ExpertiseLevel)}
+                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
+                        >
+                          <option value="beginner">Principiante (Sin ajuste)</option>
+                          <option value="intermediate">Intermedio (+25%)</option>
+                          <option value="expert">Experto (+50%)</option>
+                        </select>
                       </div>
 
                       <div>
