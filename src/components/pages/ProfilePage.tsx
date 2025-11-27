@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, RefreshCw, MapPin, DollarSign, Briefcase, ArrowRight } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
-import { ProfilePhotos, UserRatings } from '@/entities';
+import { ProfilePhotos, UserRatings, TrabajosdeServicio } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 
 function ProfilePage() {
@@ -16,6 +16,8 @@ function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profilePhotos, setProfilePhotos] = useState<ProfilePhotos[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
+  const [availableJobs, setAvailableJobs] = useState<TrabajosdeServicio[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [description, setDescription] = useState('');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -60,6 +62,27 @@ function ProfilePage() {
     if (userRatingsData.length > 0) {
       const avg = userRatingsData.reduce((sum, r) => sum + (r.ratingValue || 0), 0) / userRatingsData.length;
       setAverageRating(Math.round(avg * 10) / 10);
+    }
+
+    // Load available jobs
+    await loadAvailableJobs();
+  };
+
+  const loadAvailableJobs = async () => {
+    setLoadingJobs(true);
+    try {
+      const { items: jobs } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
+      // Filter active jobs and sort by most recent
+      const activeJobs = jobs.filter(job => job.status === 'active' || job.status === 'open');
+      setAvailableJobs(activeJobs.sort((a, b) => {
+        const dateA = new Date(a.postedDate || 0).getTime();
+        const dateB = new Date(b.postedDate || 0).getTime();
+        return dateB - dateA;
+      }));
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    } finally {
+      setLoadingJobs(false);
     }
   };
 
@@ -607,7 +630,132 @@ function ProfilePage() {
             </div>
           )}
 
-          {/* Role Selection */}
+          {/* Available Jobs Section */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-border shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-heading text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+                <Briefcase size={24} className="sm:w-[28px] sm:h-[28px] text-secondary" />
+                Trabajos Disponibles
+              </h3>
+              <span className="px-3 sm:px-4 py-1 sm:py-2 bg-secondary/10 rounded-full font-paragraph text-xs sm:text-sm font-semibold text-secondary">
+                {availableJobs.length} activos
+              </span>
+            </div>
+
+            {loadingJobs ? (
+              <div className="flex items-center justify-center py-12">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-8 h-8 rounded-full border-2 border-secondary border-t-transparent"
+                />
+              </div>
+            ) : availableJobs.length > 0 ? (
+              <div className="space-y-3 sm:space-y-4">
+                {availableJobs.slice(0, 5).map((job, index) => (
+                  <motion.div
+                    key={job._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group p-4 sm:p-5 bg-gradient-to-br from-white to-background rounded-lg sm:rounded-xl border border-border hover:border-secondary/50 hover:shadow-lg transition-all cursor-pointer"
+                    onClick={() => navigate(`/job/${job._id}`)}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                      {/* Job Image */}
+                      {job.jobImage && (
+                        <div className="hidden sm:block flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-200">
+                          <Image
+                            src={job.jobImage}
+                            alt={job.jobTitle || 'Trabajo'}
+                            className="w-full h-full object-cover"
+                            width={80}
+                          />
+                        </div>
+                      )}
+
+                      {/* Job Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="min-w-0">
+                            <h4 className="font-heading text-sm sm:text-base font-bold text-foreground truncate group-hover:text-secondary transition-colors">
+                              {job.jobTitle}
+                            </h4>
+                            {job.serviceCategory && (
+                              <p className="font-paragraph text-xs sm:text-sm text-secondary font-semibold mt-1">
+                                {job.serviceCategory}
+                              </p>
+                            )}
+                          </div>
+                          <motion.div
+                            whileHover={{ x: 4 }}
+                            className="flex-shrink-0 text-secondary opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ArrowRight size={18} className="sm:w-[20px] sm:h-[20px]" />
+                          </motion.div>
+                        </div>
+
+                        {/* Description */}
+                        {job.description && (
+                          <p className="font-paragraph text-xs sm:text-sm text-muted-text line-clamp-2 mb-3">
+                            {job.description}
+                          </p>
+                        )}
+
+                        {/* Job Details */}
+                        <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+                          {job.budget && (
+                            <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-lg">
+                              <DollarSign size={14} className="sm:w-[16px] sm:h-[16px] text-primary" />
+                              <span className="font-paragraph text-xs sm:text-sm font-semibold text-primary">
+                                ${job.budget.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+
+                          {job.locationAddress && (
+                            <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-accent/10 rounded-lg">
+                              <MapPin size={14} className="sm:w-[16px] sm:h-[16px] text-accent" />
+                              <span className="font-paragraph text-xs sm:text-sm text-accent truncate">
+                                {job.locationAddress}
+                              </span>
+                            </div>
+                          )}
+
+                          {job.postedDate && (
+                            <span className="font-paragraph text-xs text-muted-text">
+                              {new Date(job.postedDate).toLocaleDateString('es-DO')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* View All Button */}
+                {availableJobs.length > 5 && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/')}
+                    className="w-full mt-4 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-secondary text-secondary font-heading text-sm sm:text-base font-semibold rounded-lg hover:bg-secondary/5 transition-all flex items-center justify-center gap-2"
+                  >
+                    Ver todos los trabajos ({availableJobs.length})
+                    <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  </motion.button>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 sm:py-12">
+                <Briefcase size={40} className="sm:w-[48px] sm:h-[48px] text-muted-text/30 mx-auto mb-3 sm:mb-4" />
+                <p className="font-paragraph text-sm sm:text-base text-muted-text mb-2">No hay trabajos disponibles en este momento</p>
+                <p className="font-paragraph text-xs sm:text-sm text-muted-text">Vuelve más tarde para ver nuevas oportunidades</p>
+              </div>
+            )}
+          </div>
+
+          {/* ... keep existing code (Role Selection section) ... */}
           <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-border shadow-xl">
             <h3 className="font-heading text-xl sm:text-2xl font-bold text-foreground mb-6">
               Cambiar Rol
