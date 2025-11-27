@@ -204,10 +204,12 @@ export default function BuyPiquetesPage() {
               ¿Cómo funcionan los piquetes?
             </h2>
             <div className="space-y-3 font-paragraph text-foreground">
-              <p>• Cada piquete te permite aplicar a un trabajo</p>
-              <p>• Los piquetes no expiran, úsalos cuando quieras</p>
-              <p>• Puedes comprar más piquetes en cualquier momento</p>
-              <p>• Recibes 5 piquetes gratis al registrarte</p>
+              <p>• <strong>Costo de aplicación:</strong> 10% del presupuesto del trabajo + 1 piquete por cada 1000 RD$</p>
+              <p>• <strong>Ejemplo:</strong> Para un trabajo de RD$ 5000: (5000 × 0.1) + (5000 ÷ 1000) = 5 + 5 = 10 piquetes</p>
+              <p>• <strong>Ajuste por nivel:</strong> Intermedio +25%, Experto +50% del costo base</p>
+              <p>• <strong>Reembolso:</strong> 100% si es rechazado, 50% si el cliente cancela, 0% si se completa</p>
+              <p>• <strong>Sin expiración:</strong> Los piquetes no expiran, úsalos cuando quieras</p>
+              <p>• <strong>Compra en cualquier momento:</strong> Adquiere más piquetes según tus necesidades</p>
             </div>
           </div>
         </motion.div>

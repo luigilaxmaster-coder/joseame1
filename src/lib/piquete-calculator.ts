@@ -2,7 +2,8 @@
  * Piquete Calculator - Calculates piquete costs based on job budget and expertise level
  * 
  * Policy:
- * - Base: 1 piquete per 1000 RD$ (minimum 1)
+ * - Base: 10% of job budget in piquetes (minimum 1)
+ * - Additional: 1 piquete per each 1000 RD$ of budget
  * - Expertise adjustments:
  *   - Beginner: +0% (base rate)
  *   - Intermediate: +25% (1.25x multiplier)
@@ -18,6 +19,8 @@ export type ExpertiseLevel = 'beginner' | 'intermediate' | 'expert';
 
 export interface PiqueteCalculation {
   basePiquetes: number;
+  percentagePiquetes: number;
+  additionalPiquetes: number;
   expertiseMultiplier: number;
   totalPiquetes: number;
   costBreakdown: string;
@@ -33,8 +36,14 @@ export function calculatePiquetes(
   jobBudget: number,
   expertiseLevel: ExpertiseLevel = 'beginner'
 ): PiqueteCalculation {
-  // Base calculation: 1 piquete per 1000 RD$ (minimum 1)
-  const basePiquetes = Math.max(1, Math.ceil(jobBudget / 1000));
+  // Base calculation: 10% of job budget (minimum 1)
+  const percentagePiquetes = Math.max(1, Math.ceil(jobBudget * 0.1));
+  
+  // Additional: 1 piquete per 1000 RD$
+  const additionalPiquetes = Math.floor(jobBudget / 1000);
+  
+  // Total base piquetes
+  const basePiquetes = percentagePiquetes + additionalPiquetes;
 
   // Expertise multipliers
   const multipliers: Record<ExpertiseLevel, number> = {
@@ -47,14 +56,16 @@ export function calculatePiquetes(
   const totalPiquetes = Math.ceil(basePiquetes * expertiseMultiplier);
 
   // Cost breakdown explanation
-  const costBreakdown = `Base: ${basePiquetes} piquete${basePiquetes > 1 ? 's' : ''} (RD$ ${jobBudget.toLocaleString()} ÷ 1000) + ${
+  const costBreakdown = `Base: ${percentagePiquetes} piquete${percentagePiquetes > 1 ? 's' : ''} (10% de RD$ ${jobBudget.toLocaleString()}) + ${additionalPiquetes} piquete${additionalPiquetes > 1 ? 's' : ''} (RD$ ${jobBudget.toLocaleString()} ÷ 1000) = ${basePiquetes} piquete${basePiquetes > 1 ? 's' : ''} ${
     expertiseLevel === 'beginner'
-      ? 'Sin ajuste por nivel'
-      : `${Math.round((expertiseMultiplier - 1) * 100)}% por nivel ${expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}`
+      ? '(sin ajuste por nivel)'
+      : `+ ${Math.round((expertiseMultiplier - 1) * 100)}% por nivel ${expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}`
   } = ${totalPiquetes} piquete${totalPiquetes > 1 ? 's' : ''}`;
 
   return {
     basePiquetes,
+    percentagePiquetes,
+    additionalPiquetes,
     expertiseMultiplier,
     totalPiquetes,
     costBreakdown,
