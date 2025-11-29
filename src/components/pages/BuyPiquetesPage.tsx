@@ -242,9 +242,10 @@ export default function BuyPiquetesPage() {
                 variants={itemVariants}
                 whileHover={{ y: -8 }}
                 onClick={() => setSelectedPackage(tier.id)}
-                className={`relative rounded-2xl md:rounded-3xl overflow-hidden transition-all cursor-pointer group ${ 
+                className={`relative rounded-2xl md:rounded-3xl overflow-hidden transition-all cursor-pointer group ${
                   tier.featured ? 'sm:col-span-2 lg:col-span-1 lg:scale-105' : ''
-                } ${\n                  selectedPackage === tier.id
+                } ${
+                  selectedPackage === tier.id
                     ? 'ring-2 ring-offset-2 shadow-xl'
                     : 'shadow-lg hover:shadow-xl'
                 }`}
@@ -361,7 +362,8 @@ export default function BuyPiquetesPage() {
               }
             }}
             disabled={!selectedPackage}
-            className={`w-full px-6 md:px-12 py-3 md:py-5 font-heading text-sm md:text-lg font-semibold rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 md:gap-3 ${\n              selectedPackage
+            className={`w-full px-6 md:px-12 py-3 md:py-5 font-heading text-sm md:text-lg font-semibold rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 md:gap-3 ${
+              selectedPackage
                 ? 'bg-gradient-to-r from-secondary to-accent text-white shadow-lg hover:shadow-xl cursor-pointer'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
