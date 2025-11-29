@@ -108,9 +108,9 @@ export default function ClientDashboardPage() {
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
       {/* Header - Optimized */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-2 md:py-4">
+        <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-1.5 md:py-3">
           <div className="flex items-center justify-between">
-            <Link to="/" className="font-heading text-lg md:text-2xl bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-bold">
+            <Link to="/" className="font-heading text-base md:text-2xl bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-bold">
               JOSEAME
             </Link>
             <nav className="hidden md:flex items-center gap-8">
@@ -127,7 +127,7 @@ export default function ClientDashboardPage() {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
               </Link>
             </nav>
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-1 md:gap-4">
               <div className="flex items-center gap-1 md:gap-2">
                 <span className="font-paragraph text-xs text-muted-text font-medium hidden md:block">Cliente</span>
                 <motion.button
@@ -137,15 +137,15 @@ export default function ClientDashboardPage() {
                     setUserRole('joseador');
                     navigate('/joseador/dashboard');
                   }}
-                  className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-lg transition-all text-white"
+                  className="p-1 md:p-2 rounded-lg md:rounded-xl bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-lg transition-all text-white"
                   title="Cambiar a Joseador"
                 >
-                  <RefreshCw size={16} />
+                  <RefreshCw size={14} className="md:w-4 md:h-4" />
                 </motion.button>
               </div>
               <Link to="/profile">
-                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl hover:bg-background transition-colors">
-                  <User size={16} className="text-muted-text" />
+                <button className="flex items-center gap-1 md:gap-2 px-1.5 md:px-4 py-1 md:py-2 rounded-lg md:rounded-xl hover:bg-background transition-colors">
+                  <User size={14} className="text-muted-text md:w-4 md:h-4" />
                   <span className="font-paragraph text-xs md:text-sm text-foreground hidden md:block">
                     {member?.profile?.nickname || 'Perfil'}
                   </span>
@@ -153,24 +153,24 @@ export default function ClientDashboardPage() {
               </Link>
               <button
                 onClick={actions.logout}
-                className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-muted-text hover:text-foreground transition-colors"
+                className="flex items-center gap-1 md:gap-2 px-1.5 md:px-4 py-1 md:py-2 text-muted-text hover:text-foreground transition-colors"
               >
-                <LogOut size={16} />
+                <LogOut size={14} className="md:w-4 md:h-4" />
               </button>
             </div>
           </div>
         </div>
       </header>
       {/* Main Content - Optimized */}
-      <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-6 md:py-12 relative z-10">
+      <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-3 md:py-12 relative z-10">
         {/* Welcome Section - Optimized */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-6 md:mb-12"
+          className="mb-4 md:mb-12"
         >
-          <h1 className="font-heading text-2xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-1 md:mb-3">
+          <h1 className="font-heading text-xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-0.5 md:mb-3">
             ¡Bienvenido, {member?.profile?.nickname || 'Cliente'}!
           </h1>
           <p className="font-paragraph text-xs md:text-xl text-muted-text max-w-2xl">Gestiona tus trabajos, encuentra joseadores y supervisa tus proyectos</p>
@@ -181,47 +181,47 @@ export default function ClientDashboardPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-12"
         >
           <motion.div variants={itemVariants} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-primary/20">
-              <div className="flex items-center justify-between mb-2 md:mb-4">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  <AlertCircle className="text-primary" size={20} />
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-primary/20">
+              <div className="flex items-center justify-between mb-1 md:mb-4">
+                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <AlertCircle className="text-primary w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <TrendingUp className="text-primary/50" size={16} />
+                <TrendingUp className="text-primary/50 w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1">Trabajos Abiertos</p>
-              <h3 className="font-heading text-2xl md:text-4xl font-bold text-primary">{openJobs}</h3>
+              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">Trabajos Abiertos</p>
+              <h3 className="font-heading text-xl md:text-4xl font-bold text-primary">{openJobs}</h3>
             </div>
           </motion.div>
 
           <motion.div variants={itemVariants} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-accent/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-secondary/20">
-              <div className="flex items-center justify-between mb-2 md:mb-4">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center">
-                  <Clock className="text-secondary" size={20} />
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-secondary/20">
+              <div className="flex items-center justify-between mb-1 md:mb-4">
+                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center">
+                  <Clock className="text-secondary w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <TrendingUp className="text-secondary/50" size={16} />
+                <TrendingUp className="text-secondary/50 w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1">En Progreso</p>
-              <h3 className="font-heading text-2xl md:text-4xl font-bold text-secondary">{inProgressJobs}</h3>
+              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">En Progreso</p>
+              <h3 className="font-heading text-xl md:text-4xl font-bold text-secondary">{inProgressJobs}</h3>
             </div>
           </motion.div>
 
           <motion.div variants={itemVariants} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-accent/20">
-              <div className="flex items-center justify-between mb-2 md:mb-4">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center">
-                  <CheckCircle2 className="text-accent" size={20} />
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-accent/20">
+              <div className="flex items-center justify-between mb-1 md:mb-4">
+                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center">
+                  <CheckCircle2 className="text-accent w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <TrendingUp className="text-accent/50" size={16} />
+                <TrendingUp className="text-accent/50 w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1">Completados</p>
-              <h3 className="font-heading text-2xl md:text-4xl font-bold text-accent">{completedJobs}</h3>
+              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">Completados</p>
+              <h3 className="font-heading text-xl md:text-4xl font-bold text-accent">{completedJobs}</h3>
             </div>
           </motion.div>
         </motion.div>
@@ -231,22 +231,22 @@ export default function ClientDashboardPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-12"
         >
           <motion.div variants={itemVariants} whileHover={{ y: -6 }} className="group">
             <Link to="/client/publish-job">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative bg-gradient-to-br from-primary to-secondary rounded-2xl md:rounded-3xl p-4 md:p-8 text-white shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-gradient-to-br from-primary to-secondary rounded-2xl md:rounded-3xl p-3 md:p-8 text-white shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-white/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-white/20 flex items-center justify-center mb-1 md:mb-4"
                     >
-                      <Plus size={20} />
+                      <Plus size={16} className="md:w-5 md:h-5" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold mb-1 md:mb-2">Publicar Trabajo</h3>
+                    <h3 className="font-heading text-xs md:text-2xl font-bold mb-0.5 md:mb-2">Publicar Trabajo</h3>
                   </div>
                   <p className="font-paragraph text-xs md:text-base text-white/90">Crea una nueva solicitud</p>
                 </div>
@@ -258,16 +258,16 @@ export default function ClientDashboardPage() {
             <Link to="/client/my-jobs">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ rotate: [0, 5, -5, 0] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-1 md:mb-4"
                     >
-                      <Briefcase className="text-secondary" size={20} />
+                      <Briefcase className="text-secondary w-4 h-4 md:w-5 md:h-5" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold text-foreground mb-1 md:mb-2">Mis Solicitudes</h3>
+                    <h3 className="font-heading text-xs md:text-2xl font-bold text-foreground mb-0.5 md:mb-2">Mis Solicitudes</h3>
                   </div>
                   <p className="font-paragraph text-xs md:text-base text-muted-text">Gestiona tus trabajos</p>
                 </div>
@@ -279,16 +279,16 @@ export default function ClientDashboardPage() {
             <Link to="/client/inbox">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-1 md:mb-4"
                     >
-                      <MessageSquare className="text-accent" size={20} />
+                      <MessageSquare className="text-accent w-4 h-4 md:w-5 md:h-5" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold text-foreground mb-1 md:mb-2">Mensajes</h3>
+                    <h3 className="font-heading text-xs md:text-2xl font-bold text-foreground mb-0.5 md:mb-2">Mensajes</h3>
                   </div>
                   <p className="font-paragraph text-xs md:text-base text-muted-text">Chatea con Joseadores</p>
                 </div>
@@ -302,7 +302,7 @@ export default function ClientDashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.35 }}
-          className="mb-8 md:mb-16"
+          className="mb-6 md:mb-16"
         >
           <div className="flex items-center justify-between mb-4 md:mb-8">
             <div className="flex items-center gap-2 md:gap-3">
