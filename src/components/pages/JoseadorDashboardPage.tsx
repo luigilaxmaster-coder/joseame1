@@ -102,7 +102,7 @@ export default function JoseadorDashboardPage() {
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="font-heading text-lg md:text-2xl bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent font-black tracking-tight">
+            <Link to="/" className="font-heading text-lg md:text-2xl bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent tracking-tight font-bold not-italic">
               JOSEAME
             </Link>
             <nav className="hidden md:flex items-center gap-8">
