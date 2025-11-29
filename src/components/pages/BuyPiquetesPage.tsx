@@ -113,133 +113,126 @@ export default function BuyPiquetesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
+      {/* Animated background elements - hidden on mobile */}
+      <div className="hidden md:block absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
+      <div className="hidden md:block absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
+      <div className="hidden md:block absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
 
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <Link to="/joseador/wallet" className="inline-flex items-center gap-2 text-muted-text hover:text-secondary transition-colors font-paragraph font-semibold group">
+        <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-2 md:py-4">
+          <Link to="/joseador/wallet" className="inline-flex items-center gap-2 text-muted-text hover:text-secondary transition-colors font-paragraph font-semibold group text-sm md:text-base">
             <motion.div
               whileHover={{ x: -4 }}
               transition={{ duration: 0.2 }}
             >
-              <ArrowLeft size={20} className="group-hover:text-secondary transition-colors" />
+              <ArrowLeft size={18} className="md:size-20 group-hover:text-secondary transition-colors" />
             </motion.div>
-            <span>Volver al Wallet</span>
+            <span>Volver</span>
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-[100rem] mx-auto px-6 py-12 relative z-10">
-        {/* Hero Section */}
+      <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 relative z-10">
+        {/* Hero Section - Compact */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-4 md:mb-8"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-2 md:gap-3 mb-2 md:mb-3">
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              <Zap className="text-accent" size={32} />
+              <Zap className="text-accent" size={24} />
             </motion.div>
-            <h1 className="font-heading text-5xl md:text-6xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
+            <h1 className="font-heading text-2xl md:text-5xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
               Comprar Piquetes
             </h1>
             <motion.div
               animate={{ rotate: [0, -10, 10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
+              className="hidden md:block"
             >
               <Sparkles className="text-support" size={32} />
             </motion.div>
           </div>
-          <p className="font-paragraph text-xl text-muted-text max-w-2xl mx-auto">
-            Elige el plan perfecto para potenciar tu negocio y aplicar a más trabajos
+          <p className="font-paragraph text-sm md:text-lg text-muted-text max-w-2xl mx-auto">
+            Elige tu plan y potencia tu negocio
           </p>
         </motion.div>
 
-        {/* Calculator Section */}
+        {/* Calculator Section - Compact */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-16"
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mb-4 md:mb-8"
         >
-          <div className="relative overflow-hidden rounded-3xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-3xl blur-xl" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-border/50 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center">
-                  <Calculator className="text-secondary" size={24} />
+          <div className="relative overflow-hidden rounded-2xl md:rounded-3xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl" />
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-border/50 shadow-lg">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Calculator className="text-secondary" size={18} />
                 </div>
-                <h2 className="font-heading text-2xl font-bold text-foreground">
-                  Calculadora de Piquetes
+                <h2 className="font-heading text-base md:text-2xl font-bold text-foreground">
+                  Calculadora
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 <div>
-                  <label className="font-paragraph text-sm font-semibold text-foreground mb-3 block">
-                    Presupuesto del Trabajo (RD$)
+                  <label className="font-paragraph text-xs md:text-sm font-semibold text-foreground mb-2 md:mb-3 block">
+                    Presupuesto (RD$)
                   </label>
                   <div className="relative">
                     <input
                       type="number"
                       value={budgetInput}
                       onChange={(e) => setBudgetInput(e.target.value)}
-                      className="w-full px-6 py-4 border-2 border-secondary/30 rounded-2xl font-paragraph text-lg focus:outline-none focus:border-secondary transition-all bg-white/50"
+                      className="w-full px-3 md:px-6 py-2 md:py-4 border-2 border-secondary/30 rounded-xl md:rounded-2xl font-paragraph text-sm md:text-lg focus:outline-none focus:border-secondary transition-all bg-white/50"
                       placeholder="5000"
                     />
-                    <span className="absolute right-6 top-1/2 transform -translate-y-1/2 font-paragraph text-muted-text">
+                    <span className="absolute right-3 md:right-6 top-1/2 transform -translate-y-1/2 font-paragraph text-muted-text text-xs md:text-base">
                       RD$
                     </span>
                   </div>
-                  <p className="font-paragraph text-xs text-muted-text mt-2">
-                    Ingresa el presupuesto del trabajo para calcular los piquetes necesarios
-                  </p>
                 </div>
 
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <p className="font-paragraph text-sm font-semibold text-foreground mb-3">
-                      Piquetes Necesarios
+                <div className="flex flex-col justify-center">
+                  <p className="font-paragraph text-xs md:text-sm font-semibold text-foreground mb-2">
+                    Piquetes Necesarios
+                  </p>
+                  <motion.div
+                    key={piquetesNeeded}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl md:rounded-2xl p-3 md:p-6 border border-secondary/30"
+                  >
+                    <div className="font-heading text-3xl md:text-5xl font-bold text-secondary">
+                      {piquetesNeeded}
+                    </div>
+                    <p className="font-paragraph text-xs md:text-sm text-muted-text mt-1">
+                      piquetes
                     </p>
-                    <motion.div
-                      key={piquetesNeeded}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-gradient-to-br from-secondary/20 to-accent/20 rounded-2xl p-6 border border-secondary/30"
-                    >
-                      <div className="font-heading text-5xl font-bold text-secondary">
-                        {piquetesNeeded}
-                      </div>
-                      <p className="font-paragraph text-sm text-muted-text mt-2">
-                        piquetes para aplicar
-                      </p>
-                    </motion.div>
-                  </div>
-                  <div className="text-sm font-paragraph text-muted-text">
-                    <p>📊 <strong>Fórmula:</strong> 1 piquete por cada 1000 RD$</p>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Pricing Cards Grid */}
+        {/* Pricing Cards Grid - Optimized for Mobile */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8"
         >
           {pricingTiers.map((tier) => {
             const IconComponent = tier.icon;
@@ -247,25 +240,24 @@ export default function BuyPiquetesPage() {
               <motion.div
                 key={tier.id}
                 variants={itemVariants}
-                whileHover={{ y: -12 }}
+                whileHover={{ y: -8 }}
                 onClick={() => setSelectedPackage(tier.id)}
-                className={`relative rounded-3xl overflow-hidden transition-all cursor-pointer group ${ 
-                  tier.featured ? 'lg:scale-105' : ''
-                } ${
-                  selectedPackage === tier.id
-                    ? 'ring-2 ring-offset-2 shadow-2xl'
-                    : 'shadow-lg hover:shadow-2xl'
+                className={`relative rounded-2xl md:rounded-3xl overflow-hidden transition-all cursor-pointer group ${ 
+                  tier.featured ? 'sm:col-span-2 lg:col-span-1 lg:scale-105' : ''
+                } ${\n                  selectedPackage === tier.id
+                    ? 'ring-2 ring-offset-2 shadow-xl'
+                    : 'shadow-lg hover:shadow-xl'
                 }`}
               >
-                {/* Ribbon for Professional */}
+                {/* Ribbon for Professional - Hidden on mobile */}
                 {tier.featured && (
                   <motion.div
                     initial={{ rotate: 45, x: 50 }}
                     animate={{ rotate: 45, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="absolute top-0 right-0 w-40 h-40 overflow-hidden"
+                    className="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 overflow-hidden hidden md:block"
                   >
-                    <div className="absolute top-3 right-[-45px] w-40 bg-gradient-to-r from-accent to-support text-foreground text-xs font-heading font-bold py-1 px-8 transform rotate-45 flex items-center justify-center shadow-lg">
+                    <div className="absolute top-2 right-[-40px] md:top-3 md:right-[-45px] w-32 md:w-40 bg-gradient-to-r from-accent to-support text-foreground text-xs font-heading font-bold py-1 px-6 md:px-8 transform rotate-45 flex items-center justify-center shadow-lg">
                       ⭐ RECOMENDADO
                     </div>
                   </motion.div>
@@ -275,62 +267,62 @@ export default function BuyPiquetesPage() {
                 <div className={`absolute inset-0 bg-gradient-to-br ${tier.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
 
                 {/* Card Content */}
-                <div className={`relative bg-gradient-to-br ${tier.gradient} p-8 h-full flex flex-col`}>
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -ml-16 -mb-16" />
+                <div className={`relative bg-gradient-to-br ${tier.gradient} p-4 md:p-8 h-full flex flex-col`}>
+                  {/* Decorative elements - Smaller on mobile */}
+                  <div className="absolute top-0 right-0 w-20 h-20 md:w-32 md:h-32 bg-white/10 rounded-full blur-3xl -mr-10 md:-mr-16 -mt-10 md:-mt-16" />
+                  <div className="absolute bottom-0 left-0 w-20 h-20 md:w-32 md:h-32 bg-white/10 rounded-full blur-3xl -ml-10 md:-ml-16 -mb-10 md:-mb-16" />
 
                   <div className="relative z-10">
                     {/* Icon */}
                     <motion.div
-                      animate={{ y: [0, -8, 0] }}
+                      animate={{ y: [0, -6, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-4"
+                      className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white/20 flex items-center justify-center mb-2 md:mb-4"
                     >
-                      <IconComponent size={28} className={tier.textColor} />
+                      <IconComponent size={20} className={tier.textColor} />
                     </motion.div>
 
                     {/* Title */}
-                    <h3 className={`font-heading text-2xl font-bold ${tier.textColor} mb-2`}>
+                    <h3 className={`font-heading text-lg md:text-2xl font-bold ${tier.textColor} mb-1 md:mb-2`}>
                       {tier.name}
                     </h3>
-                    <p className={`font-paragraph ${tier.textColor === 'text-white' ? 'text-white/80' : 'text-foreground/80'} text-sm mb-2`}>
+                    <p className={`font-paragraph ${tier.textColor === 'text-white' ? 'text-white/80' : 'text-foreground/80'} text-xs md:text-sm mb-1 md:mb-2`}>
                       {tier.subtitle}
                     </p>
-                    <p className={`font-paragraph text-xs ${tier.textColor === 'text-white' ? 'text-white/70' : 'text-foreground/70'} mb-6`}>
+                    <p className={`font-paragraph text-xs ${tier.textColor === 'text-white' ? 'text-white/70' : 'text-foreground/70'} mb-3 md:mb-6 hidden md:block`}>
                       {tier.bestFor}
                     </p>
 
                     {/* Price Pill */}
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 mb-8 text-center border border-white/30"
+                      className="bg-white/20 backdrop-blur-sm rounded-xl md:rounded-2xl px-3 md:px-6 py-2 md:py-4 mb-3 md:mb-8 text-center border border-white/30"
                     >
-                      <div className={`font-heading text-3xl font-bold ${tier.textColor}`}>
+                      <div className={`font-heading text-xl md:text-3xl font-bold ${tier.textColor}`}>
                         RD$ {tier.price.toLocaleString()}
                       </div>
                       <div className={`font-paragraph text-xs ${tier.textColor === 'text-white' ? 'text-white/70' : 'text-foreground/70'}`}>
                         por compra
                       </div>
-                      <div className={`font-heading text-lg font-bold ${tier.textColor} mt-2`}>
+                      <div className={`font-heading text-base md:text-lg font-bold ${tier.textColor} mt-1`}>
                         {tier.credits} piquetes
                       </div>
                     </motion.div>
 
-                    {/* Features */}
-                    <div className="space-y-3 mb-8 flex-grow">
+                    {/* Features - Compact on mobile */}
+                    <div className="space-y-2 md:space-y-3 mb-3 md:mb-8 flex-grow">
                       {tier.features.map((feature, idx) => (
                         <motion.div
                           key={idx}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.1 }}
-                          className="flex items-center gap-3"
+                          className="flex items-center gap-2 md:gap-3"
                         >
-                          <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center flex-shrink-0 border border-white/50">
-                            <Check size={14} className={tier.textColor} />
+                          <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-white/30 flex items-center justify-center flex-shrink-0 border border-white/50">
+                            <Check size={12} className={tier.textColor} />
                           </div>
-                          <span className={`font-paragraph ${tier.textColor} text-sm`}>
+                          <span className={`font-paragraph ${tier.textColor} text-xs md:text-sm`}>
                             {feature}
                           </span>
                         </motion.div>
@@ -342,11 +334,7 @@ export default function BuyPiquetesPage() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handlePurchase(tier.id)}
-                      className={`w-full px-6 py-3 font-heading font-semibold rounded-2xl transition-all ${ 
-                        tier.textColor === 'text-white'
-                          ? 'bg-white text-foreground hover:bg-white/90'
-                          : 'bg-foreground text-white hover:bg-foreground/90'
-                      }`}
+                      className={`w-full px-4 md:px-6 py-2 md:py-3 font-heading font-semibold text-sm md:text-base rounded-xl md:rounded-2xl transition-all ${tier.textColor === 'text-white' ? 'bg-white text-foreground hover:bg-white/90' : 'bg-foreground text-white hover:bg-foreground/90'}`}
                     >
                       Comprar
                     </motion.button>
@@ -357,12 +345,12 @@ export default function BuyPiquetesPage() {
           })}
         </motion.div>
 
-        {/* Purchase Button */}
+        {/* Purchase Button - Sticky on mobile */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mb-4 md:mb-8 sticky bottom-0 md:relative bg-gradient-to-t from-white via-white to-transparent md:to-transparent pt-2 md:pt-0 -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0"
         >
           <motion.button
             whileHover={{ scale: selectedPackage ? 1.05 : 1 }}
@@ -373,26 +361,22 @@ export default function BuyPiquetesPage() {
               }
             }}
             disabled={!selectedPackage}
-            className={`px-12 py-5 font-heading text-lg font-semibold rounded-2xl transition-all flex items-center justify-center gap-3 mx-auto ${
-              selectedPackage
+            className={`w-full px-6 md:px-12 py-3 md:py-5 font-heading text-sm md:text-lg font-semibold rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 md:gap-3 ${\n              selectedPackage
                 ? 'bg-gradient-to-r from-secondary to-accent text-white shadow-lg hover:shadow-xl cursor-pointer'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            <ShoppingCart size={24} />
-            Proceder al Pago
+            <ShoppingCart size={18} />
+            <span>Proceder al Pago</span>
           </motion.button>
-          <p className="font-paragraph text-sm text-muted-text mt-6">
-            🔒 Pago seguro procesado por nuestra plataforma
-          </p>
         </motion.div>
 
-        {/* Information Sections */}
+        {/* Information Sections - Collapsed on mobile */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16"
+          className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-4 md:mb-8 hidden md:grid"
         >
           {/* How Piquetes Work */}
           <motion.div variants={itemVariants} className="group">
@@ -487,12 +471,12 @@ export default function BuyPiquetesPage() {
           </motion.div>
         </motion.div>
 
-        {/* Additional Features */}
+        {/* Additional Features - Compact on mobile */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8 hidden md:grid"
         >
           <motion.div variants={itemVariants} className="group">
             <div className="relative overflow-hidden rounded-3xl">
@@ -558,12 +542,12 @@ export default function BuyPiquetesPage() {
           </motion.div>
         </motion.div>
 
-        {/* FAQ Section */}
+        {/* FAQ Section - Hidden on mobile */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="relative overflow-hidden rounded-3xl"
+          className="relative overflow-hidden rounded-3xl hidden md:block"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-accent/10 to-support/10 rounded-3xl blur-xl" />
           <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-border/50 shadow-lg">
