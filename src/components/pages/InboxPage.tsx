@@ -6,7 +6,7 @@ import { useRoleStore } from '@/store/roleStore';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
-  Calendar, MapPin, Sparkles
+  Calendar, MapPin, Sparkles, ChevronLeft
 } from 'lucide-react';
 import {
   Dialog,
@@ -56,6 +56,7 @@ export default function InboxPage() {
   const { userRole } = useRoleStore();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [showChatList, setShowChatList] = useState(true);
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingRequest, setPendingRequest] = useState<PendingRequest | null>(null);
@@ -294,24 +295,25 @@ export default function InboxPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-[120rem] mx-auto px-6 py-8 relative z-10">
+      <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="h-[calc(100vh-180px)]"
         >
-          {/* Title with Icon */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center">
-              <MessageSquare className="text-white" size={24} />
+          {/* Title with Icon - Responsive */}
+          <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
+              <MessageSquare className="text-white" size={20} />
             </div>
-            <h1 className="font-heading text-5xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
+            <h1 className="font-heading text-2xl md:text-5xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
               Mis Mensajes
             </h1>
           </div>
 
-          <div className="flex gap-6 h-[calc(100vh-280px)]">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex gap-6 h-[calc(100vh-280px)]">
             {/* Chat List - 25-30% */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -319,9 +321,9 @@ export default function InboxPage() {
               transition={{ duration: 0.5 }}
               className="w-[28%] bg-white/80 backdrop-blur-sm rounded-3xl border border-border/50 shadow-lg overflow-hidden flex flex-col"
             >
-              <div className="p-6 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
-                <h2 className="font-heading text-xl font-bold text-foreground flex items-center gap-2">
-                  <MessageCircle size={20} className="text-secondary" />
+              <div className="p-4 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
+                <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
+                  <MessageCircle size={18} className="text-secondary" />
                   Conversaciones
                 </h2>
               </div>
@@ -352,38 +354,38 @@ export default function InboxPage() {
                         variants={itemVariants}
                         whileHover={{ backgroundColor: selectedChat === chat.id ? undefined : 'rgba(0,0,0,0.02)' }}
                         onClick={() => setSelectedChat(chat.id)}
-                        className={`p-4 border-b border-border/30 cursor-pointer transition-all relative group ${ 
+                        className={`p-3 border-b border-border/30 cursor-pointer transition-all relative group ${ 
                           selectedChat === chat.id 
                             ? 'bg-gradient-to-r from-secondary/10 to-accent/10 border-l-4 border-l-secondary' 
                             : 'hover:bg-white/50'
                         }`}
                       >
                         {/* Status indicator */}
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-2 right-2">
                           <motion.div
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className={`w-3 h-3 rounded-full bg-gradient-to-r ${getStatusColor(chat.status)}`}
+                            className={`w-2.5 h-2.5 rounded-full bg-gradient-to-r ${getStatusColor(chat.status)}`}
                           />
                         </div>
 
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2">
                           <motion.div
                             whileHover={{ scale: 1.1 }}
-                            className={`w-12 h-12 rounded-full bg-gradient-to-br ${getStatusColor(chat.status)} flex items-center justify-center flex-shrink-0 shadow-md`}
+                            className={`w-10 h-10 rounded-full bg-gradient-to-br ${getStatusColor(chat.status)} flex items-center justify-center flex-shrink-0 shadow-md`}
                           >
-                            <User size={22} className="text-white" />
+                            <User size={18} className="text-white" />
                           </motion.div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h3 className="font-heading font-semibold text-foreground text-sm truncate">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <h3 className="font-heading font-semibold text-foreground text-xs truncate">
                                 {chat.name}
                               </h3>
-                              <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-2">
+                              <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-1">
                                 {chat.time}
                               </span>
                             </div>
-                            <p className="font-paragraph text-xs text-secondary font-medium mb-1 truncate flex items-center gap-1">
+                            <p className="font-paragraph text-xs text-secondary font-medium mb-0.5 truncate flex items-center gap-0.5">
                               {getStatusIcon(chat.status)}
                               {chat.jobTitle}
                             </p>
@@ -395,7 +397,7 @@ export default function InboxPage() {
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              className="w-6 h-6 rounded-full bg-gradient-to-r from-accent to-support flex items-center justify-center flex-shrink-0 shadow-md"
+                              className="w-5 h-5 rounded-full bg-gradient-to-r from-accent to-support flex items-center justify-center flex-shrink-0 shadow-md"
                             >
                               <span className="font-paragraph text-xs text-white font-bold">
                                 {chat.unread}
@@ -420,21 +422,21 @@ export default function InboxPage() {
               {selectedChat && selectedChatData ? (
                 <>
                   {/* Chat Header */}
-                  <div className="p-6 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
+                  <div className="p-4 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <motion.div
                           whileHover={{ scale: 1.1 }}
-                          className={`w-14 h-14 rounded-full bg-gradient-to-br ${getStatusColor(selectedChatData.status)} flex items-center justify-center shadow-md`}
+                          className={`w-12 h-12 rounded-full bg-gradient-to-br ${getStatusColor(selectedChatData.status)} flex items-center justify-center shadow-md`}
                         >
-                          <User size={24} className="text-white" />
+                          <User size={20} className="text-white" />
                         </motion.div>
                         <div>
-                          <h3 className="font-heading font-bold text-foreground text-lg">
+                          <h3 className="font-heading font-bold text-foreground text-sm">
                             {selectedChatData.name}
                           </h3>
-                          <p className="font-paragraph text-sm text-muted-text flex items-center gap-2">
-                            <Briefcase size={14} className="text-secondary" />
+                          <p className="font-paragraph text-xs text-muted-text flex items-center gap-1">
+                            <Briefcase size={12} className="text-secondary" />
                             {selectedChatData.jobTitle}
                           </p>
                         </div>
@@ -443,10 +445,10 @@ export default function InboxPage() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleShowUserInfo(selectedChatData)}
-                        className="p-3 rounded-2xl hover:bg-secondary/10 transition-colors text-secondary hover:text-secondary/80"
+                        className="p-2 rounded-2xl hover:bg-secondary/10 transition-colors text-secondary hover:text-secondary/80"
                         title="Ver información del usuario"
                       >
-                        <Info size={22} />
+                        <Info size={18} />
                       </motion.button>
                     </div>
                   </div>
@@ -455,33 +457,33 @@ export default function InboxPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="px-6 py-4 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-2 overflow-x-auto"
+                    className="px-4 py-3 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1.5 overflow-x-auto"
                   >
                     {userRole === 'joseador' ? (
                       <>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-2xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
-                          <DollarSign size={16} />
-                          Renegociar precio
+                          <DollarSign size={14} />
+                          <span className="hidden sm:inline">Renegociar</span>
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-secondary/30 rounded-2xl font-paragraph text-sm font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-secondary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
                         >
-                          <AlertCircle size={16} />
-                          Reportar
+                          <AlertCircle size={14} />
+                          <span className="hidden sm:inline">Reportar</span>
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-destructive/30 rounded-2xl font-paragraph text-sm font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
-                          <X size={16} />
-                          Rechazar
+                          <X size={14} />
+                          <span className="hidden sm:inline">Rechazar</span>
                         </motion.button>
                       </>
                     ) : (
@@ -489,33 +491,33 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-primary/30 rounded-2xl font-paragraph text-sm font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
                         >
-                          <DollarSign size={16} />
-                          Renegociar
+                          <DollarSign size={14} />
+                          <span className="hidden sm:inline">Renegociar</span>
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/80 text-white rounded-2xl font-paragraph text-sm font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
-                          <CheckCircle size={16} />
-                          Completado
+                          <CheckCircle size={14} />
+                          <span className="hidden sm:inline">Completado</span>
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-destructive/30 rounded-2xl font-paragraph text-sm font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
-                          <X size={16} />
-                          Cancelar
+                          <X size={14} />
+                          <span className="hidden sm:inline">Cancelar</span>
                         </motion.button>
                       </>
                     )}
                   </motion.div>
 
                   {/* Messages Area */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white/50 to-white/30">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white/50 to-white/30">
                     {messages.map((msg) => renderMessage(msg))}
                   </div>
 
@@ -526,19 +528,19 @@ export default function InboxPage() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 20, opacity: 0 }}
-                        className="px-6 py-4 bg-gradient-to-r from-secondary/10 to-accent/10 border-t-2 border-secondary/30 border-b-2 border-secondary/30"
+                        className="px-4 py-3 bg-gradient-to-r from-secondary/10 to-accent/10 border-t-2 border-secondary/30 border-b-2 border-secondary/30"
                       >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex-1 flex items-center gap-3">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex-1 flex items-center gap-2 min-w-0">
                             <motion.div
                               animate={{ rotate: [0, 360] }}
                               transition={{ duration: 2, repeat: Infinity }}
-                              className="w-8 h-8 rounded-full bg-gradient-to-r from-secondary to-accent flex items-center justify-center flex-shrink-0"
+                              className="w-6 h-6 rounded-full bg-gradient-to-r from-secondary to-accent flex items-center justify-center flex-shrink-0"
                             >
-                              <Clock size={16} className="text-white" />
+                              <Clock size={14} className="text-white" />
                             </motion.div>
-                            <div>
-                              <p className="font-heading text-sm font-bold text-foreground">
+                            <div className="min-w-0">
+                              <p className="font-heading text-xs font-bold text-foreground">
                                 {pendingRequest.title}
                               </p>
                               <p className="font-paragraph text-xs text-muted-text">
@@ -546,11 +548,11 @@ export default function InboxPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5">
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="px-5 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-bold hover:shadow-lg transition-all"
+                              className="px-3 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-bold hover:shadow-lg transition-all"
                             >
                               Aceptar
                             </motion.button>
@@ -558,7 +560,7 @@ export default function InboxPage() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => setPendingRequest(null)}
-                              className="px-5 py-2 bg-white border-2 border-border text-foreground rounded-xl font-paragraph text-xs font-bold hover:bg-background transition-all"
+                              className="px-3 py-1.5 bg-white border-2 border-border text-foreground rounded-lg font-paragraph text-xs font-bold hover:bg-background transition-all"
                             >
                               Rechazar
                             </motion.button>
@@ -569,22 +571,22 @@ export default function InboxPage() {
                   </AnimatePresence>
 
                   {/* Message Input */}
-                  <form onSubmit={handleSendMessage} className="p-6 border-t border-border/50 bg-white/50 backdrop-blur-sm">
-                    <div className="flex gap-3">
+                  <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 bg-white/50 backdrop-blur-sm">
+                    <div className="flex gap-2">
                       <input
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Escribe un mensaje..."
-                        className="flex-1 px-5 py-3 border-2 border-border/50 rounded-2xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent bg-white/80 transition-all"
+                        className="flex-1 px-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent bg-white/80 transition-all"
                       />
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type="submit"
-                        className="px-6 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-2xl font-paragraph font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                        className="px-4 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-bold hover:shadow-lg transition-all flex items-center gap-1"
                       >
-                        <Send size={18} />
+                        <Send size={16} />
                       </motion.button>
                     </div>
                   </form>
@@ -610,6 +612,311 @@ export default function InboxPage() {
                 </div>
               )}
             </motion.div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="md:hidden flex flex-col h-[calc(100vh-200px)]">
+            {showChatList ? (
+              // Chat List View
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg overflow-hidden flex flex-col"
+              >
+                <div className="p-3 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
+                  <h2 className="font-heading text-sm font-bold text-foreground flex items-center gap-2">
+                    <MessageCircle size={16} className="text-secondary" />
+                    Conversaciones
+                  </h2>
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {loading ? (
+                    <div className="p-6 text-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-6 h-6 rounded-full border-2 border-secondary border-t-transparent mx-auto mb-3"
+                      />
+                      <p className="font-paragraph text-xs text-muted-text">Cargando...</p>
+                    </div>
+                  ) : chats.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <MessageSquare size={40} className="text-muted-text/30 mx-auto mb-3" />
+                      <p className="font-paragraph text-xs text-muted-text">No hay conversaciones</p>
+                    </div>
+                  ) : (
+                    <motion.div
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      {chats.map((chat) => (
+                        <motion.div
+                          key={chat.id}
+                          variants={itemVariants}
+                          onClick={() => {
+                            setSelectedChat(chat.id);
+                            setShowChatList(false);
+                          }}
+                          className={`p-3 border-b border-border/30 cursor-pointer transition-all relative group ${ 
+                            selectedChat === chat.id 
+                              ? 'bg-gradient-to-r from-secondary/10 to-accent/10 border-l-4 border-l-secondary' 
+                              : 'hover:bg-white/50'
+                          }`}
+                        >
+                          <div className="absolute top-2 right-2">
+                            <motion.div
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className={`w-2.5 h-2.5 rounded-full bg-gradient-to-r ${getStatusColor(chat.status)}`}
+                            />
+                          </div>
+
+                          <div className="flex items-start gap-2">
+                            <motion.div
+                              className={`w-10 h-10 rounded-full bg-gradient-to-br ${getStatusColor(chat.status)} flex items-center justify-center flex-shrink-0 shadow-md`}
+                            >
+                              <User size={18} className="text-white" />
+                            </motion.div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-0.5">
+                                <h3 className="font-heading font-semibold text-foreground text-xs truncate">
+                                  {chat.name}
+                                </h3>
+                                <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-1">
+                                  {chat.time}
+                                </span>
+                              </div>
+                              <p className="font-paragraph text-xs text-secondary font-medium mb-0.5 truncate flex items-center gap-0.5">
+                                {getStatusIcon(chat.status)}
+                                {chat.jobTitle}
+                              </p>
+                              <p className="font-paragraph text-xs text-muted-text truncate">
+                                {chat.lastMessage}
+                              </p>
+                            </div>
+                            {chat.unread > 0 && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="w-5 h-5 rounded-full bg-gradient-to-r from-accent to-support flex items-center justify-center flex-shrink-0 shadow-md"
+                              >
+                                <span className="font-paragraph text-xs text-white font-bold">
+                                  {chat.unread}
+                                </span>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            ) : (
+              // Chat Window View
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg flex flex-col overflow-hidden"
+              >
+                {selectedChat && selectedChatData ? (
+                  <>
+                    {/* Chat Header */}
+                    <div className="p-3 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
+                      <div className="flex items-center justify-between gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowChatList(true)}
+                          className="p-1.5 rounded-lg hover:bg-secondary/10 transition-colors text-secondary"
+                          title="Volver a conversaciones"
+                        >
+                          <ChevronLeft size={20} />
+                        </motion.button>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-heading font-bold text-foreground text-sm truncate">
+                            {selectedChatData.name}
+                          </h3>
+                          <p className="font-paragraph text-xs text-muted-text truncate flex items-center gap-1">
+                            <Briefcase size={12} className="text-secondary" />
+                            {selectedChatData.jobTitle}
+                          </p>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleShowUserInfo(selectedChatData)}
+                          className="p-1.5 rounded-lg hover:bg-secondary/10 transition-colors text-secondary"
+                          title="Ver información del usuario"
+                        >
+                          <Info size={18} />
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons Bar - Sticky */}
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="px-3 py-2 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1 overflow-x-auto"
+                    >
+                      {userRole === 'joseador' ? (
+                        <>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          >
+                            <DollarSign size={12} />
+                            <span className="hidden xs:inline">Renegociar</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-secondary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
+                          >
+                            <AlertCircle size={12} />
+                            <span className="hidden xs:inline">Reportar</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          >
+                            <X size={12} />
+                            <span className="hidden xs:inline">Rechazar</span>
+                          </motion.button>
+                        </>
+                      ) : (
+                        <>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                          >
+                            <DollarSign size={12} />
+                            <span className="hidden xs:inline">Renegociar</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          >
+                            <CheckCircle size={12} />
+                            <span className="hidden xs:inline">Completado</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          >
+                            <X size={12} />
+                            <span className="hidden xs:inline">Cancelar</span>
+                          </motion.button>
+                        </>
+                      )}
+                    </motion.div>
+
+                    {/* Messages Area */}
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-white/50 to-white/30">
+                      {messages.map((msg) => renderMessage(msg))}
+                    </div>
+
+                    {/* Pending Request Banner - Sticky */}
+                    <AnimatePresence>
+                      {pendingRequest && (
+                        <motion.div
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 20, opacity: 0 }}
+                          className="px-3 py-2 bg-gradient-to-r from-secondary/10 to-accent/10 border-t-2 border-secondary/30 border-b-2 border-secondary/30"
+                        >
+                          <div className="flex items-center justify-between gap-1.5 flex-wrap">
+                            <div className="flex-1 flex items-center gap-1.5 min-w-0">
+                              <motion.div
+                                animate={{ rotate: [0, 360] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="w-5 h-5 rounded-full bg-gradient-to-r from-secondary to-accent flex items-center justify-center flex-shrink-0"
+                              >
+                                <Clock size={12} className="text-white" />
+                              </motion.div>
+                              <div className="min-w-0">
+                                <p className="font-heading text-xs font-bold text-foreground">
+                                  {pendingRequest.title}
+                                </p>
+                                <p className="font-paragraph text-xs text-muted-text">
+                                  Expira en: <span className="font-bold text-secondary">{formatCountdown(countdown)}</span>
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-2 py-1 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-bold hover:shadow-lg transition-all"
+                              >
+                                Aceptar
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setPendingRequest(null)}
+                                className="px-2 py-1 bg-white border-2 border-border text-foreground rounded-lg font-paragraph text-xs font-bold hover:bg-background transition-all"
+                              >
+                                Rechazar
+                              </motion.button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Message Input */}
+                    <form onSubmit={handleSendMessage} className="p-3 border-t border-border/50 bg-white/50 backdrop-blur-sm">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder="Mensaje..."
+                          className="flex-1 px-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent bg-white/80 transition-all"
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          type="submit"
+                          className="px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph font-bold hover:shadow-lg transition-all flex items-center gap-1"
+                        >
+                          <Send size={14} />
+                        </motion.button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center"
+                    >
+                      <motion.div
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-16 h-16 rounded-full bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mx-auto mb-4"
+                      >
+                        <MessageSquare size={32} className="text-secondary/50" />
+                      </motion.div>
+                      <p className="font-paragraph text-sm text-muted-text font-medium">
+                        Selecciona una conversación
+                      </p>
+                    </motion.div>
+                  </div>
+                )}
+              </motion.div>
+            )}
           </div>
         </motion.div>
       </div>
