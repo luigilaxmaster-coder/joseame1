@@ -106,12 +106,11 @@ export default function ClientDashboardPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      
       {/* Header - Optimized */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="font-heading text-lg md:text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <Link to="/" className="font-heading text-lg md:text-2xl bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-bold">
               JOSEAME
             </Link>
             <nav className="hidden md:flex items-center gap-8">
@@ -162,7 +161,6 @@ export default function ClientDashboardPage() {
           </div>
         </div>
       </header>
-      
       {/* Main Content - Optimized */}
       <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-6 md:py-12 relative z-10">
         {/* Welcome Section - Optimized */}
