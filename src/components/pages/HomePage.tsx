@@ -241,114 +241,251 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* App Flow Diagram Section */}
-        <section className="py-16 md:py-24 bg-white relative overflow-hidden">
+        {/* App Flow Diagram Section - Modern Visual */}
+        <section className="py-20 md:py-32 bg-gradient-to-b from-white via-background/50 to-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-16">
+            <AnimatedElement className="text-center mb-20">
               <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
                 Cómo Funciona JOSEAME
               </h2>
               <p className="text-lg text-muted-text max-w-3xl mx-auto">
-                Un flujo simple y directo para conectar clientes con profesionales
+                Un flujo simple y directo que conecta clientes con profesionales en minutos
               </p>
             </AnimatedElement>
 
-            {/* Flow Diagram */}
-            <div className="relative">
-              {/* Desktop Flow */}
-              <div className="hidden lg:block">
-                <div className="flex items-center justify-between gap-4 mb-8">
+            {/* Desktop Flow Diagram with Curved Connectors */}
+            <div className="hidden lg:block">
+              <div className="relative">
+                {/* Grid Layout for Steps */}
+                <div className="grid grid-cols-4 gap-8 mb-16">
                   {[
-                    { icon: Search, label: 'Busca o Publica', color: 'from-primary to-secondary', step: '1' },
-                    { icon: FileText, label: 'Revisa Propuestas', color: 'from-secondary to-accent', step: '2' },
-                    { icon: Handshake, label: 'Acuerda Términos', color: 'from-accent to-support', step: '3' },
-                    { icon: Wallet, label: 'Pago Seguro', color: 'from-support to-primary', step: '4' }
+                    { 
+                      icon: Search, 
+                      label: 'Publica o Busca', 
+                      description: 'Crea un trabajo o explora oportunidades',
+                      color: 'from-primary to-secondary', 
+                      step: '1',
+                      bgGradient: 'from-primary/5 to-secondary/5'
+                    },
+                    { 
+                      icon: FileText, 
+                      label: 'Recibe Propuestas', 
+                      description: 'Analiza perfiles y presupuestos',
+                      color: 'from-secondary to-accent', 
+                      step: '2',
+                      bgGradient: 'from-secondary/5 to-accent/5'
+                    },
+                    { 
+                      icon: Handshake, 
+                      label: 'Acuerda Términos', 
+                      description: 'Negocia y formaliza el acuerdo',
+                      color: 'from-accent to-support', 
+                      step: '3',
+                      bgGradient: 'from-accent/5 to-support/5'
+                    },
+                    { 
+                      icon: Wallet, 
+                      label: 'Pago Seguro', 
+                      description: 'Transacción protegida y garantizada',
+                      color: 'from-support to-primary', 
+                      step: '4',
+                      bgGradient: 'from-support/5 to-primary/5'
+                    }
                   ].map((item, index) => (
-                    <React.Fragment key={index}>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.15 }}
-                        className="flex-1"
-                      >
-                        <div className="relative">
-                          <div className="flex flex-col items-center">
-                            <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-lg relative z-10`}>
-                              <item.icon className="text-white" size={40} />
-                            </div>
-                            <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm">
-                              {item.step}
-                            </div>
-                            <h3 className="font-heading text-lg font-semibold text-foreground text-center">{item.label}</h3>
-                          </div>
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.15, duration: 0.6 }}
+                      className="relative"
+                    >
+                      {/* Card */}
+                      <div className={`bg-gradient-to-br ${item.bgGradient} rounded-3xl p-8 border border-border/50 h-full relative overflow-hidden group hover:border-primary/30 transition-all duration-300`}>
+                        {/* Animated Background Glow */}
+                        <motion.div
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                        />
+                        
+                        {/* Content */}
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                          {/* Step Badge */}
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            whileInView={{ scale: 1 }}
+                            transition={{ delay: index * 0.15 + 0.1, type: 'spring', stiffness: 200 }}
+                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-lg`}
+                          >
+                            <span className="font-heading text-2xl font-bold text-white">{item.step}</span>
+                          </motion.div>
+
+                          {/* Icon with Animation */}
+                          <motion.div
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                            className="mb-4"
+                          >
+                            <item.icon className="text-foreground" size={48} strokeWidth={1.5} />
+                          </motion.div>
+
+                          {/* Text */}
+                          <h3 className="font-heading text-xl font-bold text-foreground mb-2">{item.label}</h3>
+                          <p className="text-sm text-muted-text leading-relaxed">{item.description}</p>
                         </div>
-                      </motion.div>
+                      </div>
+
+                      {/* Connector Arrow */}
                       {index < 3 && (
                         <motion.div
                           initial={{ opacity: 0, scaleX: 0 }}
                           whileInView={{ opacity: 1, scaleX: 1 }}
-                          transition={{ delay: index * 0.15 + 0.1 }}
-                          className="flex-shrink-0 h-1 w-12 bg-gradient-to-r from-primary via-secondary to-accent origin-left"
-                        />
+                          transition={{ delay: index * 0.15 + 0.3, duration: 0.8 }}
+                          className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-20"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+                            <ArrowRight className="text-primary" size={24} />
+                          </div>
+                        </motion.div>
                       )}
-                    </React.Fragment>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
 
-              {/* Mobile Flow */}
-              <div className="lg:hidden space-y-6">
-                {[
-                  { icon: Search, label: 'Busca o Publica', color: 'from-primary to-secondary', step: '1', description: 'Encuentra trabajos o publica el tuyo' },
-                  { icon: FileText, label: 'Revisa Propuestas', color: 'from-secondary to-accent', step: '2', description: 'Analiza las mejores opciones' },
-                  { icon: Handshake, label: 'Acuerda Términos', color: 'from-accent to-support', step: '3', description: 'Formaliza el acuerdo' },
-                  { icon: Wallet, label: 'Pago Seguro', color: 'from-support to-primary', step: '4', description: 'Transacción protegida' }
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-start gap-4"
-                  >
-                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md relative`}>
-                      <item.icon className="text-white" size={32} />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs">
-                        {item.step}
-                      </div>
-                    </div>
-                    <div className="flex-1 pt-2">
-                      <h3 className="font-heading text-lg font-semibold text-foreground">{item.label}</h3>
-                      <p className="text-sm text-muted-text">{item.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                {/* Central Message */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6, duration: 0.6 }}
+                  className="text-center"
+                >
+                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full px-8 py-4 border border-primary/20">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-3 h-3 rounded-full bg-accent"
+                    ></motion.div>
+                    <span className="font-heading font-semibold text-foreground">Proceso 100% transparente y seguro</span>
+                  </div>
+                </motion.div>
               </div>
             </div>
 
-            {/* Additional Info */}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Mobile Flow Diagram */}
+            <div className="lg:hidden space-y-6">
               {[
-                { title: 'Para Clientes', icon: Briefcase, description: 'Publica trabajos y encuentra profesionales calificados' },
-                { title: 'Para Joseadores', icon: Users, description: 'Accede a oportunidades y gana dinero' },
-                { title: 'Seguridad Garantizada', icon: Shield, description: 'Pagos protegidos y resolución de conflictos' }
+                { 
+                  icon: Search, 
+                  label: 'Publica o Busca', 
+                  description: 'Crea un trabajo o explora oportunidades',
+                  color: 'from-primary to-secondary', 
+                  step: '1'
+                },
+                { 
+                  icon: FileText, 
+                  label: 'Recibe Propuestas', 
+                  description: 'Analiza perfiles y presupuestos',
+                  color: 'from-secondary to-accent', 
+                  step: '2'
+                },
+                { 
+                  icon: Handshake, 
+                  label: 'Acuerda Términos', 
+                  description: 'Negocia y formaliza el acuerdo',
+                  color: 'from-accent to-support', 
+                  step: '3'
+                },
+                { 
+                  icon: Wallet, 
+                  label: 'Pago Seguro', 
+                  description: 'Transacción protegida y garantizada',
+                  color: 'from-support to-primary', 
+                  step: '4'
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="relative"
+                >
+                  {/* Connector Line */}
+                  {index < 3 && (
+                    <div className="absolute left-8 top-24 w-1 h-8 bg-gradient-to-b from-primary via-secondary to-accent"></div>
+                  )}
+
+                  {/* Card */}
+                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-6 border border-border/50 relative overflow-hidden group hover:border-primary/30 transition-all`}>
+                    <div className="flex items-start gap-4">
+                      {/* Icon Container */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        transition={{ delay: index * 0.1 + 0.1, type: 'spring' }}
+                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md relative`}
+                      >
+                        <item.icon className="text-white" size={32} />
+                        <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
+                          {item.step}
+                        </div>
+                      </motion.div>
+
+                      {/* Text */}
+                      <div className="flex-1 pt-1">
+                        <h3 className="font-heading text-lg font-bold text-foreground mb-1">{item.label}</h3>
+                        <p className="text-sm text-muted-text">{item.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Feature Highlights */}
+            <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { 
+                  title: 'Para Clientes', 
+                  icon: Briefcase, 
+                  description: 'Publica trabajos, recibe propuestas de profesionales verificados y elige al mejor.',
+                  color: 'from-primary to-secondary'
+                },
+                { 
+                  title: 'Para Joseadores', 
+                  icon: Users, 
+                  description: 'Accede a oportunidades, gana dinero y construye tu reputación profesional.',
+                  color: 'from-secondary to-accent'
+                },
+                { 
+                  title: 'Seguridad Garantizada', 
+                  icon: Shield, 
+                  description: 'Pagos protegidos, perfiles verificados y resolución de conflictos justa.',
+                  color: 'from-accent to-support'
+                }
               ].map((item, index) => (
                 <AnimatedElement key={index} delay={index * 100}>
                   <motion.div
-                    whileHover={{ y: -4 }}
-                    className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-6 border border-border/50 shadow-sm hover:shadow-lg text-center"
+                    whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300 } }}
+                    className="card-hover bg-white rounded-2xl p-8 border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
                   >
-                    <div className="flex justify-center mb-4">
-                      <div className="p-3 bg-primary/10 rounded-xl">
-                        <item.icon className="text-primary" size={28} />
+                    <motion.div
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity`}
+                    />
+                    <div className="relative z-10">
+                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-md`}>
+                        <item.icon className="text-white" size={28} />
                       </div>
+                      <h3 className="font-heading text-lg font-bold text-foreground mb-3">{item.title}</h3>
+                      <p className="text-sm text-muted-text leading-relaxed">{item.description}</p>
                     </div>
-                    <h3 className="font-heading text-lg font-semibold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-text">{item.description}</p>
                   </motion.div>
                 </AnimatedElement>
               ))}
