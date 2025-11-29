@@ -177,8 +177,8 @@ export default function HomePage() {
       `}</style>
       <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
         
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center w-full overflow-hidden pt-20">
+        {/* Hero Section - Optimized for Mobile */}
+        <section className="relative h-screen md:min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20">
           <FloatingOrbs />
           <div className="absolute inset-0 z-0">
             <ParallaxImage 
@@ -190,7 +190,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-black/30"></div>
           </div>
           
-          <div className="relative z-10 max-w-[120rem] mx-auto px-6 md:px-12 text-center flex flex-col items-center">
+          <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -201,37 +201,37 @@ export default function HomePage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-8"
+                className="hidden md:inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8"
               >
                 <Sparkles size={18} className="text-yellow-300" />
-                <span className="text-white font-heading font-semibold">Bienvenido a la revolución del trabajo</span>
+                <span className="text-white font-heading font-semibold text-sm md:text-base">Bienvenido a la revolución del trabajo</span>
               </motion.div>
 
-              <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
+              <h1 className="font-heading text-4xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight">
                 JOSEAME
               </h1>
-              <p className="font-heading text-2xl md:text-3xl text-white mb-8 font-semibold">
+              <p className="font-heading text-lg md:text-3xl text-white mb-4 md:mb-8 font-semibold">
                 Trabajo cerca, rápido y fácil.
               </p>
-              <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Conectamos clientes con los mejores profesionales de República Dominicana. Publica un trabajo o encuentra tu próximo joseo en minutos.
+              <p className="text-sm md:text-xl text-white/90 mb-6 md:mb-12 max-w-3xl mx-auto leading-relaxed">
+                Conectamos clientes con profesionales. Publica un trabajo o encuentra tu próximo joseo en minutos.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
                 <Link to="/login">
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-8 py-4 text-lg btn-gradient text-white font-heading font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                    className="px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg btn-gradient text-white font-heading font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
                   >
                     Comenzar Ahora
-                    <ArrowRight className="inline-block ml-2" size={20} />
+                    <ArrowRight className="inline-block ml-2" size={18} />
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-8 py-4 text-lg bg-white/10 backdrop-blur-sm text-white font-heading font-semibold rounded-2xl border border-white/30 hover:bg-white/20 transition-all"
+                    className="px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg bg-white/10 backdrop-blur-sm text-white font-heading font-semibold rounded-2xl border border-white/30 hover:bg-white/20 transition-all w-full sm:w-auto"
                   >
                     Conocer Más
                   </motion.button>
@@ -241,18 +241,18 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* App Flow Diagram Section - Modern Visual */}
-        <section className="py-20 md:py-32 bg-gradient-to-b from-white via-background/50 to-white relative overflow-hidden">
+        {/* App Flow Diagram Section - Optimized for Mobile */}
+        <section className="py-12 md:py-32 bg-gradient-to-b from-white via-background/50 to-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-20">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                 Cómo Funciona JOSEAME
               </h2>
-              <p className="text-lg text-muted-text max-w-3xl mx-auto">
+              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
                 Un flujo simple y directo que conecta clientes con profesionales en minutos
               </p>
             </AnimatedElement>
@@ -376,34 +376,34 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Mobile Flow Diagram */}
-            <div className="lg:hidden space-y-6">
+            {/* Mobile Flow Diagram - Compact */}
+            <div className="lg:hidden space-y-4">
               {[
                 { 
                   icon: Search, 
                   label: 'Publica o Busca', 
-                  description: 'Crea un trabajo o explora oportunidades',
+                  description: 'Crea un trabajo o explora',
                   color: 'from-primary to-secondary', 
                   step: '1'
                 },
                 { 
                   icon: FileText, 
                   label: 'Recibe Propuestas', 
-                  description: 'Analiza perfiles y presupuestos',
+                  description: 'Analiza perfiles',
                   color: 'from-secondary to-accent', 
                   step: '2'
                 },
                 { 
                   icon: Handshake, 
                   label: 'Acuerda Términos', 
-                  description: 'Negocia y formaliza el acuerdo',
+                  description: 'Formaliza el acuerdo',
                   color: 'from-accent to-support', 
                   step: '3'
                 },
                 { 
                   icon: Wallet, 
                   label: 'Pago Seguro', 
-                  description: 'Transacción protegida y garantizada',
+                  description: 'Transacción protegida',
                   color: 'from-support to-primary', 
                   step: '4'
                 }
@@ -417,29 +417,29 @@ export default function HomePage() {
                 >
                   {/* Connector Line */}
                   {index < 3 && (
-                    <div className="absolute left-8 top-24 w-1 h-8 bg-gradient-to-b from-primary via-secondary to-accent"></div>
+                    <div className="absolute left-8 top-20 w-1 h-6 bg-gradient-to-b from-primary via-secondary to-accent"></div>
                   )}
 
                   {/* Card */}
-                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-6 border border-border/50 relative overflow-hidden group hover:border-primary/30 transition-all`}>
-                    <div className="flex items-start gap-4">
+                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-4 border border-border/50 relative overflow-hidden group hover:border-primary/30 transition-all`}>
+                    <div className="flex items-start gap-3">
                       {/* Icon Container */}
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: index * 0.1 + 0.1, type: 'spring' }}
-                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md relative`}
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md relative`}
                       >
-                        <item.icon className="text-white" size={32} />
-                        <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
+                        <item.icon className="text-white" size={28} />
+                        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
                           {item.step}
                         </div>
                       </motion.div>
 
                       {/* Text */}
-                      <div className="flex-1 pt-1">
-                        <h3 className="font-heading text-lg font-bold text-foreground mb-1">{item.label}</h3>
-                        <p className="text-sm text-muted-text">{item.description}</p>
+                      <div className="flex-1 pt-0.5">
+                        <h3 className="font-heading text-base font-bold text-foreground">{item.label}</h3>
+                        <p className="text-xs text-muted-text">{item.description}</p>
                       </div>
                     </div>
                   </div>
@@ -447,32 +447,32 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Feature Highlights */}
-            <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Feature Highlights - Compact */}
+            <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { 
                   title: 'Para Clientes', 
                   icon: Briefcase, 
-                  description: 'Publica trabajos, recibe propuestas de profesionales verificados y elige al mejor.',
+                  description: 'Publica trabajos y elige profesionales.',
                   color: 'from-primary to-secondary'
                 },
                 { 
                   title: 'Para Joseadores', 
                   icon: Users, 
-                  description: 'Accede a oportunidades, gana dinero y construye tu reputación profesional.',
+                  description: 'Accede a oportunidades y gana dinero.',
                   color: 'from-secondary to-accent'
                 },
                 { 
-                  title: 'Seguridad Garantizada', 
+                  title: 'Seguridad', 
                   icon: Shield, 
-                  description: 'Pagos protegidos, perfiles verificados y resolución de conflictos justa.',
+                  description: 'Pagos protegidos y confiables.',
                   color: 'from-accent to-support'
                 }
               ].map((item, index) => (
                 <AnimatedElement key={index} delay={index * 100}>
                   <motion.div
-                    whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300 } }}
-                    className="card-hover bg-white rounded-2xl p-8 border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
+                    whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300 } }}
+                    className="card-hover bg-white rounded-2xl p-4 md:p-8 border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
                   >
                     <motion.div
                       animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -480,11 +480,11 @@ export default function HomePage() {
                       className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity`}
                     />
                     <div className="relative z-10">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-md`}>
-                        <item.icon className="text-white" size={28} />
+                      <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
+                        <item.icon className="text-white" size={24} />
                       </div>
-                      <h3 className="font-heading text-lg font-bold text-foreground mb-3">{item.title}</h3>
-                      <p className="text-sm text-muted-text leading-relaxed">{item.description}</p>
+                      <h3 className="font-heading text-base md:text-lg font-bold text-foreground mb-2 md:mb-3">{item.title}</h3>
+                      <p className="text-xs md:text-sm text-muted-text leading-relaxed">{item.description}</p>
                     </div>
                   </motion.div>
                 </AnimatedElement>
@@ -493,36 +493,36 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="py-20 md:py-32 bg-gradient-to-b from-background to-white">
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-16">
+        {/* Features Section - Optimized */}
+        <section className="py-12 md:py-32 bg-gradient-to-b from-background to-white">
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-16">
               <div className="lg:sticky top-32 h-fit">
                 <AnimatedElement>
-                  <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
+                  <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                     La plataforma del joseador moderno.
                   </h2>
-                  <p className="text-lg text-muted-text max-w-md">
-                    Todo lo que necesitas para contratar o trabajar, en un solo lugar. Eficiente, seguro y 100% dominicano.
+                  <p className="text-sm md:text-lg text-muted-text max-w-md">
+                    Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
                   </p>
                 </AnimatedElement>
               </div>
-              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
                 {features.map((feature) => (
                   <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
                     <motion.div
-                      whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300 } }}
-                      className="card-hover bg-white rounded-2xl p-8 h-full border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
+                      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300 } }}
+                      className="card-hover bg-white rounded-2xl p-4 md:p-8 h-full border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
                     >
                       <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                       <div className="relative z-10">
-                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-md`}>
-                          <feature.icon className="text-white" size={32} />
+                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
+                          <feature.icon className="text-white" size={24} />
                         </div>
-                        <h3 className="font-heading text-2xl font-semibold text-foreground mb-3">
+                        <h3 className="font-heading text-base md:text-2xl font-semibold text-foreground mb-2 md:mb-3">
                           {feature.title}
                         </h3>
-                        <p className="text-muted-text">
+                        <p className="text-xs md:text-base text-muted-text">
                           {feature.description}
                         </p>
                       </div>
@@ -534,43 +534,43 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How It Works Section */}
-        <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+        {/* How It Works Section - Optimized */}
+        <section className="py-12 md:py-32 bg-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-16 md:mb-24">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-8 md:mb-24">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                 Simple, Transparente y Directo.
               </h2>
-              <p className="text-lg text-muted-text max-w-3xl mx-auto">
-                Diseñamos un flujo de trabajo que te da control y confianza en cada paso del proceso.
+              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
+                Diseñamos un flujo de trabajo que te da control y confianza en cada paso.
               </p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 md:gap-16">
               {/* Para Clientes */}
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4 md:gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
                     <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent opacity-[1]"></div>
-                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Clientes</h3>
+                    <h3 className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white">Para Clientes</h3>
                   </div>
                 </AnimatedElement>
-                <div className="space-y-8 mt-8 lg:mt-0">
+                <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
                   {clientSteps.map((item) => (
                     <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
                       <motion.div
-                        whileHover={{ x: 8 }}
-                        className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
+                        whileHover={{ x: 4 }}
+                        className="flex items-start gap-3 md:gap-6 p-2 md:p-4 rounded-xl hover:bg-background transition-colors"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-xl font-bold text-white">{item.step}</span>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
+                          <span className="font-heading text-lg md:text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="pt-2.5 text-lg font-heading font-bold text-foreground">{item.text}</p>
+                        <p className="pt-1 md:pt-2.5 text-sm md:text-lg font-heading font-bold text-foreground">{item.text}</p>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -578,25 +578,25 @@ export default function HomePage() {
               </div>
 
               {/* Para Joseadores */}
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4 md:gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
                     <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
                     <div className="absolute inset-0 bg-gradient-to-t from-accent/70 to-transparent"></div>
-                    <h3 className="absolute top-4 right-8 font-heading text-4xl font-bold text-white">Para Joseadores</h3>
+                    <h3 className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white">Para Joseadores</h3>
                   </div>
                 </AnimatedElement>
-                <div className="space-y-8 mt-8 lg:mt-0">
+                <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
                   {joseadorSteps.map((item) => (
                     <AnimatedElement key={item.id} delay={joseadorSteps.indexOf(item) * 150}>
                       <motion.div
-                        whileHover={{ x: 8 }}
-                        className="flex items-start gap-6 p-4 rounded-xl hover:bg-background transition-colors"
+                        whileHover={{ x: 4 }}
+                        className="flex items-start gap-3 md:gap-6 p-2 md:p-4 rounded-xl hover:bg-background transition-colors"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-xl font-bold text-white">{item.step}</span>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
+                          <span className="font-heading text-lg md:text-xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="font-paragraph text-lg pt-2.5 font-bold text-foreground">{item.text}</p>
+                        <p className="font-paragraph text-sm md:text-lg pt-1 md:pt-2.5 font-bold text-foreground">{item.text}</p>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -606,30 +606,30 @@ export default function HomePage() {
           </div>
         </section>
         
-        {/* Popular Categories Section */}
-        <section className="py-20 md:py-32 bg-gradient-to-b from-white to-background w-full relative overflow-hidden">
+        {/* Popular Categories Section - Optimized */}
+        <section className="py-12 md:py-32 bg-gradient-to-b from-white to-background w-full relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
-            <AnimatedElement className="mb-12">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Encuentra el talento que necesitas</h2>
-              <p className="text-lg text-muted-text mt-2">Desde tareas rápidas hasta proyectos complejos.</p>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="mb-8 md:mb-12">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground">Encuentra el talento que necesitas</h2>
+              <p className="text-sm md:text-lg text-muted-text mt-1 md:mt-2">Desde tareas rápidas hasta proyectos complejos.</p>
             </AnimatedElement>
           </div>
           <div className="w-full relative">
-            <div className="flex gap-8 pb-8 px-6 md:px-12 overflow-x-auto">
+            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto">
               {popularCategories.map((category) => (
-                <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[300px] sm:w-[350px]">
-                  <motion.div whileHover={{ y: -8 }} className="group card-hover">
-                    <div className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-lg category-card-mask">
+                <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[250px] sm:w-[280px] md:w-[350px]">
+                  <motion.div whileHover={{ y: -4 }} className="group card-hover">
+                    <div className="relative h-[320px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-lg category-card-mask">
                       <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={350} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                       <motion.h3
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-6 left-8 right-8 font-heading text-2xl font-bold text-white"
+                        className="absolute bottom-3 md:bottom-6 left-4 md:left-8 right-4 md:right-8 font-heading text-lg md:text-2xl font-bold text-white"
                       >
                         {category.name}
                       </motion.h3>
@@ -638,77 +638,77 @@ export default function HomePage() {
                 </AnimatedElement>
               ))}
             </div>
-            <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden"></div>
           </div>
         </section>
 
-        {/* Benefits Section */}
-        <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+        {/* Benefits Section - Optimized */}
+        <section className="py-12 md:py-32 bg-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-1/4 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
             <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-[120rem] mx-auto px-6 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-16">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-8 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                 ¿Por qué elegir JOSEAME?
               </h2>
-              <p className="text-lg text-muted-text max-w-3xl mx-auto">
-                Somos más que una plataforma, somos tu aliado en el crecimiento profesional.
+              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
+                Somos tu aliado en el crecimiento profesional.
               </p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {[
                 {
                   icon: Rocket,
                   title: 'Crecimiento Rápido',
-                  description: 'Expande tu negocio o carrera profesional con acceso a miles de oportunidades.',
+                  description: 'Acceso a miles de oportunidades.',
                   color: 'from-primary to-secondary'
                 },
                 {
                   icon: Target,
                   title: 'Precisión en Búsqueda',
-                  description: 'Encuentra exactamente lo que necesitas con nuestros filtros inteligentes.',
+                  description: 'Filtros inteligentes y precisos.',
                   color: 'from-secondary to-accent'
                 },
                 {
                   icon: TrendingUp,
                   title: 'Ingresos Consistentes',
-                  description: 'Acceso a un flujo constante de trabajos bien pagados y verificados.',
+                  description: 'Trabajos bien pagados y verificados.',
                   color: 'from-accent to-support'
                 },
                 {
                   icon: Shield,
                   title: 'Protección Total',
-                  description: 'Pagos seguros, garantía de calidad y resolución de disputas justa.',
+                  description: 'Pagos seguros y garantizados.',
                   color: 'from-support to-primary'
                 },
                 {
                   icon: Users,
                   title: 'Comunidad Fuerte',
-                  description: 'Conecta con profesionales, aprende y crece junto a otros joseadores.',
+                  description: 'Conecta y crece con otros.',
                   color: 'from-primary to-accent'
                 },
                 {
                   icon: Sparkles,
                   title: 'Soporte 24/7',
-                  description: 'Equipo dedicado listo para ayudarte en cualquier momento.',
+                  description: 'Equipo listo para ayudarte.',
                   color: 'from-accent to-secondary'
                 }
               ].map((benefit, index) => (
                 <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
                   <motion.div
-                    whileHover={{ y: -8 }}
-                    className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-8 border border-border/50 shadow-sm hover:shadow-xl"
+                    whileHover={{ y: -4 }}
+                    className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-4 md:p-8 border border-border/50 shadow-sm hover:shadow-xl"
                   >
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-6 shadow-md`}>
-                      <benefit.icon className="text-white" size={28} />
+                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
+                      <benefit.icon className="text-white" size={24} />
                     </div>
-                    <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
+                    <h3 className="font-heading text-base md:text-xl font-semibold text-foreground mb-2 md:mb-3">
                       {benefit.title}
                     </h3>
-                    <p className="text-muted-text text-sm">
+                    <p className="text-xs md:text-sm text-muted-text">
                       {benefit.description}
                     </p>
                   </motion.div>
@@ -718,9 +718,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-24 md:py-32 px-6 md:px-12">
-          <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-12 md:p-20 text-center relative overflow-hidden">
+        {/* CTA Section - Optimized */}
+        <section className="py-12 md:py-32 px-4 md:px-12">
+          <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-6 md:p-20 text-center relative overflow-hidden">
             <FloatingOrbs />
             <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
             <AnimatedElement className="relative z-10">
@@ -728,23 +728,23 @@ export default function HomePage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-8"
+                className="hidden md:inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8"
               >
                 <Sparkles size={18} className="text-yellow-300" />
-                <span className="text-white font-heading font-semibold">Únete a la revolución</span>
+                <span className="text-white font-heading font-semibold text-sm md:text-base">Únete a la revolución</span>
               </motion.div>
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">¿Listo para josear?</h2>
-              <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
-                Únete a miles de dominicanos que ya están transformando la forma en que trabajan.
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-white mb-3 md:mb-6">¿Listo para josear?</h2>
+              <p className="text-sm md:text-xl text-white/90 mb-6 md:mb-12 max-w-2xl mx-auto">
+                Únete a miles de dominicanos transformando la forma en que trabajan.
               </p>
               <Link to="/login">
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-12 py-5 bg-white text-primary font-heading text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                  className="px-6 md:px-12 py-3 md:py-5 bg-white text-primary font-heading text-sm md:text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
                 >
                   Crear Cuenta Gratis
-                  <ArrowRight className="inline-block ml-2" size={24} />
+                  <ArrowRight className="inline-block ml-2" size={20} />
                 </motion.button>
               </Link>
             </AnimatedElement>
