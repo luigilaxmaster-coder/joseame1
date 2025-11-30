@@ -277,18 +277,18 @@ export default function JoseadorDashboardPage() {
             <Link to="/joseador/my-applications">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ rotate: [0, 5, -5, 0] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <Briefcase className="text-secondary" size={20} />
+                      <Briefcase className="text-secondary w-6 h-6 md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold text-foreground mb-1 md:mb-2">Mis Aplicaciones</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold text-foreground mb-2 md:mb-3">Mis Aplicaciones</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-muted-text">Gestiona tus solicitudes</p>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">Gestiona tus solicitudes</p>
                 </div>
               </div>
             </Link>
@@ -298,18 +298,18 @@ export default function JoseadorDashboardPage() {
             <Link to="/joseador/inbox">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <MessageSquare className="text-accent" size={20} />
+                      <MessageSquare className="text-accent w-6 h-6 md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold text-foreground mb-1 md:mb-2">Mensajes</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold text-foreground mb-2 md:mb-3">Mensajes</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-muted-text">Chatea con clientes</p>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">Chatea con clientes</p>
                 </div>
               </div>
             </Link>
@@ -319,18 +319,18 @@ export default function JoseadorDashboardPage() {
             <Link to="/joseador/wallet">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-support/20 to-secondary/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-8 border border-support/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 md:p-8 border border-support/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-support/20 to-secondary/20 flex items-center justify-center mb-2 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-support/20 to-secondary/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <Wallet className="text-support" size={20} />
+                      <Wallet className="text-support w-6 h-6 md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-sm md:text-2xl font-bold text-foreground mb-1 md:mb-2">Wallet</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold text-foreground mb-2 md:mb-3">Wallet</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-muted-text">Gestiona tus fondos</p>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">Gestiona tus fondos</p>
                 </div>
               </div>
             </Link>

@@ -231,24 +231,24 @@ export default function ClientDashboardPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12"
         >
           <motion.div variants={itemVariants} whileHover={{ y: -6 }} className="group">
             <Link to="/client/publish-job">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative bg-gradient-to-br from-primary to-secondary rounded-2xl md:rounded-3xl p-3 md:p-8 text-white shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-gradient-to-br from-primary to-secondary rounded-2xl md:rounded-3xl p-6 md:p-8 text-white shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-white/20 flex items-center justify-center mb-1 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <Plus size={16} className="md:w-5 md:h-5" />
+                      <Plus size={24} className="md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-xs md:text-2xl font-bold mb-0.5 md:mb-2">Publicar Trabajo</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold mb-2 md:mb-3">Publicar Trabajo</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-white/90">Crea una nueva solicitud</p>
+                  <p className="font-paragraph text-sm md:text-base text-white/90">Crea una nueva solicitud</p>
                 </div>
               </div>
             </Link>
@@ -258,18 +258,18 @@ export default function ClientDashboardPage() {
             <Link to="/client/my-jobs">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 md:p-8 border border-secondary/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ rotate: [0, 5, -5, 0] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-1 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <Briefcase className="text-secondary w-4 h-4 md:w-5 md:h-5" />
+                      <Briefcase className="text-secondary w-6 h-6 md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-xs md:text-2xl font-bold text-foreground mb-0.5 md:mb-2">Mis Solicitudes</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold text-foreground mb-2 md:mb-3">Mis Solicitudes</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-muted-text">Gestiona tus trabajos</p>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">Gestiona tus trabajos</p>
                 </div>
               </div>
             </Link>
@@ -279,18 +279,18 @@ export default function ClientDashboardPage() {
             <Link to="/client/inbox">
               <div className="relative overflow-hidden rounded-2xl md:rounded-3xl h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 md:p-8 border border-accent/20 shadow-lg group-hover:shadow-2xl transition-all h-full flex flex-col justify-between">
                   <div>
                     <motion.div
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="w-8 h-8 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-1 md:mb-4"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center mb-4 md:mb-6"
                     >
-                      <MessageSquare className="text-accent w-4 h-4 md:w-5 md:h-5" />
+                      <MessageSquare className="text-accent w-6 h-6 md:w-6 md:h-6" />
                     </motion.div>
-                    <h3 className="font-heading text-xs md:text-2xl font-bold text-foreground mb-0.5 md:mb-2">Mensajes</h3>
+                    <h3 className="font-heading text-base md:text-2xl font-bold text-foreground mb-2 md:mb-3">Mensajes</h3>
                   </div>
-                  <p className="font-paragraph text-xs md:text-base text-muted-text">Chatea con Joseadores</p>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">Chatea con Joseadores</p>
                 </div>
               </div>
             </Link>
