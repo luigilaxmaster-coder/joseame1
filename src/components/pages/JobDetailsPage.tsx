@@ -5,7 +5,7 @@ import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap, Info } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap, Info, TrendingUp, MessageSquare, Award, Sparkles } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { calculatePiquetes, getExpertiseDescription, type ExpertiseLevel } from '@/lib/piquete-calculator';
 import { deductPiquetes, getPiqueteBalance } from '@/lib/piquete-service';
@@ -362,141 +362,218 @@ export default function JobDetailsPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-2xl p-6 border border-border shadow-lg sticky top-24"
+              className="sticky top-24 space-y-6"
             >
               {userRole === 'joseador' ? (
                 <>
-                  <h3 className="font-heading text-xl font-bold text-foreground mb-4">
-                    Aplicar a este Trabajo
-                  </h3>
-
-                  {/* Piquete Balance Display */}
-                  <div className="mb-6 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap size={18} className="text-secondary" />
-                      <span className="font-paragraph text-sm text-muted-text">Piquetes Disponibles</span>
+                  {/* Header Card */}
+                  <div className="bg-gradient-to-br from-secondary via-support to-accent rounded-2xl p-6 text-white shadow-lg overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles size={24} className="text-white" />
+                        <h3 className="font-heading text-2xl font-bold">Aplicar Ahora</h3>
+                      </div>
+                      <p className="font-paragraph text-sm opacity-90">
+                        Destaca tu propuesta entre los demás Joseadores
+                      </p>
                     </div>
-                    <p className="font-heading text-3xl font-bold text-secondary">{currentPiqueteBalance}</p>
                   </div>
 
-                  {!showApplicationForm ? (
-                    <div>
-                      <p className="font-paragraph text-muted-text mb-6">
-                        Envía tu propuesta para este trabajo y destaca entre los demás Joseadores.
+                  {/* Piquete Balance Card */}
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-white rounded-2xl p-6 border-2 border-secondary/30 shadow-lg"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="p-2 bg-secondary/10 rounded-lg">
+                            <Zap size={20} className="text-secondary" />
+                          </div>
+                          <span className="font-paragraph text-sm text-muted-text">Piquetes Disponibles</span>
+                        </div>
+                        <p className="font-heading text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
+                          {currentPiqueteBalance}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-secondary/10 rounded-xl">
+                        <TrendingUp size={24} className="text-secondary" />
+                      </div>
+                    </div>
+                    <div className="pt-4 border-t border-border">
+                      <p className="font-paragraph text-xs text-muted-text">
+                        Cada aplicación cuesta piquetes según tu nivel de experiencia
                       </p>
+                    </div>
+                  </motion.div>
+
+                  {!showApplicationForm ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-4"
+                    >
+                      {/* Info Cards */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white rounded-xl p-4 border border-border shadow-sm">
+                          <div className="p-2 bg-accent/10 rounded-lg mb-2 w-fit">
+                            <Award size={18} className="text-accent" />
+                          </div>
+                          <p className="font-heading text-sm font-bold text-foreground">Destaca</p>
+                          <p className="font-paragraph text-xs text-muted-text mt-1">Sé el elegido</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 border border-border shadow-sm">
+                          <div className="p-2 bg-primary/10 rounded-lg mb-2 w-fit">
+                            <MessageSquare size={18} className="text-primary" />
+                          </div>
+                          <p className="font-heading text-sm font-bold text-foreground">Comunica</p>
+                          <p className="font-paragraph text-xs text-muted-text mt-1">Tu propuesta</p>
+                        </div>
+                      </div>
+
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setShowApplicationForm(true)}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-secondary via-accent to-support text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+                        className="w-full px-6 py-4 bg-gradient-to-r from-secondary via-accent to-support text-white font-heading font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                       >
+                        <Sparkles size={20} />
                         Aplicar Ahora
                       </motion.button>
+                      
                       {piqueteInfo && (
-                        <p className="font-paragraph text-xs text-muted-text text-center mt-4">
-                          Costo: {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}
-                        </p>
+                        <div className="bg-gradient-to-br from-secondary/5 to-accent/5 rounded-xl p-4 border border-secondary/20">
+                          <div className="flex items-center justify-between">
+                            <span className="font-paragraph text-sm text-foreground">Costo estimado:</span>
+                            <span className="font-heading font-bold text-secondary">
+                              {piqueteInfo.totalPiquetes} 
+                              <span className="text-xs ml-1">piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}</span>
+                            </span>
+                          </div>
+                        </div>
                       )}
-                    </div>
+                    </motion.div>
                   ) : (
-                    <form onSubmit={handleApply} className="space-y-4">
+                    <motion.form 
+                      onSubmit={handleApply} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white rounded-2xl p-6 border border-border shadow-lg space-y-5"
+                    >
+                      {/* Proposed Price */}
                       <div>
-                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
-                          Tu Propuesta de Precio (RD$)
+                        <label className="font-heading font-bold text-foreground mb-3 block flex items-center gap-2">
+                          <div className="p-2 bg-primary/10 rounded-lg">
+                            <DollarSign size={18} className="text-primary" />
+                          </div>
+                          Tu Propuesta de Precio
                         </label>
-                        <input
-                          type="number"
-                          required
-                          min="0"
-                          step="0.01"
-                          value={applicationData.proposedPrice}
-                          onChange={(e) => setApplicationData({ ...applicationData, proposedPrice: e.target.value })}
-                          placeholder="5000"
-                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
-                        />
+                        <div className="relative">
+                          <span className="absolute left-4 top-3 font-heading font-bold text-muted-text">RD$</span>
+                          <input
+                            type="number"
+                            required
+                            min="0"
+                            step="0.01"
+                            value={applicationData.proposedPrice}
+                            onChange={(e) => setApplicationData({ ...applicationData, proposedPrice: e.target.value })}
+                            placeholder="5000"
+                            className="w-full pl-12 pr-4 py-3 border-2 border-primary/20 rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                          />
+                        </div>
                         
-                        {/* Piquete Calculator - Shows dynamically based on proposed price */}
+                        {/* Piquete Calculator */}
                         {piqueteInfo && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mt-3 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 border border-secondary/20 rounded-lg"
+                            className="mt-4 p-4 bg-gradient-to-br from-secondary/10 to-accent/10 border-2 border-secondary/30 rounded-xl"
                           >
+                            <div className="flex items-center gap-2 mb-3">
+                              <Zap size={18} className="text-secondary" />
+                              <span className="font-heading font-bold text-foreground">Cálculo de Piquetes</span>
+                            </div>
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="font-paragraph text-sm text-foreground">
-                                  Cálculo de Piquetes:
-                                </span>
+                              <div className="flex items-center justify-between p-2 bg-white/50 rounded-lg">
+                                <span className="font-paragraph text-sm text-foreground">Total a cobrar:</span>
                                 <span className="font-heading text-lg font-bold text-secondary">
-                                  {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}
+                                  {piqueteInfo.totalPiquetes}
                                 </span>
                               </div>
-                              <div className="text-xs text-muted-text space-y-1">
-                                <p>
-                                  • Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''} (RD$ {applicationData.proposedPrice ? parseFloat(applicationData.proposedPrice).toLocaleString() : job?.budget?.toLocaleString()} ÷ 1000)
+                              <div className="text-xs text-muted-text space-y-1 pt-2">
+                                <p className="flex items-center gap-2">
+                                  <span className="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                                  Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''}
                                 </p>
                                 {expertiseLevel !== 'beginner' && (
-                                  <p>
-                                    • Ajuste por nivel {expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}: +{Math.round((piqueteInfo.expertiseMultiplier - 1) * 100)}%
+                                  <p className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                                    Ajuste {expertiseLevel === 'intermediate' ? 'Intermedio' : 'Experto'}: +{Math.round((piqueteInfo.expertiseMultiplier - 1) * 100)}%
                                   </p>
                                 )}
-                                <p className="pt-1 font-paragraph font-semibold text-secondary">
-                                  Total: {piqueteInfo.totalPiquetes} piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''} se cobrarán de tu cuenta
-                                </p>
                               </div>
-
-                              {/* Insufficient Balance Warning */}
-                              {currentPiqueteBalance < piqueteInfo.totalPiquetes && (
-                                <motion.div
-                                  initial={{ opacity: 0, y: -5 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2"
-                                >
-                                  <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-                                  <div>
-                                    <p className="font-paragraph text-xs font-semibold text-red-700">
-                                      Piquetes insuficientes
-                                    </p>
-                                    <p className="font-paragraph text-xs text-red-600 mt-1">
-                                      Necesitas {piqueteInfo.totalPiquetes} piquetes pero solo tienes {currentPiqueteBalance}. 
-                                      <Link to="/joseador/buy-piquetes" className="font-semibold underline ml-1">
-                                        Compra más piquetes
-                                      </Link>
-                                    </p>
-                                  </div>
-                                </motion.div>
-                              )}
                             </div>
+
+                            {/* Insufficient Balance Warning */}
+                            {currentPiqueteBalance < piqueteInfo.totalPiquetes && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-3 p-3 bg-red-50 border-2 border-red-200 rounded-lg flex items-start gap-2"
+                              >
+                                <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="font-heading text-xs font-bold text-red-700">
+                                    Piquetes insuficientes
+                                  </p>
+                                  <p className="font-paragraph text-xs text-red-600 mt-1">
+                                    Necesitas {piqueteInfo.totalPiquetes} pero tienes {currentPiqueteBalance}
+                                  </p>
+                                  <Link to="/joseador/buy-piquetes" className="font-heading text-xs font-bold text-red-700 underline mt-1 inline-block">
+                                    Compra más piquetes →
+                                  </Link>
+                                </div>
+                              </motion.div>
+                            )}
                           </motion.div>
                         )}
                       </div>
 
+                      {/* Expertise Level */}
                       <div>
-                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
+                        <label className="font-heading font-bold text-foreground mb-3 block flex items-center gap-2">
+                          <div className="p-2 bg-accent/10 rounded-lg">
+                            <Award size={18} className="text-accent" />
+                          </div>
                           Nivel de Experiencia
                         </label>
                         <select
                           value={expertiseLevel}
                           onChange={(e) => setExpertiseLevel(e.target.value as ExpertiseLevel)}
-                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary"
+                          className="w-full px-4 py-3 border-2 border-accent/20 rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
                         >
-                          <option value="beginner">Principiante (Sin ajuste)</option>
-                          <option value="intermediate">Intermedio (+25%)</option>
-                          <option value="expert">Experto (+50%)</option>
+                          <option value="beginner">🌱 Principiante (Sin ajuste)</option>
+                          <option value="intermediate">⭐ Intermedio (+25%)</option>
+                          <option value="expert">👑 Experto (+50%)</option>
                         </select>
                       </div>
 
+                      {/* Cover Letter */}
                       <div>
-                        <label className="font-paragraph font-semibold text-foreground mb-2 block">
+                        <label className="font-heading font-bold text-foreground mb-3 block flex items-center gap-2">
+                          <div className="p-2 bg-secondary/10 rounded-lg">
+                            <MessageSquare size={18} className="text-secondary" />
+                          </div>
                           Carta de Presentación
                         </label>
                         <textarea
                           required
                           value={applicationData.coverLetter}
                           onChange={(e) => setApplicationData({ ...applicationData, coverLetter: e.target.value })}
-                          placeholder="Explica por qué eres el mejor candidato..."
+                          placeholder="Explica por qué eres el mejor candidato para este trabajo..."
                           rows={5}
-                          className="w-full px-4 py-3 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+                          className="w-full px-4 py-3 border-2 border-secondary/20 rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary resize-none transition-all"
                         />
                       </div>
 
@@ -505,43 +582,55 @@ export default function JobDetailsPage() {
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2"
+                          className="p-4 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3"
                         >
-                          <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-                          <p className="font-paragraph text-xs text-red-700">{submissionError}</p>
+                          <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                          <p className="font-paragraph text-sm text-red-700">{submissionError}</p>
                         </motion.div>
                       )}
 
-                      <div className="flex gap-2">
-                        <button
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 pt-2">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           type="button"
                           onClick={() => {
                             setShowApplicationForm(false);
                             setExpertiseLevel('beginner');
                             setSubmissionError(null);
                           }}
-                          className="flex-1 px-4 py-3 border border-border rounded-xl font-paragraph font-semibold hover:bg-background transition-colors"
+                          className="flex-1 px-4 py-3 border-2 border-border rounded-xl font-heading font-bold hover:bg-background transition-colors"
                         >
                           Cancelar
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           type="submit"
                           disabled={isSubmitting || (piqueteInfo && currentPiqueteBalance < piqueteInfo.totalPiquetes)}
-                          className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph font-semibold hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-heading font-bold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                          {isSubmitting ? 'Enviando...' : 'Enviar Aplicación'}
-                        </button>
+                          <Sparkles size={18} />
+                          {isSubmitting ? 'Enviando...' : 'Enviar'}
+                        </motion.button>
                       </div>
-                    </form>
+                    </motion.form>
                   )}
                 </>
               ) : (
-                <div className="text-center">
+                <div className="bg-white rounded-2xl p-8 border border-border shadow-lg text-center">
+                  <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-4">
+                    <Info size={32} className="text-primary" />
+                  </div>
+                  <h3 className="font-heading text-xl font-bold text-foreground mb-2">
+                    Panel de Cliente
+                  </h3>
                   <p className="font-paragraph text-muted-text mb-4">
-                    Como cliente, puedes aceptar o rechazar las aplicaciones que recibas.
+                    Aquí verás y podrás gestionar todas las aplicaciones que recibas para este trabajo.
                   </p>
                   <p className="font-paragraph text-sm text-muted-text">
-                    Revisa las aplicaciones en la sección de abajo.
+                    Revisa las propuestas en la sección de abajo y elige al mejor Joseador.
                   </p>
                 </div>
               )}
