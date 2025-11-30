@@ -6,13 +6,13 @@ import { TrabajosdeServicio } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Briefcase, FileText, CreditCard, Smartphone, Building2, CheckCircle2 } from 'lucide-react';
 import { useJobStore } from '@/store/jobStore';
 
-const PUBLICATION_FEE_PER_MONTH = 250; // RD$ fee per month for publishing a job
+const PUBLICATION_FEE = 250; // RD$ fixed fee for publishing a job
 
 const DURATION_OPTIONS = [
-  { months: 1, label: '1 mes', price: 250 },
-  { months: 3, label: '3 meses', price: 650 },
-  { months: 5, label: '5 meses', price: 1000 },
-  { months: 10, label: '10 meses', price: 1800 },
+  { months: 1, label: '1 mes' },
+  { months: 3, label: '3 meses' },
+  { months: 5, label: '5 meses' },
+  { months: 10, label: '10 meses' },
 ];
 
 export default function PublishJobPage() {
@@ -258,6 +258,7 @@ export default function PublishJobPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setDurationMonths(option.months)}
+                      type="button"
                       className={`p-4 rounded-xl border-2 transition-all text-left ${
                         durationMonths === option.months
                           ? 'border-primary bg-primary/5'
@@ -265,7 +266,6 @@ export default function PublishJobPage() {
                       }`}
                     >
                       <p className="font-heading font-semibold text-foreground">{option.label}</p>
-                      <p className="font-paragraph text-sm text-muted-text mt-1">RD$ {option.price}</p>
                     </motion.button>
                   ))}
                 </div>
@@ -309,8 +309,8 @@ export default function PublishJobPage() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Tarifa por mes</span>
-                    <span className="font-heading font-semibold text-foreground">RD$ {PUBLICATION_FEE_PER_MONTH}</span>
+                    <span className="font-paragraph text-muted-text">Tarifa de publicación</span>
+                    <span className="font-heading font-semibold text-foreground">RD$ {PUBLICATION_FEE}</span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-border">
                     <span className="font-paragraph text-muted-text">Visibilidad</span>
@@ -323,7 +323,7 @@ export default function PublishJobPage() {
                   <div className="flex justify-between items-center">
                     <span className="font-heading text-lg font-semibold text-foreground">Total a pagar</span>
                     <span className="font-heading text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                      RD$ {DURATION_OPTIONS.find(opt => opt.months === durationMonths)?.price}
+                      RD$ {PUBLICATION_FEE}
                     </span>
                   </div>
                 </div>
@@ -337,6 +337,7 @@ export default function PublishJobPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setPaymentMethod('card')}
+                    type="button"
                     className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
                       paymentMethod === 'card'
                         ? 'border-primary bg-primary/5'
@@ -356,6 +357,7 @@ export default function PublishJobPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setPaymentMethod('mobile')}
+                    type="button"
                     className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
                       paymentMethod === 'mobile'
                         ? 'border-secondary bg-secondary/5'
