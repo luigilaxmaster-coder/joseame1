@@ -6,7 +6,14 @@ import { TrabajosdeServicio } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Briefcase, FileText, CreditCard, Smartphone, Building2, CheckCircle2 } from 'lucide-react';
 import { useJobStore } from '@/store/jobStore';
 
-const PUBLICATION_FEE = 250; // RD$ fee for publishing a job
+const PUBLICATION_FEE_PER_MONTH = 250; // RD$ fee per month for publishing a job
+
+const DURATION_OPTIONS = [
+  { months: 1, label: '1 mes', price: 250 },
+  { months: 3, label: '3 meses', price: 650 },
+  { months: 5, label: '5 meses', price: 1000 },
+  { months: 10, label: '10 meses', price: 1800 },
+];
 
 export default function PublishJobPage() {
   const navigate = useNavigate();
@@ -19,6 +26,7 @@ export default function PublishJobPage() {
     locationAddress: '',
     jobImage: ''
   });
+  const [durationMonths, setDurationMonths] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -235,6 +243,34 @@ export default function PublishJobPage() {
                 />
               </motion.div>
 
+              {/* Duration Selection */}
+              <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-border hover:border-primary/30 transition-colors">
+                <label className="flex items-center gap-3 font-heading font-semibold text-foreground mb-4">
+                  <div className="p-2 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg">
+                    <Briefcase size={20} className="text-primary" />
+                  </div>
+                  Duración de la Publicación
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {DURATION_OPTIONS.map((option) => (
+                    <motion.button
+                      key={option.months}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setDurationMonths(option.months)}
+                      className={`p-4 rounded-xl border-2 transition-all text-left ${
+                        durationMonths === option.months
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <p className="font-heading font-semibold text-foreground">{option.label}</p>
+                      <p className="font-paragraph text-sm text-muted-text mt-1">RD$ {option.price}</p>
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+
               {/* Submit Button */}
               <motion.div variants={itemVariants} className="pt-4">
                 <motion.button
@@ -267,12 +303,14 @@ export default function PublishJobPage() {
                 {/* Fee Details */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Tarifa de publicación</span>
-                    <span className="font-heading font-semibold text-foreground">RD$ {PUBLICATION_FEE}</span>
+                    <span className="font-paragraph text-muted-text">Duración seleccionada</span>
+                    <span className="font-heading font-semibold text-foreground">
+                      {DURATION_OPTIONS.find(opt => opt.months === durationMonths)?.label}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Duración</span>
-                    <span className="font-heading font-semibold text-foreground">30 días</span>
+                    <span className="font-paragraph text-muted-text">Tarifa por mes</span>
+                    <span className="font-heading font-semibold text-foreground">RD$ {PUBLICATION_FEE_PER_MONTH}</span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-border">
                     <span className="font-paragraph text-muted-text">Visibilidad</span>
@@ -285,7 +323,7 @@ export default function PublishJobPage() {
                   <div className="flex justify-between items-center">
                     <span className="font-heading text-lg font-semibold text-foreground">Total a pagar</span>
                     <span className="font-heading text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                      RD$ {PUBLICATION_FEE}
+                      RD$ {DURATION_OPTIONS.find(opt => opt.months === durationMonths)?.price}
                     </span>
                   </div>
                 </div>
