@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { PiquetePackages } from '@/entities';
-import { ArrowLeft, Check, ShoppingCart, Zap, TrendingUp, Clock, Shield, Percent, Calculator, Sparkles, Award } from 'lucide-react';
+import { ArrowLeft, Check, ShoppingCart, Zap, TrendingUp, Clock, Shield, Percent, Calculator, Sparkles, Award, Flame, Crown, Rocket, Heart, Target, Lightbulb } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
 export default function BuyPiquetesPage() {
@@ -42,12 +42,15 @@ export default function BuyPiquetesPage() {
       subtitle: 'Perfecto para comenzar',
       price: 500,
       credits: 10,
-      gradient: 'from-blue-500 to-blue-600',
-      bgGradient: 'from-blue-50 to-blue-100',
+      gradient: 'from-blue-500 via-blue-600 to-cyan-600',
+      bgGradient: 'from-blue-50 to-cyan-50',
       textColor: 'text-white',
       icon: Sparkles,
-      features: ['10 piquetes', 'Sin expiración', 'Soporte básico'],
-      bestFor: 'Nuevos joseadores'
+      badge: 'INICIANTE',
+      badgeColor: 'bg-blue-500',
+      features: ['10 piquetes', 'Sin expiración', 'Soporte básico', 'Acceso a trabajos'],
+      bestFor: 'Nuevos joseadores',
+      pricePerPiquete: 50
     },
     {
       id: 'business',
@@ -55,12 +58,15 @@ export default function BuyPiquetesPage() {
       subtitle: 'Para profesionales activos',
       price: 1200,
       credits: 30,
-      gradient: 'from-secondary to-secondary/80',
-      bgGradient: 'from-secondary/10 to-secondary/20',
+      gradient: 'from-purple-500 via-purple-600 to-pink-600',
+      bgGradient: 'from-purple-50 to-pink-50',
       textColor: 'text-white',
       icon: TrendingUp,
-      features: ['30 piquetes', 'Sin expiración', 'Soporte prioritario'],
-      bestFor: 'Profesionales activos'
+      badge: 'POPULAR',
+      badgeColor: 'bg-purple-500',
+      features: ['30 piquetes', 'Sin expiración', 'Soporte prioritario', 'Estadísticas avanzadas'],
+      bestFor: 'Profesionales activos',
+      pricePerPiquete: 40
     },
     {
       id: 'professional',
@@ -68,13 +74,17 @@ export default function BuyPiquetesPage() {
       subtitle: 'La mejor opción',
       price: 2400,
       credits: 75,
-      gradient: 'from-accent to-accent/80',
-      bgGradient: 'from-accent/10 to-accent/20',
-      textColor: 'text-foreground',
-      icon: Award,
+      gradient: 'from-amber-400 via-orange-500 to-red-500',
+      bgGradient: 'from-amber-50 to-orange-50',
+      textColor: 'text-white',
+      icon: Crown,
+      badge: 'RECOMENDADO',
+      badgeColor: 'bg-gradient-to-r from-amber-500 to-orange-500',
       featured: true,
-      features: ['75 piquetes', 'Sin expiración', 'Soporte 24/7'],
-      bestFor: 'Máxima productividad'
+      features: ['75 piquetes', 'Sin expiración', 'Soporte 24/7', 'Análisis detallado', 'Prioridad en búsquedas'],
+      bestFor: 'Máxima productividad',
+      pricePerPiquete: 32,
+      savings: '36%'
     },
     {
       id: 'premium',
@@ -82,12 +92,16 @@ export default function BuyPiquetesPage() {
       subtitle: 'Para máximo crecimiento',
       price: 4500,
       credits: 200,
-      gradient: 'from-support to-support/80',
-      bgGradient: 'from-support/10 to-support/20',
+      gradient: 'from-emerald-500 via-teal-600 to-cyan-600',
+      bgGradient: 'from-emerald-50 to-cyan-50',
       textColor: 'text-white',
-      icon: Zap,
-      features: ['200 piquetes', 'Sin expiración', 'Soporte VIP'],
-      bestFor: 'Crecimiento acelerado'
+      icon: Rocket,
+      badge: 'ÉLITE',
+      badgeColor: 'bg-emerald-500',
+      features: ['200 piquetes', 'Sin expiración', 'Soporte VIP', 'Acceso prioritario', 'Consultoría incluida'],
+      bestFor: 'Crecimiento acelerado',
+      pricePerPiquete: 22.5,
+      savings: '55%'
     }
   ];
 
@@ -255,17 +269,23 @@ export default function BuyPiquetesPage() {
                     : 'shadow-lg hover:shadow-xl md:hover:shadow-2xl'
                 }`}
               >
-                {/* Ribbon for Professional */}
-                {tier.featured && (
+                {/* Badge */}
+                <div className={`absolute top-4 md:top-6 right-4 md:right-6 z-20 ${tier.badgeColor} text-white text-xs md:text-sm font-heading font-bold px-3 md:px-4 py-1 md:py-2 rounded-full flex items-center gap-1`}>
+                  {tier.badge === 'RECOMENDADO' && <Flame size={14} />}
+                  {tier.badge === 'POPULAR' && <Heart size={14} />}
+                  {tier.badge === 'ÉLITE' && <Crown size={14} />}
+                  {tier.badge === 'INICIANTE' && <Lightbulb size={14} />}
+                  {tier.badge}
+                </div>
+
+                {/* Savings Badge */}
+                {tier.savings && (
                   <motion.div
-                    initial={{ rotate: 45, x: 50 }}
-                    animate={{ rotate: 45, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 overflow-hidden"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute top-4 md:top-6 left-4 md:left-6 z-20 bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs md:text-sm font-heading font-bold px-3 md:px-4 py-1 md:py-2 rounded-full"
                   >
-                    <div className="absolute top-2 md:top-3 right-[-35px] md:right-[-45px] w-32 md:w-40 bg-gradient-to-r from-accent to-support text-foreground text-xs font-heading font-bold py-1 px-6 md:px-8 transform rotate-45 flex items-center justify-center shadow-lg">
-                      ⭐ RECOMENDADO
-                    </div>
+                    Ahorra {tier.savings}
                   </motion.div>
                 )}
 
@@ -312,6 +332,9 @@ export default function BuyPiquetesPage() {
                       </div>
                       <div className={`font-heading text-base md:text-lg font-bold ${tier.textColor} mt-1 md:mt-2`}>
                         {tier.credits} piquetes
+                      </div>
+                      <div className={`font-paragraph text-xs ${tier.textColor === 'text-white' ? 'text-white/60' : 'text-foreground/60'} mt-2`}>
+                        RD$ {(tier.price / tier.credits).toFixed(0)} por piquete
                       </div>
                     </motion.div>
 
