@@ -40,7 +40,40 @@ export default function PublishJobPage() {
     }
   }, [jobToDuplicate]);
 
-  const categories = ['Plomería', 'Electricidad', 'Limpieza', 'Construcción', 'Jardinería', 'Tecnología', 'Otro'];
+  const categories = [
+    'Plomería',
+    'Electricidad',
+    'Limpieza',
+    'Construcción',
+    'Jardinería',
+    'Tecnología',
+    'Pintura',
+    'Carpintería',
+    'Reparación de Electrodomésticos',
+    'Climatización (AC)',
+    'Cerrajería',
+    'Albañilería',
+    'Instalación de Puertas y Ventanas',
+    'Reparación de Techos',
+    'Servicios de Mudanza',
+    'Limpieza de Alfombras',
+    'Reparación de Muebles',
+    'Servicios de Fontanería Avanzada',
+    'Instalación de Sistemas de Seguridad',
+    'Reparación de Ascensores',
+    'Servicios de Decoración',
+    'Reparación de Piscinas',
+    'Servicios de Limpieza Comercial',
+    'Instalación de Pisos y Azulejos',
+    'Reparación de Puertas de Garaje',
+    'Servicios de Desinfección',
+    'Reparación de Persianas',
+    'Servicios de Jardinería Avanzada',
+    'Instalación de Sistemas de Riego',
+    'Reparación de Calefacción',
+    'Servicios de Consultoría Técnica',
+    'Otro'
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
