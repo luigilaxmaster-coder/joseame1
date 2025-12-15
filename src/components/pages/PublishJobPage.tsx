@@ -3,10 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { TrabajosdeServicio } from '@/entities';
-import { ArrowLeft, MapPin, DollarSign, Briefcase, FileText, CreditCard, Smartphone, Building2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Briefcase, FileText, Building2, CheckCircle2, Zap } from 'lucide-react';
 import { useJobStore } from '@/store/jobStore';
-
-const PUBLICATION_FEE = 250; // RD$ fixed fee for publishing a job
 
 const DURATION_OPTIONS = [
   { months: 1, label: '1 mes' },
@@ -27,7 +25,6 @@ export default function PublishJobPage() {
     jobImage: ''
   });
   const [durationMonths, setDurationMonths] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -286,7 +283,7 @@ export default function PublishJobPage() {
             </form>
           </div>
 
-          {/* Right Column - Payment Widget */}
+          {/* Right Column - Publication Info */}
           <div className="lg:col-span-1">
             <motion.div
               variants={itemVariants}
@@ -294,107 +291,80 @@ export default function PublishJobPage() {
             >
               {/* Header */}
               <div className="bg-gradient-to-r from-primary via-secondary to-accent p-6 text-white">
-                <h3 className="font-heading text-2xl font-bold mb-2">Resumen de Publicación</h3>
-                <p className="font-paragraph text-sm opacity-90">Completa tu pago para publicar</p>
+                <h3 className="font-heading text-2xl font-bold mb-2">Publica Gratis</h3>
+                <p className="font-paragraph text-sm opacity-90">Sin costo, sin complicaciones</p>
               </div>
 
               {/* Content */}
               <div className="p-6 space-y-6">
-                {/* Fee Details */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Duración seleccionada</span>
-                    <span className="font-heading font-semibold text-foreground">
-                      {DURATION_OPTIONS.find(opt => opt.months === durationMonths)?.label}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Tarifa de publicación</span>
-                    <span className="font-heading font-semibold text-foreground">RD$ {PUBLICATION_FEE}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-border">
-                    <span className="font-paragraph text-muted-text">Visibilidad</span>
-                    <span className="font-heading font-semibold text-foreground">Ilimitada</span>
+                {/* Free Publication Message */}
+                <div className="bg-accent/10 rounded-xl p-4 border border-accent/30">
+                  <div className="flex items-start gap-3">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex-shrink-0"
+                    >
+                      <Zap size={24} className="text-accent" />
+                    </motion.div>
+                    <div>
+                      <p className="font-heading font-bold text-foreground mb-1">¡Publicación Gratuita!</p>
+                      <p className="font-paragraph text-sm text-muted-text">
+                        Publica tu trabajo sin costo. Solo pagas cuando contratas a un joseador.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Total */}
-                <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-heading text-lg font-semibold text-foreground">Total a pagar</span>
-                    <span className="font-heading text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                      RD$ {PUBLICATION_FEE}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Payment Methods */}
+                {/* Duration Selection */}
                 <div className="space-y-3">
-                  <p className="font-heading font-semibold text-foreground text-sm">Método de pago</p>
-                  
-                  {/* Card Option */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setPaymentMethod('card')}
-                    type="button"
-                    className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                      paymentMethod === 'card'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/30'
-                    }`}
-                  >
-                    <CreditCard size={20} className={paymentMethod === 'card' ? 'text-primary' : 'text-muted-text'} />
-                    <div className="text-left">
-                      <p className="font-heading font-semibold text-sm text-foreground">Tarjeta de Crédito</p>
-                      <p className="font-paragraph text-xs text-muted-text">Visa, Mastercard</p>
-                    </div>
-                    {paymentMethod === 'card' && <CheckCircle2 size={20} className="text-primary ml-auto" />}
-                  </motion.button>
-
-                  {/* Mobile Option */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setPaymentMethod('mobile')}
-                    type="button"
-                    className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                      paymentMethod === 'mobile'
-                        ? 'border-secondary bg-secondary/5'
-                        : 'border-border hover:border-secondary/30'
-                    }`}
-                  >
-                    <Smartphone size={20} className={paymentMethod === 'mobile' ? 'text-secondary' : 'text-muted-text'} />
-                    <div className="text-left">
-                      <p className="font-heading font-semibold text-sm text-foreground">Billetera Digital</p>
-                      <p className="font-paragraph text-xs text-muted-text">Pago Móvil, AirTM</p>
-                    </div>
-                    {paymentMethod === 'mobile' && <CheckCircle2 size={20} className="text-secondary ml-auto" />}
-                  </motion.button>
+                  <p className="font-heading font-semibold text-foreground text-sm">Duración de la Publicación</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {DURATION_OPTIONS.map((option) => (
+                      <motion.button
+                        key={option.months}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDurationMonths(option.months)}
+                        type="button"
+                        className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          durationMonths === option.months
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/30'
+                        }`}
+                      >
+                        <p className="font-heading font-semibold text-foreground">{option.label}</p>
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Benefits */}
-                <div className="bg-accent/5 rounded-xl p-4 space-y-2">
+                <div className="bg-primary/5 rounded-xl p-4 space-y-2">
                   <p className="font-heading font-semibold text-sm text-foreground mb-3">Lo que incluye:</p>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-accent mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
                       <span className="font-paragraph text-sm text-foreground">Visibilidad en la plataforma</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-accent mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
                       <span className="font-paragraph text-sm text-foreground">Recibe aplicaciones de Joseadores</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-accent mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
                       <span className="font-paragraph text-sm text-foreground">Soporte prioritario</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span className="font-paragraph text-sm text-foreground">Sin costo de publicación</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Info */}
                 <p className="font-paragraph text-xs text-muted-text text-center">
-                  Tu trabajo será visible inmediatamente después del pago
+                  Tu trabajo será visible inmediatamente después de publicar
                 </p>
               </div>
             </motion.div>
