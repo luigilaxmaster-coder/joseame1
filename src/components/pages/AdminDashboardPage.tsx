@@ -3,33 +3,37 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
-import { DisputasdeTrabajos, TrabajosdeServicio, JobApplications } from '@/entities';
-import { AlertTriangle, Briefcase, Users, LogOut, User } from 'lucide-react';
+import { DisputasdeTrabajos, TrabajosdeServicio, JobApplications, UserVerification } from '@/entities';
+import { AlertTriangle, Briefcase, Users, LogOut, User, Shield } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { member, actions } = useMember();
   const [disputes, setDisputes] = useState<DisputasdeTrabajos[]>([]);
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [applications, setApplications] = useState<JobApplications[]>([]);
+  const [users, setUsers] = useState<UserVerification[]>([]);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    const [disputesData, jobsData, applicationsData] = await Promise.all([
+    const [disputesData, jobsData, applicationsData, usersData] = await Promise.all([
       BaseCrudService.getAll<DisputasdeTrabajos>('jobdisputes'),
       BaseCrudService.getAll<TrabajosdeServicio>('servicejobs'),
-      BaseCrudService.getAll<JobApplications>('jobapplications')
+      BaseCrudService.getAll<JobApplications>('jobapplications'),
+      BaseCrudService.getAll<UserVerification>('userverification')
     ]);
     
     setDisputes(disputesData.items);
     setJobs(jobsData.items);
     setApplications(applicationsData.items);
+    setUsers(usersData.items);
   };
 
   const openDisputes = disputes.filter(d => d.status === 'open' || d.status === 'in_review');
   const activeJobs = jobs.filter(j => j.status === 'open' || j.status === 'in_progress');
+  const unverifiedUsers = users.filter(u => !u.isVerified).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,7 +111,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <Link to="/admin/disputes">
               <motion.div
                 whileHover={{ y: -4 }}
@@ -122,6 +126,24 @@ export default function AdminDashboardPage() {
                 </p>
                 <div className="flex items-center gap-2 text-destructive font-paragraph font-semibold">
                   <span>{openDisputes.length} disputas pendientes</span>
+                </div>
+              </motion.div>
+            </Link>
+
+            <Link to="/admin/users-verification">
+              <motion.div
+                whileHover={{ y: -4 }}
+                className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-8 border border-accent/20 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+              >
+                <Shield size={40} className="text-accent mb-4" />
+                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+                  Verificación de Usuarios
+                </h3>
+                <p className="font-paragraph text-muted-text mb-4">
+                  Gestiona la verificación de Joseadores y sus piquetes
+                </p>
+                <div className="flex items-center gap-2 text-accent font-paragraph font-semibold">
+                  <span>{unverifiedUsers} usuarios sin verificar</span>
                 </div>
               </motion.div>
             </Link>

@@ -205,3 +205,49 @@ export interface UserRatings {
   /** @wixFieldType text */
   reviewerIdentifier?: string;
 }
+
+
+/**
+ * Collection ID: userverification
+ * Interface for UserVerification
+ */
+export interface UserVerification {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType text */
+  joseadorEmail?: string;
+  /** @wixFieldType text */
+  joseadorName?: string;
+  /** @wixFieldType boolean */
+  isVerified?: boolean;
+  /** @wixFieldType datetime */
+  verificationDate?: Date | string;
+  /** @wixFieldType text */
+  verifiedByAdmin?: string;
+}
+
+
+/**
+ * Collection ID: userverification
+ * Interface for UserVerification
+ */
+export interface UserVerification {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType text */
+  joseadorEmail?: string;
+  /** @wixFieldType text */
+  joseadorName?: string;
+  /** @wixFieldType boolean */
+  isVerified?: boolean;
+  /** @wixFieldType datetime */
+  verificationDate?: Date | string;
+  /** @wixFieldType text */
+  verifiedByAdmin?: string;
+}
