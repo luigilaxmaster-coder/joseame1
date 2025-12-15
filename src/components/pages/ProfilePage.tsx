@@ -65,11 +65,14 @@ function ProfilePage() {
 
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !member?.loginEmail) return;
+    if (!file || !member?.loginEmail) {
+      setUploadError('Por favor, selecciona un archivo y asegúrate de estar autenticado.');
+      return;
+    }
 
     // Validate file
     if (!isValidImageFile(file)) {
-      setUploadError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 10MB.');
+      setUploadError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 10MB. El archivo debe tener una extensión válida.');
       return;
     }
 
@@ -79,29 +82,48 @@ function ProfilePage() {
     try {
       // Create preview URL for immediate display
       const preview = await createPreviewUrl(file);
+      if (!preview) {
+        throw new Error('No se pudo crear la vista previa de la imagen');
+      }
       setPreviewUrl(preview);
       setSelectedFile(file);
+      setIsUploadingPhoto(false);
     } catch (error) {
+      console.error('Error in handleUploadPhoto:', error);
       setUploadError(getUploadErrorMessage(error));
       setIsUploadingPhoto(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleConfirmUpload = async () => {
-    if (!selectedFile || !member?.loginEmail || !previewUrl) return;
+    if (!selectedFile || !member?.loginEmail || !previewUrl) {
+      setUploadError('Error: Faltan datos necesarios para subir la foto. Por favor, intenta de nuevo.');
+      return;
+    }
 
     setIsUploadingPhoto(true);
     try {
+      // Validate again before saving
+      if (!isValidImageFile(selectedFile)) {
+        throw new Error('El archivo no es válido. Por favor, selecciona una imagen válida.');
+      }
+
       // Save photo to database with preview URL
-      // In production, this would be replaced with actual Wix Media upload
-      await BaseCrudService.create('profilephotos', {
-        _id: crypto.randomUUID(),
+      const photoId = crypto.randomUUID();
+      const photoData: ProfilePhotos = {
+        _id: photoId,
         photo: previewUrl,
         caption: photoCaption || 'Sin descripción',
         uploadDate: new Date().toISOString(),
         likeCount: 0,
         uploaderId: member.loginEmail
-      });
+      };
+
+      await BaseCrudService.create('profilephotos', photoData);
 
       // Reset form
       setPhotoCaption('');
@@ -117,6 +139,7 @@ function ProfilePage() {
       // Reload photos
       await loadProfileData();
     } catch (error) {
+      console.error('Error in handleConfirmUpload:', error);
       setUploadError(getUploadErrorMessage(error));
     } finally {
       setIsUploadingPhoto(false);
@@ -145,6 +168,7 @@ function ProfilePage() {
       await loadProfileData();
     } catch (error) {
       console.error('Error deleting photo:', error);
+      setUploadError('Error al eliminar la foto. Por favor, intenta de nuevo.');
     }
   };
 
@@ -157,6 +181,7 @@ function ProfilePage() {
       await loadProfileData();
     } catch (error) {
       console.error('Error liking photo:', error);
+      setUploadError('Error al actualizar los likes. Por favor, intenta de nuevo.');
     }
   };
 
