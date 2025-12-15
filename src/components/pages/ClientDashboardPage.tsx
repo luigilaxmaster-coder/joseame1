@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { Plus, MapPin, List, Map, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame } from 'lucide-react';
+import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame, Zap, Target } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
 
@@ -17,7 +17,6 @@ export default function ClientDashboardPage() {
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [applications, setApplications] = useState<JobApplications[]>([]);
   const [newAppIds, setNewAppIds] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -106,7 +105,8 @@ export default function ClientDashboardPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      {/* Header - Optimized */}
+      
+      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-1.5 md:py-3">
           <div className="flex items-center justify-between">
@@ -161,9 +161,10 @@ export default function ClientDashboardPage() {
           </div>
         </div>
       </header>
-      {/* Main Content - Optimized */}
+
+      {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-3 md:py-12 relative z-10">
-        {/* Welcome Section - Optimized */}
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -176,57 +177,102 @@ export default function ClientDashboardPage() {
           <p className="font-paragraph text-xs md:text-xl text-muted-text max-w-2xl">Gestiona tus trabajos, encuentra joseadores y supervisa tus proyectos</p>
         </motion.div>
 
-        {/* Stats Section - Optimized */}
+        {/* Stats Section - Enhanced */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12"
         >
-          <motion.div variants={itemVariants} className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-primary/20">
-              <div className="flex items-center justify-between mb-1 md:mb-4">
-                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  <AlertCircle className="text-primary w-4 h-4 md:w-5 md:h-5" />
+          {/* Open Jobs Card */}
+          <motion.div variants={itemVariants} className="relative group h-full">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-transparent rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all opacity-60 group-hover:opacity-100" />
+            <div className="relative bg-gradient-to-br from-white via-primary/5 to-white rounded-2xl md:rounded-3xl p-4 md:p-8 border border-primary/30 shadow-lg group-hover:shadow-2xl transition-all overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3 md:mb-6">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg"
+                  >
+                    <AlertCircle className="text-white w-5 h-5 md:w-7 md:h-7" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="text-primary/40"
+                  >
+                    <TrendingUp size={20} />
+                  </motion.div>
                 </div>
-                <TrendingUp className="text-primary/50 w-3 h-3 md:w-4 md:h-4" />
+                <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1 md:mb-2 font-medium">Trabajos Abiertos</p>
+                <h3 className="font-heading text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{openJobs}</h3>
+                <p className="font-paragraph text-xs text-primary/60 mt-2 md:mt-3">Esperando joseadores</p>
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">Trabajos Abiertos</p>
-              <h3 className="font-heading text-xl md:text-4xl font-bold text-primary">{openJobs}</h3>
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-accent/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-secondary/20">
-              <div className="flex items-center justify-between mb-1 md:mb-4">
-                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center">
-                  <Clock className="text-secondary w-4 h-4 md:w-5 md:h-5" />
+          {/* In Progress Card */}
+          <motion.div variants={itemVariants} className="relative group h-full">
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-secondary/20 to-transparent rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all opacity-60 group-hover:opacity-100" />
+            <div className="relative bg-gradient-to-br from-white via-secondary/5 to-white rounded-2xl md:rounded-3xl p-4 md:p-8 border border-secondary/30 shadow-lg group-hover:shadow-2xl transition-all overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3 md:mb-6">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: 0.2 }}
+                    className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-secondary to-secondary/70 flex items-center justify-center shadow-lg"
+                  >
+                    <Clock className="text-white w-5 h-5 md:w-7 md:h-7" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+                    className="text-secondary/40"
+                  >
+                    <Zap size={20} />
+                  </motion.div>
                 </div>
-                <TrendingUp className="text-secondary/50 w-3 h-3 md:w-4 md:h-4" />
+                <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1 md:mb-2 font-medium">En Progreso</p>
+                <h3 className="font-heading text-3xl md:text-5xl font-bold bg-gradient-to-r from-secondary to-secondary/70 bg-clip-text text-transparent">{inProgressJobs}</h3>
+                <p className="font-paragraph text-xs text-secondary/60 mt-2 md:mt-3">Trabajos activos</p>
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">En Progreso</p>
-              <h3 className="font-heading text-xl md:text-4xl font-bold text-secondary">{inProgressJobs}</h3>
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl p-3 md:p-8 border border-accent/20">
-              <div className="flex items-center justify-between mb-1 md:mb-4">
-                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-gradient-to-br from-accent/20 to-support/20 flex items-center justify-center">
-                  <CheckCircle2 className="text-accent w-4 h-4 md:w-5 md:h-5" />
+          {/* Completed Card */}
+          <motion.div variants={itemVariants} className="relative group h-full">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-accent/20 to-transparent rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all opacity-60 group-hover:opacity-100" />
+            <div className="relative bg-gradient-to-br from-white via-accent/5 to-white rounded-2xl md:rounded-3xl p-4 md:p-8 border border-accent/30 shadow-lg group-hover:shadow-2xl transition-all overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -mr-16 -mt-16" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3 md:mb-6">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: 0.4 }}
+                    className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg"
+                  >
+                    <CheckCircle2 className="text-white w-5 h-5 md:w-7 md:h-7" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
+                    className="text-accent/40"
+                  >
+                    <Target size={20} />
+                  </motion.div>
                 </div>
-                <TrendingUp className="text-accent/50 w-3 h-3 md:w-4 md:h-4" />
+                <p className="font-paragraph text-muted-text text-xs md:text-sm mb-1 md:mb-2 font-medium">Completados</p>
+                <h3 className="font-heading text-3xl md:text-5xl font-bold bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">{completedJobs}</h3>
+                <p className="font-paragraph text-xs text-accent/60 mt-2 md:mt-3">Proyectos finalizados</p>
               </div>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm mb-0.5">Completados</p>
-              <h3 className="font-heading text-xl md:text-4xl font-bold text-accent">{completedJobs}</h3>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Quick Actions - Optimized */}
+        {/* Quick Actions */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -297,7 +343,7 @@ export default function ClientDashboardPage() {
           </motion.div>
         </motion.div>
 
-        {/* Applications Section - Optimized */}
+        {/* Applications Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -489,7 +535,7 @@ export default function ClientDashboardPage() {
           )}
         </motion.div>
 
-        {/* Search and Filters - Optimized */}
+        {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -535,7 +581,7 @@ export default function ClientDashboardPage() {
           </div>
         </motion.div>
 
-        {/* Jobs List - Optimized */}
+        {/* Jobs List */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

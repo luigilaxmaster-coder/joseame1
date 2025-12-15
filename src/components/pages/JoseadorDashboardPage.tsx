@@ -5,7 +5,7 @@ import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { TrabajosdeServicio } from '@/entities';
-import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Flame } from 'lucide-react';
+import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Flame, Sparkles } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { getPiqueteBalance } from '@/lib/piquete-service';
 
@@ -98,6 +98,7 @@ export default function JoseadorDashboardPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
+      
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-2 md:py-4">
@@ -157,9 +158,10 @@ export default function JoseadorDashboardPage() {
           </div>
         </div>
       </header>
+
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-6 md:py-12 relative z-10">
-        {/* Welcome Section - Optimized */}
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,14 +176,14 @@ export default function JoseadorDashboardPage() {
           </p>
         </motion.div>
 
-        {/* Wallet Card - Optimized */}
+        {/* Wallet Card - Enhanced */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           className="relative mb-6 md:mb-12 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/20 to-support/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-accent/30 to-support/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all opacity-70 group-hover:opacity-100" />
           <div className="relative bg-gradient-to-br from-secondary via-accent to-support rounded-2xl md:rounded-3xl p-4 md:p-8 text-white shadow-2xl overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
@@ -191,11 +193,11 @@ export default function JoseadorDashboardPage() {
               <div className="flex items-center justify-between mb-4 md:mb-8">
                 <div className="flex items-center gap-2 md:gap-4">
                   <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
+                    animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.05, 1] }}
                     transition={{ duration: 3, repeat: Infinity }}
                     className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 flex items-center justify-center"
                   >
-                    <Wallet size={20} />
+                    <Wallet size={20} className="md:w-8 md:h-8" />
                   </motion.div>
                   <div>
                     <p className="font-paragraph text-white/80 text-xs md:text-sm">Mi Wallet</p>
@@ -266,7 +268,7 @@ export default function JoseadorDashboardPage() {
           </div>
         </motion.div>
 
-        {/* Quick Actions - Optimized */}
+        {/* Quick Actions */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -337,7 +339,7 @@ export default function JoseadorDashboardPage() {
           </motion.div>
         </motion.div>
 
-        {/* Search and Filters - Optimized */}
+        {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
