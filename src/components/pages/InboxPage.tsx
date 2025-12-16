@@ -466,6 +466,7 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
                           <DollarSign size={14} />
@@ -493,6 +494,7 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
                         >
                           <DollarSign size={14} />
@@ -517,6 +519,106 @@ export default function InboxPage() {
                       </>
                     )}
                   </motion.div>
+
+                  {/* Renegotiate Panel - Inline Accordion */}
+                  <AnimatePresence>
+                    {showRenegotiatePanel && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
+                      >
+                        <div className="p-4 space-y-4">
+                          {/* Header */}
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
+                              <DollarSign size={16} className={userRole === 'joseador' ? 'text-secondary' : 'text-primary'} />
+                              Proponer nuevo monto
+                            </h3>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setShowRenegotiatePanel(false)}
+                              className="p-1 rounded-lg hover:bg-white/50 transition-colors text-muted-text"
+                            >
+                              <X size={16} />
+                            </motion.button>
+                          </div>
+
+                          {/* Current Price Info */}
+                          <div className={`p-3 rounded-xl border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
+                            <p className="font-paragraph text-xs text-muted-text mb-1">Monto actual acordado</p>
+                            <p className={`font-heading font-bold text-lg ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                              $500.00
+                            </p>
+                          </div>
+
+                          {/* Input and Submit */}
+                          <div className="space-y-3">
+                            <div>
+                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-2">
+                                Nuevo monto propuesto
+                              </label>
+                              <div className="flex gap-2">
+                                <div className="flex-1 relative">
+                                  <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                    $
+                                  </span>
+                                  <input
+                                    type="number"
+                                    value={newPrice}
+                                    onChange={(e) => setNewPrice(e.target.value)}
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    min="0"
+                                    className="w-full pl-7 pr-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all"
+                                    style={{ focusRingColor: userRole === 'joseador' ? 'rgb(113, 210, 97)' : 'rgb(14, 159, 168)' }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Optional Message */}
+                            <div>
+                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-2">
+                                Mensaje (opcional)
+                              </label>
+                              <textarea
+                                placeholder="Explica por qué propones este nuevo monto..."
+                                className="w-full px-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all resize-none"
+                                rows={3}
+                              />
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-2">
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => {
+                                  setShowRenegotiatePanel(false);
+                                  setNewPrice('');
+                                }}
+                                className={`flex-1 px-4 py-2 rounded-xl font-paragraph font-bold text-sm transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
+                              >
+                                Enviar propuesta
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setShowRenegotiatePanel(false)}
+                                className="flex-1 px-4 py-2 bg-white border-2 border-border rounded-xl font-paragraph font-bold text-sm text-foreground hover:bg-background transition-all"
+                              >
+                                Cancelar
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Messages Area */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white/50 to-white/30">
@@ -770,6 +872,7 @@ export default function InboxPage() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
                             className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                           >
                             <DollarSign size={12} />
@@ -797,6 +900,7 @@ export default function InboxPage() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
                             className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
                           >
                             <DollarSign size={12} />
@@ -822,7 +926,83 @@ export default function InboxPage() {
                       )}
                     </motion.div>
 
-                    {/* Messages Area */}
+                    {/* Renegotiate Panel - Inline Accordion (Mobile) */}
+                    <AnimatePresence>
+                      {showRenegotiatePanel && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
+                        >
+                          <div className="p-3 space-y-3">
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
+                                <DollarSign size={14} className={userRole === 'joseador' ? 'text-secondary' : 'text-primary'} />
+                                Proponer nuevo monto
+                              </h3>
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setShowRenegotiatePanel(false)}
+                                className="p-1 rounded-lg hover:bg-white/50 transition-colors text-muted-text"
+                              >
+                                <X size={14} />
+                              </motion.button>
+                            </div>
+
+                            {/* Current Price Info */}
+                            <div className={`p-2 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
+                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Monto actual</p>
+                              <p className={`font-heading font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                $500.00
+                              </p>
+                            </div>
+
+                            {/* Input and Submit */}
+                            <div className="space-y-2">
+                              <div>
+                                <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                  Nuevo monto
+                                </label>
+                                <div className="flex gap-2">
+                                  <div className="flex-1 relative">
+                                    <span className={`absolute left-2 top-1/2 -translate-y-1/2 font-paragraph font-bold ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                      $
+                                    </span>
+                                    <input
+                                      type="number"
+                                      value={newPrice}
+                                      onChange={(e) => setNewPrice(e.target.value)}
+                                      placeholder="0.00"
+                                      step="0.01"
+                                      min="0"
+                                      className="w-full pl-6 pr-3 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Optional Message */}
+                              <div>
+                                <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                  Mensaje (opcional)
+                                </label>
+                                <textarea
+                                  placeholder="Explica por qué..."
+                                  className="w-full px-3 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all resize-none"
+                                  rows={2}
+                                />
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex gap-2 pt-1">
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => {\n                                    setShowRenegotiatePanel(false);\n                                    setNewPrice('');\n                                  }}\n                                  className={`flex-1 px-3 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}\n                                >\n                                  Enviar\n                                </motion.button>\n                                <motion.button\n                                  whileHover={{ scale: 1.02 }}\n                                  whileTap={{ scale: 0.98 }}\n                                  onClick={() => setShowRenegotiatePanel(false)}\n                                  className=\"flex-1 px-3 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all\"\n                                >\n                                  Cancelar\n                                </motion.button>\n                              </div>\n                            </div>\n                          </div>\n                        </motion.div>\n                      )}\n                    </AnimatePresence>\n\n                    {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-white/50 to-white/30">
                       {messages.map((msg) => renderMessage(msg))}
                     </div>
