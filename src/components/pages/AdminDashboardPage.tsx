@@ -115,16 +115,16 @@ export default function AdminDashboardPage() {
             <Link to="/admin/disputes">
               <motion.div
                 whileHover={{ y: -4 }}
-                className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-8 border border-destructive/20 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-6 md:p-8 border border-destructive/20 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full flex flex-col"
               >
-                <AlertTriangle size={40} className="text-destructive mb-4" />
-                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+                <AlertTriangle size={32} className="text-destructive mb-3 md:mb-4" />
+                <h3 className="font-heading text-lg md:text-2xl font-bold text-foreground mb-2">
                   Gestionar Disputas
                 </h3>
-                <p className="font-paragraph text-muted-text mb-4">
+                <p className="font-paragraph text-sm md:text-base text-muted-text mb-4 flex-grow">
                   Revisa y resuelve disputas entre clientes y Joseadores
                 </p>
-                <div className="flex items-center gap-2 text-destructive font-paragraph font-semibold">
+                <div className="flex items-center gap-2 text-destructive font-paragraph font-semibold text-sm md:text-base">
                   <span>{openDisputes.length} disputas pendientes</span>
                 </div>
               </motion.div>
@@ -133,16 +133,16 @@ export default function AdminDashboardPage() {
             <Link to="/admin/users-verification">
               <motion.div
                 whileHover={{ y: -4 }}
-                className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-8 border border-accent/20 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-6 md:p-8 border border-accent/20 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full flex flex-col"
               >
-                <Shield size={40} className="text-accent mb-4" />
-                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+                <Shield size={32} className="text-accent mb-3 md:mb-4" />
+                <h3 className="font-heading text-lg md:text-2xl font-bold text-foreground mb-2">
                   Verificación de Usuarios
                 </h3>
-                <p className="font-paragraph text-muted-text mb-4">
+                <p className="font-paragraph text-sm md:text-base text-muted-text mb-4 flex-grow">
                   Gestiona la verificación de Joseadores y sus piquetes
                 </p>
-                <div className="flex items-center gap-2 text-accent font-paragraph font-semibold">
+                <div className="flex items-center gap-2 text-accent font-paragraph font-semibold text-sm md:text-base">
                   <span>{unverifiedUsers} usuarios sin verificar</span>
                 </div>
               </motion.div>
@@ -150,16 +150,16 @@ export default function AdminDashboardPage() {
 
             <motion.div
               whileHover={{ y: -4 }}
-              className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 border border-primary/20 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+              className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 md:p-8 border border-primary/20 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full flex flex-col"
             >
-              <Briefcase size={40} className="text-primary mb-4" />
-              <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+              <Briefcase size={32} className="text-primary mb-3 md:mb-4" />
+              <h3 className="font-heading text-lg md:text-2xl font-bold text-foreground mb-2">
                 Monitorear Trabajos
               </h3>
-              <p className="font-paragraph text-muted-text mb-4">
+              <p className="font-paragraph text-sm md:text-base text-muted-text mb-4 flex-grow">
                 Supervisa todos los trabajos en la plataforma
               </p>
-              <div className="flex items-center gap-2 text-primary font-paragraph font-semibold">
+              <div className="flex items-center gap-2 text-primary font-paragraph font-semibold text-sm md:text-base">
                 <span>{activeJobs.length} trabajos activos</span>
               </div>
             </motion.div>
