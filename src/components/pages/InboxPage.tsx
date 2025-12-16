@@ -597,7 +597,7 @@ export default function InboxPage() {
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
                       >
-                        <div className="p-4 space-y-4">
+                        <div className="p-4 space-y-3">
                           {/* Header */}
                           <div className="flex items-center justify-between">
                             <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
@@ -614,65 +614,72 @@ export default function InboxPage() {
                             </motion.button>
                           </div>
 
-                          {/* Current Price Info */}
-                          <div className={`p-3 rounded-xl border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
-                            <p className="font-paragraph text-xs text-muted-text mb-1">Monto actual acordado</p>
-                            <p className={`font-heading font-bold text-lg ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                              $500.00
-                            </p>
+                          {/* Price Comparison - Compact */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className={`p-2.5 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
+                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                              <p className={`font-heading font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                $500
+                              </p>
+                            </div>
+                            <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
+                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                              <p className="font-heading font-bold text-base text-foreground">
+                                {newPrice ? `${parseFloat(newPrice).toFixed(0)}` : '—'}
+                              </p>
+                            </div>
                           </div>
 
                           {/* Input and Submit */}
-                          <div className="space-y-3">
+                          <div className="space-y-2.5">
+                            {/* Price Input - Optimized */}
                             <div>
-                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-2">
-                                Nuevo monto propuesto
+                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                Nuevo monto
                               </label>
-                              <div className="flex gap-2">
-                                <div className="flex-1 relative">
-                                  <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                    $
-                                  </span>
-                                  <input
-                                    type="number"
-                                    value={newPrice}
-                                    onChange={(e) => setNewPrice(e.target.value)}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0"
-                                    className={`w-full pl-7 pr-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all ${userRole === 'joseador' ? 'focus:ring-secondary' : 'focus:ring-primary'}`}
-                                  />
-                                </div>
+                              <div className="relative">
+                                <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                  $
+                                </span>
+                                <input
+                                  type="number"
+                                  value={newPrice}
+                                  onChange={(e) => setNewPrice(e.target.value)}
+                                  placeholder="0.00"
+                                  step="0.01"
+                                  min="0"
+                                  className="w-full pl-7 pr-3 py-2.5 border-2 border-border/50 rounded-lg font-paragraph text-sm font-semibold focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                />
                               </div>
                             </div>
 
-                            {/* Optional Message */}
+                            {/* Optional Message - Compact */}
                             <div>
-                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-2">
-                                Mensaje (opcional)
+                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                Nota (opcional)
                               </label>
                               <textarea
-                                placeholder="Explica por qué propones este nuevo monto..."
-                                className="w-full px-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all resize-none"
-                                rows={3}
+                                placeholder="Ej: Presupuesto ajustado..."
+                                className="w-full px-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
+                                rows={2}
                               />
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 pt-2">
+                            {/* Action Buttons - Compact */}
+                            <div className="flex gap-2 pt-1">
                               <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleSendRenegotiationOffer}
-                                className={`flex-1 px-4 py-2 rounded-xl font-paragraph font-bold text-sm transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
+                                className={`flex-1 px-3 py-2 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
                               >
-                                Enviar propuesta
+                                Enviar
                               </motion.button>
                               <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowRenegotiatePanel(false)}
-                                className="flex-1 px-4 py-2 bg-white border-2 border-border rounded-xl font-paragraph font-bold text-sm text-foreground hover:bg-background transition-all"
+                                className="flex-1 px-3 py-2 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
                               >
                                 Cancelar
                               </motion.button>
@@ -999,7 +1006,7 @@ export default function InboxPage() {
                           transition={{ duration: 0.3 }}
                           className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
                         >
-                          <div className="p-3 space-y-3">
+                          <div className="p-3 space-y-2.5">
                             {/* Header */}
                             <div className="flex items-center justify-between">
                               <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
@@ -1016,65 +1023,72 @@ export default function InboxPage() {
                               </motion.button>
                             </div>
 
-                            {/* Current Price Info */}
-                            <div className={`p-2 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
-                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Monto actual</p>
-                              <p className={`font-heading font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                $500.00
-                              </p>
+                            {/* Price Comparison - Compact Mobile */}
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <div className={`p-2 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
+                                <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                                <p className={`font-heading font-bold text-sm ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                  $500
+                                </p>
+                              </div>
+                              <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
+                                <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                                <p className="font-heading font-bold text-sm text-foreground">
+                                  {newPrice ? `${parseFloat(newPrice).toFixed(0)}` : '—'}
+                                </p>
+                              </div>
                             </div>
 
                             {/* Input and Submit */}
                             <div className="space-y-2">
+                              {/* Price Input - Optimized Mobile */}
                               <div>
                                 <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
                                   Nuevo monto
                                 </label>
-                                <div className="flex gap-2">
-                                  <div className="flex-1 relative">
-                                    <span className={`absolute left-2 top-1/2 -translate-y-1/2 font-paragraph font-bold ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                      $
-                                    </span>
-                                    <input
-                                      type="number"
-                                      value={newPrice}
-                                      onChange={(e) => setNewPrice(e.target.value)}
-                                      placeholder="0.00"
-                                      step="0.01"
-                                      min="0"
-                                      className="w-full pl-6 pr-3 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all"
-                                    />
-                                  </div>
+                                <div className="relative">
+                                  <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
+                                    $
+                                  </span>
+                                  <input
+                                    type="number"
+                                    value={newPrice}
+                                    onChange={(e) => setNewPrice(e.target.value)}
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    min="0"
+                                    className="w-full pl-6 pr-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs font-semibold focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                  />
                                 </div>
                               </div>
 
-                              {/* Optional Message */}
+                              {/* Optional Message - Compact Mobile */}
                               <div>
                                 <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
-                                  Mensaje (opcional)
+                                  Nota (opcional)
                                 </label>
                                 <textarea
-                                  placeholder="Explica por qué..."
-                                  className="w-full px-3 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all resize-none"
+                                  placeholder="Ej: Presupuesto ajustado..."
+                                  className="w-full px-2.5 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
                                   rows={2}
                                 />
                               </div>
 
-                              {/* Action Buttons */}
-                              <div className="flex gap-2 pt-1">
+                              {/* Action Buttons - Compact Mobile */}
+                              <div className="flex gap-2 pt-0.5">
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={handleSendRenegotiationOffer}
-                                  className={`flex-1 px-3 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
+                                  className={`flex-1 px-2.5 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
                                 >
-                                  Enviar propuesta
+                                  Enviar
                                 </motion.button>
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => setShowRenegotiatePanel(false)}
-                                  className="flex-1 px-3 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                  className="flex-1 px-2.5 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
                                 >
                                   Cancelar
                                 </motion.button>
