@@ -63,6 +63,8 @@ export default function InboxPage() {
   const [countdown, setCountdown] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<UserInfo | null>(null);
+  const [showRenegotiatePanel, setShowRenegotiatePanel] = useState(false);
+  const [newPrice, setNewPrice] = useState('');
 
   useEffect(() => {
     loadChats();
