@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { PiquetePackages } from '@/entities';
-import { ArrowLeft, CreditCard, Lock, Check, AlertCircle, Loader, Zap } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Check, AlertCircle, Loader, Zap, Smartphone, DollarSign } from 'lucide-react';
 import { createPaymentOrder, recordPurchase, updatePurchaseStatus } from '@/lib/wix-pay-service';
 import { addPiquetes, getPiqueteBalance } from '@/lib/piquete-service';
 
@@ -19,6 +19,7 @@ export default function CheckoutPage() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [purchaseId, setPurchaseId] = useState<string | null>(null);
   const [newBalance, setNewBalance] = useState<number>(0);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'card' | 'paypal' | 'transfer'>('card');
 
   useEffect(() => {
     if (packageId) {
@@ -44,7 +45,20 @@ export default function CheckoutPage() {
     setPaymentError(null);
 
     try {
-      // Step 1: Create payment order with Wix Pay API
+      // Handle different payment methods
+      if (selectedPaymentMethod === 'paypal') {
+        // PayPal integration
+        setPaymentError('PayPal será integrado próximamente. Por favor usa otro método de pago.');
+        setProcessing(false);
+        return;
+      } else if (selectedPaymentMethod === 'transfer') {
+        // Bank transfer integration
+        setPaymentError('Transferencia bancaria será integrada próximamente. Por favor usa otro método de pago.');
+        setProcessing(false);
+        return;
+      }
+
+      // Step 1: Create payment order with Wix Pay API (for card payments)
       const orderResult = await createPaymentOrder(
         packageId,
         selectedPackage.name || 'Paquete de Piquetes',
@@ -198,34 +212,140 @@ export default function CheckoutPage() {
             {/* Payment Form */}
             <div className="lg:col-span-2">
               <form onSubmit={handlePayment} className="bg-white rounded-2xl p-8 border border-border shadow-lg space-y-6">
-                {/* Payment Method */}
+                {/* Payment Method Selection */}
                 <div>
                   <h3 className="font-heading text-xl font-semibold text-foreground mb-4">
                     Método de Pago
                   </h3>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-4 border-2 border-primary bg-primary/5 rounded-xl">
-                      <CreditCard size={24} className="text-primary" />
-                      <span className="font-paragraph font-semibold text-foreground">
-                        Wix Pay - Tarjeta de Crédito/Débito
-                      </span>
-                    </div>
+                    {/* Credit Card Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod('card')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
+                        selectedPaymentMethod === 'card'
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border bg-white hover:border-primary/50'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${selectedPaymentMethod === 'card' ? 'bg-primary/20' : 'bg-background'}`}>
+                        <CreditCard size={24} className={selectedPaymentMethod === 'card' ? 'text-primary' : 'text-muted-text'} />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-heading font-semibold text-foreground">Tarjeta de Crédito/Débito</p>
+                        <p className="font-paragraph text-sm text-muted-text">Visa, Mastercard, American Express</p>
+                      </div>
+                      {selectedPaymentMethod === 'card' && (
+                        <Check size={20} className="text-primary flex-shrink-0" />
+                      )}
+                    </motion.button>
+
+                    {/* PayPal Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod('paypal')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
+                        selectedPaymentMethod === 'paypal'
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-border bg-white hover:border-blue-300'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${selectedPaymentMethod === 'paypal' ? 'bg-blue-100' : 'bg-background'}`}>
+                        <Smartphone size={24} className={selectedPaymentMethod === 'paypal' ? 'text-blue-600' : 'text-muted-text'} />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-heading font-semibold text-foreground">PayPal</p>
+                        <p className="font-paragraph text-sm text-muted-text">Pago rápido y seguro con tu cuenta PayPal</p>
+                      </div>
+                      {selectedPaymentMethod === 'paypal' && (
+                        <Check size={20} className="text-blue-600 flex-shrink-0" />
+                      )}
+                    </motion.button>
+
+                    {/* Bank Transfer Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod('transfer')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
+                        selectedPaymentMethod === 'transfer'
+                          ? 'border-secondary bg-secondary/5'
+                          : 'border-border bg-white hover:border-secondary/50'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${selectedPaymentMethod === 'transfer' ? 'bg-secondary/20' : 'bg-background'}`}>
+                        <DollarSign size={24} className={selectedPaymentMethod === 'transfer' ? 'text-secondary' : 'text-muted-text'} />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-heading font-semibold text-foreground">Transferencia Bancaria</p>
+                        <p className="font-paragraph text-sm text-muted-text">Transferencia directa a nuestra cuenta bancaria</p>
+                      </div>
+                      {selectedPaymentMethod === 'transfer' && (
+                        <Check size={20} className="text-secondary flex-shrink-0" />
+                      )}
+                    </motion.button>
                   </div>
                 </div>
 
-                {/* Payment Info */}
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                  <p className="font-paragraph text-sm text-blue-900">
-                    <span className="font-semibold">Información de Pago:</span> Tu pago será procesado de forma segura a través de Wix Pay. Se abrirá un popup seguro para ingresar tus datos de tarjeta.
-                  </p>
-                </div>
+                {/* Payment Method Details */}
+                <AnimatePresence mode="wait">
+                  {selectedPaymentMethod === 'card' && (
+                    <motion.div
+                      key="card"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-blue-50 rounded-xl p-4 border border-blue-200"
+                    >
+                      <p className="font-paragraph text-sm text-blue-900">
+                        <span className="font-semibold">Información de Pago:</span> Tu pago será procesado de forma segura a través de Wix Pay. Se abrirá un popup seguro para ingresar tus datos de tarjeta.
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {selectedPaymentMethod === 'paypal' && (
+                    <motion.div
+                      key="paypal"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-blue-50 rounded-xl p-4 border border-blue-200"
+                    >
+                      <p className="font-paragraph text-sm text-blue-900">
+                        <span className="font-semibold">Información de PayPal:</span> Serás redirigido a PayPal para completar tu pago de forma segura. No compartimos tus datos bancarios.
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {selectedPaymentMethod === 'transfer' && (
+                    <motion.div
+                      key="transfer"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-amber-50 rounded-xl p-4 border border-amber-200"
+                    >
+                      <p className="font-paragraph text-sm text-amber-900">
+                        <span className="font-semibold">Información de Transferencia:</span> Recibirás los detalles de nuestra cuenta bancaria después de confirmar tu pedido. Tu saldo se actualizará una vez que confirmemos el pago.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Security Notice */}
                 <div className="bg-accent/10 rounded-xl p-4 flex items-start gap-3">
                   <Lock size={20} className="text-accent flex-shrink-0 mt-1" />
                   <div>
                     <p className="font-paragraph text-sm text-foreground">
-                      <span className="font-semibold">Pago 100% Seguro:</span> Tus datos están protegidos con encriptación de nivel bancario. Wix Pay es un procesador de pagos certificado.
+                      <span className="font-semibold">Pago 100% Seguro:</span> Tus datos están protegidos con encriptación de nivel bancario. Todos nuestros procesadores de pago son certificados.
                     </p>
                   </div>
                 </div>
