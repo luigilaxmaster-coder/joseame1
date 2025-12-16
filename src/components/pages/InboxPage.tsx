@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
+import { BaseCrudService } from '@/integrations';
+import { RenegotiationOffers, Messages } from '@/entities';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
@@ -159,6 +161,71 @@ export default function InboxPage() {
     e.preventDefault();
     if (message.trim()) {
       setMessage('');
+    }
+  };
+
+  const handleSendRenegotiationOffer = async () => {
+    if (!newPrice || !selectedChatData) return;
+
+    const proposedPriceNum = parseFloat(newPrice);
+    const currentPrice = 500; // Mock current price
+
+    // Validations
+    if (proposedPriceNum < 1 || proposedPriceNum > 1000000) {
+      alert('El monto debe estar entre $1 y $1,000,000');
+      return;
+    }
+
+    if (proposedPriceNum === currentPrice) {
+      alert('El nuevo monto debe ser diferente al monto actual');
+      return;
+    }
+
+    try {
+      // Create renegotiation offer
+      const offerId = crypto.randomUUID();
+      const renegotiationOffer: RenegotiationOffers = {
+        _id: offerId,
+        jobId: 'job-1', // Mock job ID
+        offeringUserId: member?.profile?.nickname || 'user-1',
+        receivingUserId: selectedChatData.otherUserId,
+        currentPrice: currentPrice,
+        proposedPrice: proposedPriceNum,
+        reason: document.querySelector('textarea')?.value || '',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+
+      await BaseCrudService.create('renegotiationoffers', renegotiationOffer);
+
+      // Create message with renegotiation offer
+      const messageId = crypto.randomUUID();
+      const renegotiationMessage: Messages = {
+        _id: messageId,
+        chatId: selectedChat || '',
+        senderId: member?.profile?.nickname || 'user-1',
+        messageType: 'renegotiation_offer',
+        content: JSON.stringify({
+          offerId: offerId,
+          currentPrice: currentPrice,
+          proposedPrice: proposedPriceNum,
+          reason: document.querySelector('textarea')?.value || '',
+        }),
+        createdAt: new Date().toISOString(),
+      };
+
+      await BaseCrudService.create('messages', renegotiationMessage);
+
+      // Reset form
+      setShowRenegotiatePanel(false);
+      setNewPrice('');
+      const textarea = document.querySelector('textarea');
+      if (textarea) textarea.value = '';
+
+      alert('Propuesta de renegociación enviada exitosamente');
+    } catch (error) {
+      console.error('Error sending renegotiation offer:', error);
+      alert('Error al enviar la propuesta');
     }
   };
 
@@ -573,8 +640,7 @@ export default function InboxPage() {
                                     placeholder="0.00"
                                     step="0.01"
                                     min="0"
-                                    className="w-full pl-7 pr-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all"
-                                    style={{ focusRingColor: userRole === 'joseador' ? 'rgb(113, 210, 97)' : 'rgb(14, 159, 168)' }}
+                                    className={`w-full pl-7 pr-4 py-2 border-2 border-border/50 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-white/80 transition-all ${userRole === 'joseador' ? 'focus:ring-secondary' : 'focus:ring-primary'}`}
                                   />
                                 </div>
                               </div>
@@ -597,10 +663,7 @@ export default function InboxPage() {
                               <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => {
-                                  setShowRenegotiatePanel(false);
-                                  setNewPrice('');
-                                }}
+                                onClick={handleSendRenegotiationOffer}
                                 className={`flex-1 px-4 py-2 rounded-xl font-paragraph font-bold text-sm transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
                               >
                                 Enviar propuesta
@@ -1002,7 +1065,27 @@ export default function InboxPage() {
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
-                                  onClick={() => {\n                                    setShowRenegotiatePanel(false);\n                                    setNewPrice('');\n                                  }}\n                                  className={`flex-1 px-3 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}\n                                >\n                                  Enviar\n                                </motion.button>\n                                <motion.button\n                                  whileHover={{ scale: 1.02 }}\n                                  whileTap={{ scale: 0.98 }}\n                                  onClick={() => setShowRenegotiatePanel(false)}\n                                  className=\"flex-1 px-3 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all\"\n                                >\n                                  Cancelar\n                                </motion.button>\n                              </div>\n                            </div>\n                          </div>\n                        </motion.div>\n                      )}\n                    </AnimatePresence>\n\n                    {/* Messages Area */}
+                                  onClick={handleSendRenegotiationOffer}
+                                  className={`flex-1 px-3 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
+                                >
+                                  Enviar propuesta
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => setShowRenegotiatePanel(false)}
+                                  className="flex-1 px-3 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                >
+                                  Cancelar
+                                </motion.button>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-white/50 to-white/30">
                       {messages.map((msg) => renderMessage(msg))}
                     </div>

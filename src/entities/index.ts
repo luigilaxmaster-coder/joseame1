@@ -58,6 +58,29 @@ export interface DisputasdeTrabajos {
 
 
 /**
+ * Collection ID: messages
+ * Interface for Messages
+ */
+export interface Messages {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  chatId?: string;
+  /** @wixFieldType text */
+  senderId?: string;
+  /** @wixFieldType text */
+  messageType?: string;
+  /** @wixFieldType text */
+  content?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  renegotiationoffers?: RenegotiationOffers[];
+}
+
+
+/**
  * Collection ID: piquetebalances
  * Interface for PiqueteBalances
  */
@@ -156,6 +179,35 @@ export interface ProfilePhotos {
 
 
 /**
+ * Collection ID: renegotiationoffers
+ * Interface for RenegotiationOffers
+ */
+export interface RenegotiationOffers {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  jobId?: string;
+  /** @wixFieldType multi_reference */
+  relatedmessages?: Messages[];
+  /** @wixFieldType text */
+  offeringUserId?: string;
+  /** @wixFieldType text */
+  receivingUserId?: string;
+  /** @wixFieldType number */
+  currentPrice?: number;
+  /** @wixFieldType number */
+  proposedPrice?: number;
+  /** @wixFieldType text */
+  reason?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+}
+
+
+/**
  * Collection ID: servicejobs
  * Interface for TrabajosdeServicio
  */
@@ -227,4 +279,52 @@ export interface UserVerification {
   verificationDate?: Date | string;
   /** @wixFieldType text */
   verifiedByAdmin?: string;
+}
+
+
+/**
+ * Collection ID: renegotiationoffers
+ * Interface for RenegotiationOffers
+ */
+export interface RenegotiationOffers {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  jobId?: string;
+  /** @wixFieldType text */
+  offeringUserId?: string;
+  /** @wixFieldType text */
+  receivingUserId?: string;
+  /** @wixFieldType number */
+  currentPrice?: number;
+  /** @wixFieldType number */
+  proposedPrice?: number;
+  /** @wixFieldType text */
+  reason?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+}
+
+
+/**
+ * Collection ID: messages
+ * Interface for Messages
+ */
+export interface Messages {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  chatId?: string;
+  /** @wixFieldType text */
+  senderId?: string;
+  /** @wixFieldType text */
+  messageType?: string;
+  /** @wixFieldType text */
+  content?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
 }
