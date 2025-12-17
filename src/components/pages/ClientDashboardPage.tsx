@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
-import { TrabajosdeServicio, JobApplications } from '@/entities';
-import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame, Zap, Target } from 'lucide-react';
+import { TrabajosdeServicio, JobApplications, UserRatings } from '@/entities';
+import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame, Zap, Target, X, Star } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
 
@@ -21,6 +21,10 @@ export default function ClientDashboardPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const previousAppsRef = useRef<string[]>([]);
+  const [selectedJoseadorId, setSelectedJoseadorId] = useState<string | null>(null);
+  const [joseadorProfile, setJoseadorProfile] = useState<any>(null);
+  const [joseadorRatings, setJoseadorRatings] = useState<UserRatings[]>([]);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
     setUserRole('client');
@@ -63,6 +67,33 @@ export default function ClientDashboardPage() {
   const handleDuplicateJob = (job: TrabajosdeServicio) => {
     setJobToDuplicate(job);
     navigate('/client/publish-job');
+  };
+
+  const loadJoseadorProfile = async (joseadorId: string) => {
+    try {
+      setLoadingProfile(true);
+      // Fetch joseador's public profile data from Members/PublicData
+      const { items: publicDataItems } = await BaseCrudService.getAll('Members/PublicData');
+      const joseadorPublicData = publicDataItems.find((item: any) => item._id === joseadorId);
+      
+      // Fetch ratings for this joseador
+      const { items: ratingsItems } = await BaseCrudService.getAll<UserRatings>('userratings');
+      const joseadorRatings = ratingsItems.filter(r => r.ratedUserIdentifier === joseadorId);
+      
+      setJoseadorProfile(joseadorPublicData || { nickname: joseadorId });
+      setJoseadorRatings(joseadorRatings);
+    } catch (error) {
+      console.error('Error loading joseador profile:', error);
+      setJoseadorProfile({ nickname: joseadorId });
+      setJoseadorRatings([]);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const handleViewJoseadorProfile = (joseadorId: string) => {
+    setSelectedJoseadorId(joseadorId);
+    loadJoseadorProfile(joseadorId);
   };
 
   const filteredJobs = jobs.filter(job => {
@@ -504,7 +535,7 @@ export default function ClientDashboardPage() {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={() => navigate(`/profile`)}
+                              onClick={() => handleViewJoseadorProfile(app.joseadorId || '')}
                               className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
                               title="Ver perfil del Joseador"
                             >
@@ -757,6 +788,125 @@ export default function ClientDashboardPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Joseador Profile Modal */}
+      <AnimatePresence>
+        {selectedJoseadorId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedJoseadorId(null)}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl md:rounded-3xl max-w-md w-full shadow-2xl overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-primary to-secondary p-6 relative">
+                <button
+                  onClick={() => setSelectedJoseadorId(null)}
+                  className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-white" />
+                </button>
+                <h2 className="font-heading text-2xl font-bold text-white mb-2">
+                  {joseadorProfile?.nickname || selectedJoseadorId}
+                </h2>
+                <p className="font-paragraph text-white/80 text-sm">Perfil del Joseador</p>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 space-y-6">
+                {loadingProfile ? (
+                  <div className="text-center py-8">
+                    <p className="font-paragraph text-muted-text">Cargando perfil...</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Profile Photo */}
+                    {joseadorProfile?.photo?.url && (
+                      <div className="flex justify-center">
+                        <Image
+                          src={joseadorProfile.photo.url}
+                          alt={joseadorProfile.nickname}
+                          className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
+                        />
+                      </div>
+                    )}
+
+                    {/* Title */}
+                    {joseadorProfile?.title && (
+                      <div>
+                        <p className="font-paragraph text-xs text-muted-text mb-1">Especialidad</p>
+                        <p className="font-heading text-lg font-bold text-foreground">
+                          {joseadorProfile.title}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Ratings */}
+                    {joseadorRatings.length > 0 && (
+                      <div>
+                        <p className="font-paragraph text-xs text-muted-text mb-3">Calificaciones</p>
+                        <div className="space-y-3">
+                          {joseadorRatings.slice(0, 3).map((rating) => (
+                            <div key={rating._id} className="bg-background rounded-lg p-3">
+                              <div className="flex items-center gap-1 mb-2">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    size={14}
+                                    className={i < (rating.ratingValue || 0) ? 'fill-accent text-accent' : 'text-muted-text'}
+                                  />
+                                ))}
+                              </div>
+                              <p className="font-paragraph text-xs text-foreground">{rating.reviewText}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {joseadorRatings.length === 0 && (
+                      <div className="text-center py-4">
+                        <p className="font-paragraph text-sm text-muted-text">Sin calificaciones aún</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="bg-background/50 p-4 border-t border-border flex gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedJoseadorId(null)}
+                  className="flex-1 px-4 py-2 bg-muted-text/10 text-foreground rounded-lg font-paragraph text-sm font-semibold hover:bg-muted-text/20 transition-colors"
+                >
+                  Cerrar
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setSelectedJoseadorId(null);
+                    navigate('/client/inbox');
+                  }}
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-sm font-semibold hover:shadow-lg transition-all"
+                >
+                  Contactar
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
