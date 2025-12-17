@@ -215,7 +215,11 @@ export default function ClientDashboardPage() {
                 </button>
               </Link>
               <button
-                onClick={actions.logout}
+                onClick={() => {
+                  const { clearAllUserData } = useRoleStore.getState();
+                  clearAllUserData();
+                  actions.logout();
+                }}
                 className="flex items-center gap-1 md:gap-2 px-1.5 md:px-4 py-1 md:py-2 text-muted-text hover:text-foreground transition-colors"
               >
                 <LogOut size={14} className="md:w-4 md:h-4" />

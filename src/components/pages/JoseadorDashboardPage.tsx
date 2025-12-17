@@ -182,7 +182,11 @@ export default function JoseadorDashboardPage() {
                 </button>
               </Link>
               <button
-                onClick={actions.logout}
+                onClick={() => {
+                  const { clearAllUserData } = useRoleStore.getState();
+                  clearAllUserData();
+                  actions.logout();
+                }}
                 className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-muted-text hover:text-foreground transition-colors"
               >
                 <LogOut size={16} />

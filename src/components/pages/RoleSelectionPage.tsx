@@ -9,14 +9,16 @@ export default function RoleSelectionPage() {
   const navigate = useNavigate();
   const { member } = useMember();
   const [selectedRole, setSelectedRole] = useState<'client' | 'joseador' | null>(null);
-  const { setUserRole } = useRoleStore();
+  const { setUserRole, setCurrentUserId } = useRoleStore();
 
   const handleContinue = () => {
     if (selectedRole === 'client') {
       setUserRole('client');
+      setCurrentUserId(member?.loginEmail || null);
       navigate('/client/onboarding');
     } else if (selectedRole === 'joseador') {
       setUserRole('joseador');
+      setCurrentUserId(member?.loginEmail || null);
       navigate('/joseador/onboarding');
     }
   };

@@ -669,7 +669,11 @@ function ProfilePage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
-              onClick={actions.logout}
+              onClick={() => {
+                const { clearAllUserData } = useRoleStore.getState();
+                clearAllUserData();
+                actions.logout();
+              }}
               className="px-8 md:px-10 py-3 md:py-4 border-3 border-destructive text-destructive font-heading font-bold rounded-xl md:rounded-2xl hover:bg-destructive hover:text-white transition-all text-base md:text-lg shadow-lg hover:shadow-xl"
             >
               Cerrar Sesión

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
+import { useRoleStore } from '@/store/roleStore';
 import { DisputasdeTrabajos, TrabajosdeServicio, JobApplications, UserVerification } from '@/entities';
 import { AlertTriangle, Briefcase, Users, LogOut, User, Shield } from 'lucide-react';
 
@@ -54,7 +55,11 @@ export default function AdminDashboardPage() {
                 </button>
               </Link>
               <button
-                onClick={actions.logout}
+                onClick={() => {
+                  const { clearAllUserData } = useRoleStore.getState();
+                  clearAllUserData();
+                  actions.logout();
+                }}
                 className="flex items-center gap-2 px-4 py-2 text-muted-text hover:text-foreground transition-colors"
               >
                 <LogOut size={20} />
