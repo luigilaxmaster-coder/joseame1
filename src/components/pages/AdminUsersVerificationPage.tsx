@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { UserVerification, PiqueteBalances } from '@/entities';
-import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield } from 'lucide-react';
+import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw } from 'lucide-react';
 
 interface UserWithBalance extends UserVerification {
   balance?: PiqueteBalances;
@@ -19,9 +19,27 @@ export default function AdminUsersVerificationPage() {
   const [loading, setLoading] = useState(true);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [piqueteInput, setPiqueteInput] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [newUsersCount, setNewUsersCount] = useState(0);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const previousUserCountRef = useRef(0);
 
   useEffect(() => {
     loadUsers();
+    previousUserCountRef.current = 0;
+
+    // Set up polling interval - refresh every 5 seconds
+    pollIntervalRef.current = setInterval(() => {
+      loadUsers();
+    }, 5000);
+
+    // Cleanup interval on unmount
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -30,7 +48,7 @@ export default function AdminUsersVerificationPage() {
 
   const loadUsers = async () => {
     try {
-      setLoading(true);
+      setIsRefreshing(true);
       const [verificationData, balancesData] = await Promise.all([
         BaseCrudService.getAll<UserVerification>('userverification'),
         BaseCrudService.getAll<PiqueteBalances>('piquetebalances')
@@ -45,11 +63,23 @@ export default function AdminUsersVerificationPage() {
         };
       });
 
+      // Detect new users
+      const currentUserCount = usersWithBalance.length;
+      if (previousUserCountRef.current > 0 && currentUserCount > previousUserCountRef.current) {
+        const newCount = currentUserCount - previousUserCountRef.current;
+        setNewUsersCount(newCount);
+        // Auto-clear the notification after 5 seconds
+        setTimeout(() => setNewUsersCount(0), 5000);
+      }
+      previousUserCountRef.current = currentUserCount;
+
       setUsers(usersWithBalance);
+      setLastRefreshTime(new Date());
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -143,11 +173,35 @@ export default function AdminUsersVerificationPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-50">
-        <div className="max-w-[100rem] mx-auto px-6 py-4">
+        <div className="max-w-[100rem] mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/admin/dashboard" className="inline-flex items-center gap-2 text-muted-text hover:text-primary transition-colors font-paragraph font-semibold">
             <ArrowLeft size={20} />
             <span>Volver al Panel</span>
           </Link>
+          
+          {/* Refresh Status */}
+          <div className="flex items-center gap-3">
+            {lastRefreshTime && (
+              <span className="text-xs font-paragraph text-muted-text">
+                Última actualización: {lastRefreshTime.toLocaleTimeString('es-ES')}
+              </span>
+            )}
+            <motion.button
+              onClick={loadUsers}
+              disabled={isRefreshing}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Actualizar ahora"
+            >
+              <motion.div
+                animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
+                transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+              >
+                <RefreshCw size={20} />
+              </motion.div>
+            </motion.button>
+          </div>
         </div>
       </header>
 
@@ -159,6 +213,32 @@ export default function AdminUsersVerificationPage() {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
+          {/* New Users Notification */}
+          {newUsersCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-accent/10 border border-accent rounded-2xl p-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <CheckCircle size={24} className="text-accent" />
+                </motion.div>
+                <div>
+                  <p className="font-heading font-semibold text-foreground">
+                    {newUsersCount} nuevo{newUsersCount > 1 ? 's' : ''} usuario{newUsersCount > 1 ? 's' : ''} registrado{newUsersCount > 1 ? 's' : ''}
+                  </p>
+                  <p className="font-paragraph text-sm text-muted-text">
+                    {newUsersCount > 1 ? 'Los nuevos usuarios' : 'El nuevo usuario'} aparecerá{newUsersCount > 1 ? 'n' : ''} en la lista abajo
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
           {/* Title */}
           <div>
             <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
