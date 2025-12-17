@@ -25,7 +25,6 @@ export default function ClientDashboardPage() {
   const [joseadorProfile, setJoseadorProfile] = useState<any>(null);
   const [joseadorRatings, setJoseadorRatings] = useState<UserRatings[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const [expandedJoseadorId, setExpandedJoseadorId] = useState<string | null>(null);
 
   useEffect(() => {
     setUserRole('client');
@@ -94,7 +93,6 @@ export default function ClientDashboardPage() {
 
   const handleViewJoseadorProfile = (joseadorId: string) => {
     setSelectedJoseadorId(joseadorId);
-    setExpandedJoseadorId(joseadorId);
     loadJoseadorProfile(joseadorId);
   };
 
@@ -592,104 +590,6 @@ export default function ClientDashboardPage() {
                             </motion.button>
                           )}
                         </div>
-
-                        {/* Expanded Profile Widget */}
-                        <AnimatePresence>
-                          {expandedJoseadorId === app.joseadorId && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="mt-4 pt-4 border-t border-border/50"
-                            >
-                              {loadingProfile ? (
-                                <div className="text-center py-4">
-                                  <p className="font-paragraph text-xs text-muted-text">Cargando perfil...</p>
-                                </div>
-                              ) : (
-                                <div className="space-y-4">
-                                  {/* Profile Photo */}
-                                  {joseadorProfile?.photo?.url && (
-                                    <div className="flex justify-center">
-                                      <Image
-                                        src={joseadorProfile.photo.url}
-                                        alt={joseadorProfile.nickname}
-                                        className="w-20 h-20 rounded-full object-cover border-4 border-primary/20"
-                                      />
-                                    </div>
-                                  )}
-
-                                  {/* Profile Info */}
-                                  <div className="text-center">
-                                    <h4 className="font-heading text-sm font-bold text-foreground mb-1">
-                                      {joseadorProfile?.nickname || app.joseadorId}
-                                    </h4>
-                                    {joseadorProfile?.title && (
-                                      <p className="font-paragraph text-xs text-primary font-semibold mb-2">
-                                        {joseadorProfile.title}
-                                      </p>
-                                    )}
-
-                                    {/* Rating Summary */}
-                                    {joseadorRatings.length > 0 && (
-                                      <div className="flex items-center justify-center gap-2 mb-3">
-                                        <div className="flex items-center gap-0.5">
-                                          {[...Array(5)].map((_, i) => (
-                                            <Star
-                                              key={i}
-                                              size={14}
-                                              className={i < Math.round((joseadorRatings.reduce((sum, r) => sum + (r.ratingValue || 0), 0) / joseadorRatings.length)) ? 'fill-accent text-accent' : 'text-muted-text/30'}
-                                            />
-                                          ))}
-                                        </div>
-                                        <span className="font-heading text-xs font-bold text-foreground">
-                                          {(joseadorRatings.reduce((sum, r) => sum + (r.ratingValue || 0), 0) / joseadorRatings.length).toFixed(1)}
-                                        </span>
-                                        <span className="font-paragraph text-xs text-muted-text">
-                                          ({joseadorRatings.length})
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Recent Reviews */}
-                                  {joseadorRatings.length > 0 && (
-                                    <div>
-                                      <p className="font-paragraph text-xs text-muted-text mb-2 font-semibold">Últimas Calificaciones</p>
-                                      <div className="space-y-2 max-h-32 overflow-y-auto">
-                                        {joseadorRatings.slice(0, 2).map((rating) => (
-                                          <div key={rating._id} className="bg-background rounded-lg p-2 border border-border/30">
-                                            <div className="flex items-center gap-1 mb-1">
-                                              {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                  key={i}
-                                                  size={12}
-                                                  className={i < (rating.ratingValue || 0) ? 'fill-accent text-accent' : 'text-muted-text/30'}
-                                                />
-                                              ))}
-                                            </div>
-                                            <p className="font-paragraph text-xs text-foreground line-clamp-2">{rating.reviewText}</p>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Close Button */}
-                                  <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setExpandedJoseadorId(null)}
-                                    className="w-full px-3 py-2 bg-background border border-border/50 text-foreground rounded-lg font-paragraph text-xs font-semibold hover:bg-background/80 transition-all"
-                                  >
-                                    Cerrar Perfil
-                                  </motion.button>
-                                </div>
-                              )}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </div>
                     </motion.div>
                   );
@@ -989,7 +889,7 @@ export default function ClientDashboardPage() {
                   onClick={() => setSelectedJoseadorId(null)}
                   className="w-full px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-sm font-semibold hover:shadow-lg transition-all"
                 >
-                  Ver info Joseador
+                  Cerrar
                 </motion.button>
               </div>
             </motion.div>
