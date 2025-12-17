@@ -882,25 +882,14 @@ export default function ClientDashboardPage() {
               </div>
 
               {/* Footer */}
-              <div className="bg-background/50 p-4 border-t border-border flex gap-2">
+              <div className="bg-background/50 p-4 border-t border-border">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedJoseadorId(null)}
-                  className="flex-1 px-4 py-2 bg-muted-text/10 text-foreground rounded-lg font-paragraph text-sm font-semibold hover:bg-muted-text/20 transition-colors"
+                  className="w-full px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-sm font-semibold hover:shadow-lg transition-all"
                 >
-                  Cerrar
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setSelectedJoseadorId(null);
-                    navigate('/client/inbox');
-                  }}
-                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-sm font-semibold hover:shadow-lg transition-all"
-                >
-                  Contactar
+                  Ver info Joseador
                 </motion.button>
               </div>
             </motion.div>
