@@ -169,7 +169,6 @@ export default function ClientDashboardPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-1.5 md:py-3">
@@ -225,7 +224,6 @@ export default function ClientDashboardPage() {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-3 md:py-12 relative z-10">
         {/* Welcome Section */}
@@ -788,7 +786,6 @@ export default function ClientDashboardPage() {
           )}
         </motion.div>
       </div>
-
       {/* Joseador Profile Modal */}
       <AnimatePresence>
         {selectedJoseadorId && (
@@ -883,14 +880,7 @@ export default function ClientDashboardPage() {
 
               {/* Footer */}
               <div className="bg-background/50 p-4 border-t border-border">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedJoseadorId(null)}
-                  className="w-full px-4 py-2 bg-primary text-white rounded-lg font-paragraph text-sm font-semibold hover:shadow-lg transition-all"
-                >
-                  Cerrar
-                </motion.button>
+
               </div>
             </motion.div>
           </motion.div>
