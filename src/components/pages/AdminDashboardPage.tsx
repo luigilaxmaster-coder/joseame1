@@ -13,10 +13,15 @@ export default function AdminDashboardPage() {
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [applications, setApplications] = useState<JobApplications[]>([]);
   const [users, setUsers] = useState<UserVerification[]>([]);
+  const [adminMember, setAdminMember] = useState(member);
 
   useEffect(() => {
     loadData();
-  }, []);
+    // Update admin member info when member changes
+    if (member) {
+      setAdminMember(member);
+    }
+  }, [member]);
 
   const loadData = async () => {
     const [disputesData, jobsData, applicationsData, usersData] = await Promise.all([
@@ -50,7 +55,7 @@ export default function AdminDashboardPage() {
                 <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-background transition-colors">
                   <User size={20} className="text-muted-text" />
                   <span className="font-paragraph text-sm text-foreground hidden md:block">
-                    {member?.profile?.nickname || 'Admin'}
+                    {adminMember?.profile?.nickname || adminMember?.contact?.firstName || 'Admin'}
                   </span>
                 </button>
               </Link>
