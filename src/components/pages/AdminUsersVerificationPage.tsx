@@ -6,8 +6,28 @@ import { BaseCrudService } from '@/integrations';
 import { UserVerification, PiqueteBalances } from '@/entities';
 import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock } from 'lucide-react';
 
-interface UserWithBalance extends UserVerification {
+interface MemberData {
+  _id: string;
+  loginEmail?: string;
+  contact?: {
+    firstName?: string;
+    lastName?: string;
+  };
+  profile?: {
+    nickname?: string;
+    photo?: {
+      url?: string;
+    };
+  };
+  lastLoginDate?: Date;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+}
+
+interface UserWithBalance extends MemberData {
   balance?: PiqueteBalances;
+  isVerified?: boolean;
+  verificationDate?: Date;
   isActive?: boolean;
   lastActivityTime?: Date;
   activityStatus?: 'online' | 'idle' | 'offline';
@@ -57,36 +77,47 @@ export default function AdminUsersVerificationPage() {
   const loadUsers = async () => {
     try {
       setIsRefreshing(true);
-      const [verificationData, balancesData] = await Promise.all([
+      const [verificationData, balancesData, membersData] = await Promise.all([
         BaseCrudService.getAll<UserVerification>('userverification'),
-        BaseCrudService.getAll<PiqueteBalances>('piquetebalances')
+        BaseCrudService.getAll<PiqueteBalances>('piquetebalances'),
+        BaseCrudService.getAll<MemberData>('Members/FullData')
       ]);
 
-      // Combine user verification data with their piquete balances
-      const usersWithBalance: UserWithBalance[] = verificationData.items.map(user => {
-        const balance = balancesData.items.find(b => b.joseadorEmail === user.joseadorEmail);
-        const lastActivity = user._updatedDate ? new Date(user._updatedDate) : new Date();
-        const now = new Date();
-        const timeDiffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
+      // Create a map of verified users for quick lookup
+      const verifiedUsersMap = new Map(
+        verificationData.items.map(user => [user.joseadorEmail, user])
+      );
 
-        // Determine activity status based on last update time
-        let activityStatus: 'online' | 'idle' | 'offline' = 'offline';
-        if (timeDiffMinutes < 5) {
-          activityStatus = 'online';
-        } else if (timeDiffMinutes < 30) {
-          activityStatus = 'idle';
-        } else {
-          activityStatus = 'offline';
-        }
+      // Combine member data with verification and balance data
+      const usersWithBalance: UserWithBalance[] = membersData.items
+        .filter(member => member.loginEmail) // Only include members with email
+        .map(member => {
+          const verificationData = verifiedUsersMap.get(member.loginEmail);
+          const balance = balancesData.items.find(b => b.joseadorEmail === member.loginEmail);
+          const lastActivity = member.lastLoginDate ? new Date(member.lastLoginDate) : (member._updatedDate ? new Date(member._updatedDate) : new Date());
+          const now = new Date();
+          const timeDiffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
 
-        return {
-          ...user,
-          balance,
-          lastActivityTime: lastActivity,
-          activityStatus,
-          isActive: activityStatus === 'online' || activityStatus === 'idle'
-        };
-      });
+          // Determine activity status based on last login time
+          let activityStatus: 'online' | 'idle' | 'offline' = 'offline';
+          if (timeDiffMinutes < 5) {
+            activityStatus = 'online';
+          } else if (timeDiffMinutes < 30) {
+            activityStatus = 'idle';
+          } else {
+            activityStatus = 'offline';
+          }
+
+          return {
+            ...member,
+            balance,
+            isVerified: verificationData?.isVerified || false,
+            verificationDate: verificationData?.verificationDate,
+            lastActivityTime: lastActivity,
+            activityStatus,
+            isActive: activityStatus === 'online' || activityStatus === 'idle'
+          } as UserWithBalance;
+        });
 
       // Detect new users
       const currentUserCount = usersWithBalance.length;
@@ -114,10 +145,11 @@ export default function AdminUsersVerificationPage() {
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(user =>
-        user.joseadorName?.toLowerCase().includes(term) ||
-        user.joseadorEmail?.toLowerCase().includes(term)
-      );
+      filtered = filtered.filter(user => {
+        const displayName = user.profile?.nickname || user.contact?.firstName || user.loginEmail || '';
+        return displayName.toLowerCase().includes(term) ||
+          user.loginEmail?.toLowerCase().includes(term);
+      });
     }
 
     // Filter by verification status
@@ -137,12 +169,23 @@ export default function AdminUsersVerificationPage() {
 
   const toggleVerification = async (userId: string, currentStatus: boolean) => {
     try {
-      await BaseCrudService.update('userverification', {
-        _id: userId,
+      const user = users.find(u => u._id === userId);
+      if (!user) return;
+
+      // Update or create verification record
+      const verificationId = user._id;
+      const verificationData = {
+        _id: verificationId,
+        joseadorId: userId,
+        joseadorEmail: user.loginEmail || '',
+        joseadorName: user.profile?.nickname || user.contact?.firstName || user.loginEmail || '',
         isVerified: !currentStatus,
         verificationDate: !currentStatus ? new Date().toISOString() : undefined,
         verifiedByAdmin: !currentStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : undefined
-      });
+      };
+
+      // Try to update existing verification record
+      await BaseCrudService.update('userverification', verificationData);
       await loadUsers();
     } catch (error) {
       console.error('Error updating verification status:', error);
@@ -521,10 +564,10 @@ export default function AdminUsersVerificationPage() {
                         className="border-b border-border hover:bg-background/50 transition-colors"
                       >
                         <td className="px-6 py-4">
-                          <p className="font-paragraph font-semibold text-foreground">{user.joseadorName}</p>
+                          <p className="font-paragraph font-semibold text-foreground">{user.profile?.nickname || user.contact?.firstName || user.loginEmail}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="font-paragraph text-sm text-muted-text">{user.joseadorEmail}</p>
+                          <p className="font-paragraph text-sm text-muted-text">{user.loginEmail}</p>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(user.activityStatus)} ${getActivityColor(user.activityStatus)}`}>
@@ -557,14 +600,14 @@ export default function AdminUsersVerificationPage() {
                                   className="w-20 px-2 py-1 border border-border rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <button
-                                  onClick={() => updatePiquetes(user._id, user.joseadorEmail || '', 'add', parseInt(piqueteInput) || 0)}
+                                  onClick={() => updatePiquetes(user._id, user.loginEmail || '', 'add', parseInt(piqueteInput) || 0)}
                                   className="p-1 bg-accent text-white rounded-lg hover:bg-accent/80 transition-colors"
                                   title="Agregar piquetes"
                                 >
                                   <Plus size={16} />
                                 </button>
                                 <button
-                                  onClick={() => updatePiquetes(user._id, user.joseadorEmail || '', 'remove', parseInt(piqueteInput) || 0)}
+                                  onClick={() => updatePiquetes(user._id, user.loginEmail || '', 'remove', parseInt(piqueteInput) || 0)}
                                   className="p-1 bg-destructive text-white rounded-lg hover:bg-destructive/80 transition-colors"
                                   title="Quitar piquetes"
                                 >
