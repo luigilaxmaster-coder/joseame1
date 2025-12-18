@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { UserVerification, PiqueteBalances, RegisteredUsers } from '@/entities';
-import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock } from 'lucide-react';
+import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock, Download } from 'lucide-react';
+import { backfillAllUsers, getBackfillStatus, BackfillResult } from '@/lib/user-backfill-service';
 
 interface UserWithBalance extends RegisteredUsers {
   balance?: PiqueteBalances;
@@ -31,9 +32,21 @@ export default function AdminUsersVerificationPage() {
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousUserCountRef = useRef(0);
   const activityTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  
+  // Backfill states
+  const [isBackfilling, setIsBackfilling] = useState(false);
+  const [backfillStatus, setBackfillStatus] = useState<{ wixMembersCount: number; registeredUsersCount: number; backfillNeeded: number; isBackfillNeeded: boolean }>({
+    wixMembersCount: 0,
+    registeredUsersCount: 0,
+    backfillNeeded: 0,
+    isBackfillNeeded: false,
+  });
+  const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
+  const [showBackfillResult, setShowBackfillResult] = useState(false);
 
   useEffect(() => {
     loadUsers();
+    checkBackfillStatus();
     previousUserCountRef.current = 0;
 
     // Set up polling interval - refresh every 5 seconds
@@ -55,6 +68,38 @@ export default function AdminUsersVerificationPage() {
   useEffect(() => {
     filterUsers();
   }, [users, searchTerm, filterVerified, filterActivity]);
+
+  const checkBackfillStatus = async () => {
+    const status = await getBackfillStatus();
+    setBackfillStatus(status);
+  };
+
+  const handleBackfill = async () => {
+    setIsBackfilling(true);
+    setShowBackfillResult(false);
+    try {
+      const result = await backfillAllUsers();
+      setBackfillResult(result);
+      setShowBackfillResult(true);
+      // Reload users after backfill
+      await loadUsers();
+      await checkBackfillStatus();
+    } catch (error) {
+      console.error('Backfill error:', error);
+      setBackfillResult({
+        success: false,
+        totalProcessed: 0,
+        created: 0,
+        updated: 0,
+        skipped: 0,
+        errors: [],
+        message: 'Error during backfill operation',
+      });
+      setShowBackfillResult(true);
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
 
   const loadUsers = async () => {
     try {
@@ -369,6 +414,118 @@ export default function AdminUsersVerificationPage() {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
+          {/* Backfill Status Alert */}
+          {backfillStatus.isBackfillNeeded && !showBackfillResult && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-secondary/10 border border-secondary rounded-2xl p-6"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="font-heading font-semibold text-foreground mb-2">
+                    Sincronización de Usuarios Históricos
+                  </h3>
+                  <p className="font-paragraph text-sm text-muted-text mb-4">
+                    Se detectaron {backfillStatus.backfillNeeded} usuario{backfillStatus.backfillNeeded !== 1 ? 's' : ''} histórico{backfillStatus.backfillNeeded !== 1 ? 's' : ''} que no están en la lista de verificación.
+                    Haz clic en "Sincronizar Ahora" para importar todos los usuarios registrados en la plataforma.
+                  </p>
+                  <div className="flex items-center gap-4 text-xs font-paragraph text-muted-text mb-4">
+                    <span>Usuarios en Wix: <strong className="text-foreground">{backfillStatus.wixMembersCount}</strong></span>
+                    <span>Usuarios sincronizados: <strong className="text-foreground">{backfillStatus.registeredUsersCount}</strong></span>
+                    <span>Pendientes: <strong className="text-secondary">{backfillStatus.backfillNeeded}</strong></span>
+                  </div>
+                  <motion.button
+                    onClick={handleBackfill}
+                    disabled={isBackfilling}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white font-heading font-semibold rounded-lg hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <motion.div
+                      animate={isBackfilling ? { rotate: 360 } : { rotate: 0 }}
+                      transition={{ duration: 1, repeat: isBackfilling ? Infinity : 0 }}
+                    >
+                      <Download size={18} />
+                    </motion.div>
+                    {isBackfilling ? 'Sincronizando...' : 'Sincronizar Ahora'}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Backfill Result Alert */}
+          {showBackfillResult && backfillResult && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`rounded-2xl p-6 border ${
+                backfillResult.success
+                  ? 'bg-accent/10 border-accent'
+                  : 'bg-destructive/10 border-destructive'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="font-heading font-semibold text-foreground mb-2">
+                    {backfillResult.success ? '✓ Sincronización Completada' : '✗ Error en la Sincronización'}
+                  </h3>
+                  <p className="font-paragraph text-sm text-muted-text mb-3">
+                    {backfillResult.message}
+                  </p>
+                  {backfillResult.created > 0 || backfillResult.updated > 0 || backfillResult.skipped > 0 ? (
+                    <div className="grid grid-cols-3 gap-3 text-xs font-paragraph mb-4">
+                      {backfillResult.created > 0 && (
+                        <div className="bg-white/50 rounded-lg p-2">
+                          <p className="text-muted-text">Creados</p>
+                          <p className="font-heading font-semibold text-accent">{backfillResult.created}</p>
+                        </div>
+                      )}
+                      {backfillResult.updated > 0 && (
+                        <div className="bg-white/50 rounded-lg p-2">
+                          <p className="text-muted-text">Actualizados</p>
+                          <p className="font-heading font-semibold text-secondary">{backfillResult.updated}</p>
+                        </div>
+                      )}
+                      {backfillResult.skipped > 0 && (
+                        <div className="bg-white/50 rounded-lg p-2">
+                          <p className="text-muted-text">Omitidos</p>
+                          <p className="font-heading font-semibold text-muted-text">{backfillResult.skipped}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                  {backfillResult.errors.length > 0 && (
+                    <div className="bg-white/50 rounded-lg p-3 mb-4">
+                      <p className="font-heading text-xs font-semibold text-destructive mb-2">
+                        Errores ({backfillResult.errors.length}):
+                      </p>
+                      <ul className="space-y-1 text-xs font-paragraph text-muted-text">
+                        {backfillResult.errors.slice(0, 3).map((err, idx) => (
+                          <li key={idx}>• {err.email}: {err.error}</li>
+                        ))}
+                        {backfillResult.errors.length > 3 && (
+                          <li>... y {backfillResult.errors.length - 3} más</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  <motion.button
+                    onClick={() => setShowBackfillResult(false)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="text-xs px-3 py-1 bg-white/50 text-foreground rounded-lg hover:bg-white transition-colors font-paragraph font-semibold"
+                  >
+                    Cerrar
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* New Users Notification */}
           {newUsersCount > 0 && (
             <motion.div
