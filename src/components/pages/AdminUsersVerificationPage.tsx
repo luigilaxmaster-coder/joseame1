@@ -3,28 +3,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
-import { UserVerification, PiqueteBalances } from '@/entities';
+import { UserVerification, PiqueteBalances, RegisteredUsers } from '@/entities';
 import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock } from 'lucide-react';
 
-interface MemberData {
-  _id: string;
-  loginEmail?: string;
-  contact?: {
-    firstName?: string;
-    lastName?: string;
-  };
-  profile?: {
-    nickname?: string;
-    photo?: {
-      url?: string;
-    };
-  };
-  lastLoginDate?: Date;
-  _createdDate?: Date;
-  _updatedDate?: Date;
-}
-
-interface UserWithBalance extends MemberData {
+interface UserWithBalance extends RegisteredUsers {
   balance?: PiqueteBalances;
   isVerified?: boolean;
   verificationDate?: Date;
@@ -78,8 +60,8 @@ export default function AdminUsersVerificationPage() {
     try {
       setIsRefreshing(true);
       
-      // Fetch all required data
-      const [verificationData, balancesData, membersData] = await Promise.all([
+      // Fetch all required data from custom collections
+      const [verificationData, balancesData, registeredUsersData] = await Promise.all([
         BaseCrudService.getAll<UserVerification>('userverification').catch(err => {
           console.error('Error fetching userverification:', err);
           return { items: [] };
@@ -88,26 +70,22 @@ export default function AdminUsersVerificationPage() {
           console.error('Error fetching piquetebalances:', err);
           return { items: [] };
         }),
-        // Try multiple sources for member data
-        BaseCrudService.getAll<MemberData>('Members/PublicData').catch(err => {
-          console.error('Error fetching Members/PublicData:', err);
-          // Fallback to FullData if PublicData fails
-          return BaseCrudService.getAll<MemberData>('Members/FullData').catch(() => {
-            console.error('Error fetching Members/FullData fallback');
-            return { items: [] };
-          });
+        // Fetch from custom registeredusers collection
+        BaseCrudService.getAll<RegisteredUsers>('registeredusers').catch(err => {
+          console.error('Error fetching registeredusers:', err);
+          return { items: [] };
         })
       ]);
 
-      const membersArray = membersData.items || [];
+      const usersArray = registeredUsersData.items || [];
       const verificationArray = verificationData.items || [];
       const balancesArray = balancesData.items || [];
 
       console.log('Loaded data:', {
-        membersCount: membersArray.length,
+        usersCount: usersArray.length,
         verificationCount: verificationArray.length,
         balancesCount: balancesArray.length,
-        memberEmails: membersArray.slice(0, 5).map(m => m.loginEmail || m.email) // Log first 5 emails for debugging
+        userEmails: usersArray.slice(0, 5).map(u => u.email) // Log first 5 emails for debugging
       });
 
       // Create a map of verified users for quick lookup
@@ -115,24 +93,28 @@ export default function AdminUsersVerificationPage() {
         verificationArray.map(user => [user.joseadorEmail, user])
       );
 
-      // Combine member data with verification and balance data
-      const usersWithBalance: UserWithBalance[] = membersArray
-        .filter(member => member.loginEmail || member.profile?.nickname) // Include members with email or nickname
-        .map(member => {
-          const userEmail = member.loginEmail || '';
+      // Combine registered user data with verification and balance data
+      const usersWithBalance: UserWithBalance[] = usersArray
+        .filter(user => user.email) // Only include users with email
+        .map(user => {
+          const userEmail = user.email || '';
           const verificationInfo = verifiedUsersMap.get(userEmail);
           const balance = balancesArray.find(b => b.joseadorEmail === userEmail);
           
-          // Use lastLoginDate if available, otherwise use _updatedDate, otherwise use current time
+          // Use lastLoginDate if available, otherwise use _updatedDate, otherwise use registration date
           let lastActivity: Date;
-          if (member.lastLoginDate) {
-            lastActivity = typeof member.lastLoginDate === 'string' 
-              ? new Date(member.lastLoginDate) 
-              : member.lastLoginDate;
-          } else if (member._updatedDate) {
-            lastActivity = typeof member._updatedDate === 'string'
-              ? new Date(member._updatedDate)
-              : member._updatedDate;
+          if (user.lastLoginDate) {
+            lastActivity = typeof user.lastLoginDate === 'string' 
+              ? new Date(user.lastLoginDate) 
+              : user.lastLoginDate;
+          } else if (user._updatedDate) {
+            lastActivity = typeof user._updatedDate === 'string'
+              ? new Date(user._updatedDate)
+              : user._updatedDate;
+          } else if (user.registrationDate) {
+            lastActivity = typeof user.registrationDate === 'string'
+              ? new Date(user.registrationDate)
+              : user.registrationDate;
           } else {
             lastActivity = new Date();
           }
@@ -151,7 +133,7 @@ export default function AdminUsersVerificationPage() {
           }
 
           return {
-            ...member,
+            ...user,
             balance,
             isVerified: verificationInfo?.isVerified || false,
             verificationDate: verificationInfo?.verificationDate,
@@ -190,9 +172,9 @@ export default function AdminUsersVerificationPage() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(user => {
-        const displayName = user.profile?.nickname || user.contact?.firstName || user.loginEmail || '';
+        const displayName = user.nickname || user.firstName || user.email || '';
         return displayName.toLowerCase().includes(term) ||
-          user.loginEmail?.toLowerCase().includes(term);
+          user.email?.toLowerCase().includes(term);
       });
     }
 
@@ -221,8 +203,8 @@ export default function AdminUsersVerificationPage() {
       const verificationData = {
         _id: verificationId,
         joseadorId: userId,
-        joseadorEmail: user.loginEmail || '',
-        joseadorName: user.profile?.nickname || user.contact?.firstName || user.loginEmail || '',
+        joseadorEmail: user.email || '',
+        joseadorName: user.nickname || user.firstName || user.email || '',
         isVerified: !currentStatus,
         verificationDate: !currentStatus ? new Date().toISOString() : undefined,
         verifiedByAdmin: !currentStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : undefined
@@ -608,10 +590,10 @@ export default function AdminUsersVerificationPage() {
                         className="border-b border-border hover:bg-background/50 transition-colors"
                       >
                         <td className="px-6 py-4">
-                          <p className="font-paragraph font-semibold text-foreground">{user.profile?.nickname || user.contact?.firstName || user.loginEmail}</p>
+                          <p className="font-paragraph font-semibold text-foreground">{user.nickname || user.firstName || user.email}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="font-paragraph text-sm text-muted-text">{user.loginEmail}</p>
+                          <p className="font-paragraph text-sm text-muted-text">{user.email}</p>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(user.activityStatus)} ${getActivityColor(user.activityStatus)}`}>
@@ -644,14 +626,14 @@ export default function AdminUsersVerificationPage() {
                                   className="w-20 px-2 py-1 border border-border rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <button
-                                  onClick={() => updatePiquetes(user._id, user.loginEmail || '', 'add', parseInt(piqueteInput) || 0)}
+                                  onClick={() => updatePiquetes(user._id, user.email || '', 'add', parseInt(piqueteInput) || 0)}
                                   className="p-1 bg-accent text-white rounded-lg hover:bg-accent/80 transition-colors"
                                   title="Agregar piquetes"
                                 >
                                   <Plus size={16} />
                                 </button>
                                 <button
-                                  onClick={() => updatePiquetes(user._id, user.loginEmail || '', 'remove', parseInt(piqueteInput) || 0)}
+                                  onClick={() => updatePiquetes(user._id, user.email || '', 'remove', parseInt(piqueteInput) || 0)}
                                   className="p-1 bg-destructive text-white rounded-lg hover:bg-destructive/80 transition-colors"
                                   title="Quitar piquetes"
                                 >

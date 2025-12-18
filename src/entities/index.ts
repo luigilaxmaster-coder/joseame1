@@ -179,6 +179,35 @@ export interface ProfilePhotos {
 
 
 /**
+ * Collection ID: registeredusers
+ * Interface for RegisteredUsers
+ */
+export interface RegisteredUsers {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  email?: string;
+  /** @wixFieldType text */
+  firstName?: string;
+  /** @wixFieldType text */
+  lastName?: string;
+  /** @wixFieldType text */
+  nickname?: string;
+  /** @wixFieldType url */
+  photoUrl?: string;
+  /** @wixFieldType datetime */
+  registrationDate?: Date | string;
+  /** @wixFieldType datetime */
+  lastLoginDate?: Date | string;
+  /** @wixFieldType text */
+  role?: string;
+}
+
+
+/**
  * Collection ID: renegotiationoffers
  * Interface for RenegotiationOffers
  */
@@ -279,4 +308,33 @@ export interface UserVerification {
   verificationDate?: Date | string;
   /** @wixFieldType text */
   verifiedByAdmin?: string;
+}
+
+
+/**
+ * Collection ID: registeredusers
+ * Interface for RegisteredUsers
+ */
+export interface RegisteredUsers {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  email?: string;
+  /** @wixFieldType text */
+  firstName?: string;
+  /** @wixFieldType text */
+  lastName?: string;
+  /** @wixFieldType text */
+  nickname?: string;
+  /** @wixFieldType text */
+  photoUrl?: string;
+  /** @wixFieldType datetime */
+  registrationDate?: Date | string;
+  /** @wixFieldType datetime */
+  lastLoginDate?: Date | string;
+  /** @wixFieldType text */
+  role?: string;
 }
