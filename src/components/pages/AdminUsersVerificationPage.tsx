@@ -88,11 +88,12 @@ export default function AdminUsersVerificationPage() {
           console.error('Error fetching piquetebalances:', err);
           return { items: [] };
         }),
-        BaseCrudService.getAll<MemberData>('Members/FullData').catch(err => {
-          console.error('Error fetching Members/FullData:', err);
-          // Fallback to PublicData if FullData fails
-          return BaseCrudService.getAll<MemberData>('Members/PublicData').catch(() => {
-            console.error('Error fetching Members/PublicData fallback');
+        // Try multiple sources for member data
+        BaseCrudService.getAll<MemberData>('Members/PublicData').catch(err => {
+          console.error('Error fetching Members/PublicData:', err);
+          // Fallback to FullData if PublicData fails
+          return BaseCrudService.getAll<MemberData>('Members/FullData').catch(() => {
+            console.error('Error fetching Members/FullData fallback');
             return { items: [] };
           });
         })
@@ -106,7 +107,7 @@ export default function AdminUsersVerificationPage() {
         membersCount: membersArray.length,
         verificationCount: verificationArray.length,
         balancesCount: balancesArray.length,
-        memberEmails: membersArray.slice(0, 5).map(m => m.loginEmail) // Log first 5 emails for debugging
+        memberEmails: membersArray.slice(0, 5).map(m => m.loginEmail || m.email) // Log first 5 emails for debugging
       });
 
       // Create a map of verified users for quick lookup
@@ -116,10 +117,11 @@ export default function AdminUsersVerificationPage() {
 
       // Combine member data with verification and balance data
       const usersWithBalance: UserWithBalance[] = membersArray
-        .filter(member => member.loginEmail) // Only include members with email
+        .filter(member => member.loginEmail || member.profile?.nickname) // Include members with email or nickname
         .map(member => {
-          const verificationInfo = verifiedUsersMap.get(member.loginEmail);
-          const balance = balancesArray.find(b => b.joseadorEmail === member.loginEmail);
+          const userEmail = member.loginEmail || '';
+          const verificationInfo = verifiedUsersMap.get(userEmail);
+          const balance = balancesArray.find(b => b.joseadorEmail === userEmail);
           
           // Use lastLoginDate if available, otherwise use _updatedDate, otherwise use current time
           let lastActivity: Date;
