@@ -8,6 +8,7 @@ import { TrabajosdeServicio, JobApplications, UserRatings } from '@/entities';
 import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame, Zap, Target, X, Star } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
+import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
 
 export default function ClientDashboardPage() {
   const { member, actions } = useMember();
@@ -28,6 +29,10 @@ export default function ClientDashboardPage() {
 
   useEffect(() => {
     setUserRole('client');
+    // Sync user to registeredusers collection
+    if (member) {
+      syncUserToRegisteredUsers(member);
+    }
     loadJobs();
     loadApplications();
     
@@ -38,7 +43,7 @@ export default function ClientDashboardPage() {
     }, 5000);
 
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [member]);
 
   const loadJobs = async () => {
     const { items } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');

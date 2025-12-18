@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, Search, ArrowRight, Zap, MapPin, DollarSign, Users, Star, TrendingUp } from 'lucide-react';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
+import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
 
 export default function RoleSelectionPage() {
   const navigate = useNavigate();
   const { member } = useMember();
   const [selectedRole, setSelectedRole] = useState<'client' | 'joseador' | null>(null);
   const { setUserRole, setCurrentUserId } = useRoleStore();
+
+  // Sync user to registeredusers collection when component mounts
+  useEffect(() => {
+    if (member) {
+      syncUserToRegisteredUsers(member);
+    }
+  }, [member]);
 
   const handleContinue = () => {
     if (selectedRole === 'client') {

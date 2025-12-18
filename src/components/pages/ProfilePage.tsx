@@ -8,6 +8,7 @@ import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
+import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
 
 function ProfilePage() {
   const { member, actions } = useMember();
@@ -37,6 +38,10 @@ function ProfilePage() {
   };
 
   useEffect(() => {
+    // Sync user to registeredusers collection when profile page loads
+    if (member) {
+      syncUserToRegisteredUsers(member);
+    }
     loadProfileData();
   }, [member?.loginEmail]);
 
