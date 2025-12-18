@@ -90,28 +90,51 @@ export default function AdminUsersVerificationPage() {
         }),
         BaseCrudService.getAll<MemberData>('Members/FullData').catch(err => {
           console.error('Error fetching Members/FullData:', err);
-          return { items: [] };
+          // Fallback to PublicData if FullData fails
+          return BaseCrudService.getAll<MemberData>('Members/PublicData').catch(() => {
+            console.error('Error fetching Members/PublicData fallback');
+            return { items: [] };
+          });
         })
       ]);
 
+      const membersArray = membersData.items || [];
+      const verificationArray = verificationData.items || [];
+      const balancesArray = balancesData.items || [];
+
       console.log('Loaded data:', {
-        membersCount: membersData.items?.length || 0,
-        verificationCount: verificationData.items?.length || 0,
-        balancesCount: balancesData.items?.length || 0
+        membersCount: membersArray.length,
+        verificationCount: verificationArray.length,
+        balancesCount: balancesArray.length,
+        memberEmails: membersArray.slice(0, 5).map(m => m.loginEmail) // Log first 5 emails for debugging
       });
 
       // Create a map of verified users for quick lookup
       const verifiedUsersMap = new Map(
-        (verificationData.items || []).map(user => [user.joseadorEmail, user])
+        verificationArray.map(user => [user.joseadorEmail, user])
       );
 
       // Combine member data with verification and balance data
-      const usersWithBalance: UserWithBalance[] = (membersData.items || [])
+      const usersWithBalance: UserWithBalance[] = membersArray
         .filter(member => member.loginEmail) // Only include members with email
         .map(member => {
           const verificationInfo = verifiedUsersMap.get(member.loginEmail);
-          const balance = (balancesData.items || []).find(b => b.joseadorEmail === member.loginEmail);
-          const lastActivity = member.lastLoginDate ? new Date(member.lastLoginDate) : (member._updatedDate ? new Date(member._updatedDate) : new Date());
+          const balance = balancesArray.find(b => b.joseadorEmail === member.loginEmail);
+          
+          // Use lastLoginDate if available, otherwise use _updatedDate, otherwise use current time
+          let lastActivity: Date;
+          if (member.lastLoginDate) {
+            lastActivity = typeof member.lastLoginDate === 'string' 
+              ? new Date(member.lastLoginDate) 
+              : member.lastLoginDate;
+          } else if (member._updatedDate) {
+            lastActivity = typeof member._updatedDate === 'string'
+              ? new Date(member._updatedDate)
+              : member._updatedDate;
+          } else {
+            lastActivity = new Date();
+          }
+
           const now = new Date();
           const timeDiffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
 
@@ -136,7 +159,7 @@ export default function AdminUsersVerificationPage() {
           } as UserWithBalance;
         });
 
-      console.log('Processed users:', usersWithBalance.length);
+      console.log('Processed users:', usersWithBalance.length, usersWithBalance.slice(0, 3));
 
       // Detect new users
       const currentUserCount = usersWithBalance.length;
