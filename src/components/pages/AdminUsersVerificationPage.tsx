@@ -4,10 +4,13 @@ import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { UserVerification, PiqueteBalances } from '@/entities';
-import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock } from 'lucide-react';
 
 interface UserWithBalance extends UserVerification {
   balance?: PiqueteBalances;
+  isActive?: boolean;
+  lastActivityTime?: Date;
+  activityStatus?: 'online' | 'idle' | 'offline';
 }
 
 export default function AdminUsersVerificationPage() {
@@ -16,6 +19,7 @@ export default function AdminUsersVerificationPage() {
   const [filteredUsers, setFilteredUsers] = useState<UserWithBalance[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVerified, setFilterVerified] = useState<'all' | 'verified' | 'unverified'>('all');
+  const [filterActivity, setFilterActivity] = useState<'all' | 'online' | 'idle' | 'offline'>('all');
   const [loading, setLoading] = useState(true);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [piqueteInput, setPiqueteInput] = useState('');
@@ -24,6 +28,7 @@ export default function AdminUsersVerificationPage() {
   const [newUsersCount, setNewUsersCount] = useState(0);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousUserCountRef = useRef(0);
+  const activityTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   useEffect(() => {
     loadUsers();
@@ -39,12 +44,15 @@ export default function AdminUsersVerificationPage() {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
+      // Clear all activity timers
+      activityTimersRef.current.forEach(timer => clearTimeout(timer));
+      activityTimersRef.current.clear();
     };
   }, []);
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, filterVerified]);
+  }, [users, searchTerm, filterVerified, filterActivity]);
 
   const loadUsers = async () => {
     try {
@@ -57,9 +65,26 @@ export default function AdminUsersVerificationPage() {
       // Combine user verification data with their piquete balances
       const usersWithBalance: UserWithBalance[] = verificationData.items.map(user => {
         const balance = balancesData.items.find(b => b.joseadorEmail === user.joseadorEmail);
+        const lastActivity = user._updatedDate ? new Date(user._updatedDate) : new Date();
+        const now = new Date();
+        const timeDiffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
+
+        // Determine activity status based on last update time
+        let activityStatus: 'online' | 'idle' | 'offline' = 'offline';
+        if (timeDiffMinutes < 5) {
+          activityStatus = 'online';
+        } else if (timeDiffMinutes < 30) {
+          activityStatus = 'idle';
+        } else {
+          activityStatus = 'offline';
+        }
+
         return {
           ...user,
-          balance
+          balance,
+          lastActivityTime: lastActivity,
+          activityStatus,
+          isActive: activityStatus === 'online' || activityStatus === 'idle'
         };
       });
 
@@ -100,6 +125,11 @@ export default function AdminUsersVerificationPage() {
       filtered = filtered.filter(user => user.isVerified === true);
     } else if (filterVerified === 'unverified') {
       filtered = filtered.filter(user => user.isVerified !== true);
+    }
+
+    // Filter by activity status
+    if (filterActivity !== 'all') {
+      filtered = filtered.filter(user => user.activityStatus === filterActivity);
     }
 
     setFilteredUsers(filtered);
@@ -168,6 +198,63 @@ export default function AdminUsersVerificationPage() {
 
   const verifiedCount = users.filter(u => u.isVerified).length;
   const unverifiedCount = users.length - verifiedCount;
+  const onlineCount = users.filter(u => u.activityStatus === 'online').length;
+  const idleCount = users.filter(u => u.activityStatus === 'idle').length;
+  const offlineCount = users.filter(u => u.activityStatus === 'offline').length;
+
+  const getActivityColor = (status?: 'online' | 'idle' | 'offline') => {
+    switch (status) {
+      case 'online':
+        return 'text-accent';
+      case 'idle':
+        return 'text-secondary';
+      case 'offline':
+        return 'text-muted-text';
+      default:
+        return 'text-muted-text';
+    }
+  };
+
+  const getActivityBgColor = (status?: 'online' | 'idle' | 'offline') => {
+    switch (status) {
+      case 'online':
+        return 'bg-accent/10';
+      case 'idle':
+        return 'bg-secondary/10';
+      case 'offline':
+        return 'bg-muted-text/10';
+      default:
+        return 'bg-muted-text/10';
+    }
+  };
+
+  const getActivityLabel = (status?: 'online' | 'idle' | 'offline') => {
+    switch (status) {
+      case 'online':
+        return 'En línea';
+      case 'idle':
+        return 'Inactivo';
+      case 'offline':
+        return 'Desconectado';
+      default:
+        return 'Desconocido';
+    }
+  };
+
+  const formatLastActivity = (date?: Date) => {
+    if (!date) return 'N/A';
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Hace unos segundos';
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays}d`;
+    return date.toLocaleDateString('es-DO');
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -250,7 +337,7 @@ export default function AdminUsersVerificationPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <Shield size={28} className="text-primary" />
@@ -274,6 +361,24 @@ export default function AdminUsersVerificationPage() {
               </div>
               <p className="font-heading text-4xl font-bold text-destructive">{unverifiedCount}</p>
             </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <Activity size={28} className="text-accent" />
+                </motion.div>
+                <h3 className="font-heading text-lg font-semibold text-foreground">En Línea</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-accent">{onlineCount}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <Clock size={28} className="text-secondary" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Inactivos</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-secondary">{idleCount}</p>
+            </div>
           </div>
 
           {/* Filters and Search */}
@@ -292,7 +397,7 @@ export default function AdminUsersVerificationPage() {
               </div>
 
               {/* Filter Buttons */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setFilterVerified('all')}
                   className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
@@ -325,6 +430,61 @@ export default function AdminUsersVerificationPage() {
                 </button>
               </div>
             </div>
+
+            {/* Activity Filter */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setFilterActivity('all')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterActivity === 'all'
+                    ? 'bg-primary text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Todos los Estados
+              </button>
+              <button
+                onClick={() => setFilterActivity('online')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
+                  filterActivity === 'online'
+                    ? 'bg-accent text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <div className={`w-2 h-2 rounded-full ${
+                    filterActivity === 'online' ? 'bg-white' : 'bg-accent'
+                  }`} />
+                </motion.div>
+                En Línea
+              </button>
+              <button
+                onClick={() => setFilterActivity('idle')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
+                  filterActivity === 'idle'
+                    ? 'bg-secondary text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${
+                  filterActivity === 'idle' ? 'bg-white' : 'bg-secondary'
+                }`} />
+                Inactivos
+              </button>
+              <button
+                onClick={() => setFilterActivity('offline')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
+                  filterActivity === 'offline'
+                    ? 'bg-muted-text text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${
+                  filterActivity === 'offline' ? 'bg-white' : 'bg-muted-text'
+                }`} />
+                Desconectados
+              </button>
+            </div>
           </div>
 
           {/* Users Table */}
@@ -344,8 +504,10 @@ export default function AdminUsersVerificationPage() {
                     <tr>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Nombre</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Email</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Estado Actividad</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Última Actividad</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Piquetes</th>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Estado</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Verificación</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Acciones</th>
                     </tr>
                   </thead>
@@ -363,6 +525,21 @@ export default function AdminUsersVerificationPage() {
                         </td>
                         <td className="px-6 py-4">
                           <p className="font-paragraph text-sm text-muted-text">{user.joseadorEmail}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(user.activityStatus)} ${getActivityColor(user.activityStatus)}`}>
+                            {user.activityStatus === 'online' && (
+                              <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                                <div className="w-2 h-2 rounded-full bg-current" />
+                              </motion.div>
+                            )}
+                            {user.activityStatus === 'idle' && <div className="w-2 h-2 rounded-full bg-current" />}
+                            {user.activityStatus === 'offline' && <div className="w-2 h-2 rounded-full bg-current opacity-50" />}
+                            {getActivityLabel(user.activityStatus)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-paragraph text-sm text-muted-text">{formatLastActivity(user.lastActivityTime)}</p>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
