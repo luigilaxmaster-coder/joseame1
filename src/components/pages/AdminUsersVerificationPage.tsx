@@ -106,7 +106,7 @@ export default function AdminUsersVerificationPage() {
       setIsRefreshing(true);
       
       // Fetch all required data from custom collections
-      const [verificationData, balancesData, registeredUsersData] = await Promise.all([
+      const [verificationData, balancesData, registeredUsersData, wixMembersData] = await Promise.all([
         BaseCrudService.getAll<UserVerification>('userverification').catch(err => {
           console.error('Error fetching userverification:', err);
           return { items: [] };
@@ -119,18 +119,25 @@ export default function AdminUsersVerificationPage() {
         BaseCrudService.getAll<RegisteredUsers>('registeredusers').catch(err => {
           console.error('Error fetching registeredusers:', err);
           return { items: [] };
+        }),
+        // Fetch all Wix members (including those who only logged in)
+        BaseCrudService.getAll<any>('Members/FullData').catch(err => {
+          console.error('Error fetching Wix members:', err);
+          return { items: [] };
         })
       ]);
 
-      const usersArray = registeredUsersData.items || [];
+      const registeredUsersArray = registeredUsersData.items || [];
       const verificationArray = verificationData.items || [];
       const balancesArray = balancesData.items || [];
+      const wixMembersArray = wixMembersData.items || [];
 
       console.log('Loaded data:', {
-        usersCount: usersArray.length,
+        registeredUsersCount: registeredUsersArray.length,
+        wixMembersCount: wixMembersArray.length,
         verificationCount: verificationArray.length,
         balancesCount: balancesArray.length,
-        userEmails: usersArray.slice(0, 5).map(u => u.email) // Log first 5 emails for debugging
+        wixMemberEmails: wixMembersArray.slice(0, 5).map(u => u.loginEmail) // Log first 5 emails for debugging
       });
 
       // Create a map of verified users for quick lookup
@@ -138,28 +145,34 @@ export default function AdminUsersVerificationPage() {
         verificationArray.map(user => [user.joseadorEmail, user])
       );
 
-      // Combine registered user data with verification and balance data
-      const usersWithBalance: UserWithBalance[] = usersArray
-        .filter(user => user.email) // Only include users with email
-        .map(user => {
-          const userEmail = user.email || '';
+      // Create a map of registered users for quick lookup
+      const registeredUsersMap = new Map(
+        registeredUsersArray.map(user => [user.email, user])
+      );
+
+      // Combine Wix members with registered user data and verification/balance data
+      const usersWithBalance: UserWithBalance[] = wixMembersArray
+        .filter(member => member.loginEmail) // Only include members with email
+        .map(member => {
+          const userEmail = member.loginEmail || '';
+          const registeredUserInfo = registeredUsersMap.get(userEmail);
           const verificationInfo = verifiedUsersMap.get(userEmail);
           const balance = balancesArray.find(b => b.joseadorEmail === userEmail);
           
-          // Use lastLoginDate if available, otherwise use _updatedDate, otherwise use registration date
+          // Use lastLoginDate if available, otherwise use _updatedDate
           let lastActivity: Date;
-          if (user.lastLoginDate) {
-            lastActivity = typeof user.lastLoginDate === 'string' 
-              ? new Date(user.lastLoginDate) 
-              : user.lastLoginDate;
-          } else if (user._updatedDate) {
-            lastActivity = typeof user._updatedDate === 'string'
-              ? new Date(user._updatedDate)
-              : user._updatedDate;
-          } else if (user.registrationDate) {
-            lastActivity = typeof user.registrationDate === 'string'
-              ? new Date(user.registrationDate)
-              : user.registrationDate;
+          if (member.lastLoginDate) {
+            lastActivity = typeof member.lastLoginDate === 'string' 
+              ? new Date(member.lastLoginDate) 
+              : member.lastLoginDate;
+          } else if (member._updatedDate) {
+            lastActivity = typeof member._updatedDate === 'string'
+              ? new Date(member._updatedDate)
+              : member._updatedDate;
+          } else if (member._createdDate) {
+            lastActivity = typeof member._createdDate === 'string'
+              ? new Date(member._createdDate)
+              : member._createdDate;
           } else {
             lastActivity = new Date();
           }
@@ -177,8 +190,24 @@ export default function AdminUsersVerificationPage() {
             activityStatus = 'offline';
           }
 
+          // Create a combined user object with data from both sources
+          const combinedUser: RegisteredUsers = {
+            _id: member._id || crypto.randomUUID(),
+            userId: member._id,
+            email: userEmail,
+            firstName: member.contact?.firstName || registeredUserInfo?.firstName || '',
+            lastName: member.contact?.lastName || registeredUserInfo?.lastName || '',
+            nickname: member.profile?.nickname || registeredUserInfo?.nickname || '',
+            photoUrl: member.profile?.photo?.url || registeredUserInfo?.photoUrl || '',
+            registrationDate: member._createdDate,
+            lastLoginDate: member.lastLoginDate,
+            role: registeredUserInfo?.role || '',
+            _createdDate: member._createdDate,
+            _updatedDate: member._updatedDate
+          };
+
           return {
-            ...user,
+            ...combinedUser,
             balance,
             isVerified: verificationInfo?.isVerified || false,
             verificationDate: verificationInfo?.verificationDate,
