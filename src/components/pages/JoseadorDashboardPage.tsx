@@ -8,7 +8,7 @@ import { TrabajosdeServicio } from '@/entities';
 import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Flame, Sparkles } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { getPiqueteBalance } from '@/lib/piquete-service';
-import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
+import { useSyncUser } from '@/lib/user-sync-hook';
 
 export default function JoseadorDashboardPage() {
   const { member, actions } = useMember();
@@ -23,12 +23,11 @@ export default function JoseadorDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const previousJobsRef = useRef<string[]>([]);
 
+  // Sync user to registeredusers collection
+  useSyncUser();
+
   useEffect(() => {
     setUserRole('joseador');
-    // Sync user to registeredusers collection
-    if (member) {
-      syncUserToRegisteredUsers(member);
-    }
     loadJobs();
     loadPiqueteBalance();
     

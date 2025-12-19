@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
 import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, CheckCircle, Star, Rocket, Target, Search, FileText, Handshake, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSyncUser } from '@/lib/user-sync-hook';
 
 type AnimatedElementProps = {
   children: React.ReactNode;
@@ -77,6 +78,9 @@ const FloatingOrbs = () => {
 };
 
 export default function HomePage() {
+  // Sync user to registeredusers collection when they visit home page
+  useSyncUser();
+
   const features = [
     {
       id: 'feature-fast-easy',

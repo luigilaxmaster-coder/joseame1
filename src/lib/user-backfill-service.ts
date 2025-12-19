@@ -43,7 +43,32 @@ export interface BackfillResult {
 }
 
 /**
+ * Helper function to extract display name from Wix member
+ * Handles various login methods (email, Google, Facebook, etc.)
+ */
+function getDisplayName(wixMember: WixMember): string {
+  // Try profile nickname first
+  if (wixMember.profile?.nickname) {
+    return wixMember.profile.nickname;
+  }
+  
+  // Try contact first name
+  if (wixMember.contact?.firstName) {
+    const lastName = wixMember.contact?.lastName ? ` ${wixMember.contact.lastName}` : '';
+    return `${wixMember.contact.firstName}${lastName}`;
+  }
+  
+  // Fall back to email (remove domain for cleaner display)
+  if (wixMember.loginEmail) {
+    return wixMember.loginEmail.split('@')[0];
+  }
+  
+  return 'User';
+}
+
+/**
  * Backfill all Wix members from Members/FullData to registeredusers collection
+ * Handles all login methods: email, Google, Facebook, etc.
  */
 export async function backfillAllUsers(): Promise<BackfillResult> {
   const result: BackfillResult = {
@@ -99,14 +124,15 @@ export async function backfillAllUsers(): Promise<BackfillResult> {
 
         const email = wixMember.loginEmail.toLowerCase();
         const existingUserId = existingEmailsMap.get(email);
+        const displayName = getDisplayName(wixMember);
 
         const userData: RegisteredUsers = {
           _id: existingUserId || crypto.randomUUID(),
           userId: wixMember._id,
-          email: wixMember.loginEmail,
+          email: email, // Store lowercase for consistency
           firstName: wixMember.contact?.firstName || '',
           lastName: wixMember.contact?.lastName || '',
-          nickname: wixMember.profile?.nickname || '',
+          nickname: displayName, // Use smart display name extraction
           photoUrl: wixMember.profile?.photo?.url || '',
           registrationDate: wixMember._createdDate || new Date().toISOString(),
           lastLoginDate: wixMember.lastLoginDate || wixMember._updatedDate || new Date().toISOString(),
@@ -117,13 +143,13 @@ export async function backfillAllUsers(): Promise<BackfillResult> {
           // Update existing user
           await BaseCrudService.update('registeredusers', userData);
           result.updated++;
-          console.log(`Updated user: ${email}`);
+          console.log(`✓ Updated user: ${email} (${displayName})`);
         } else {
           // Create new user
           await BaseCrudService.create('registeredusers', userData);
           result.created++;
           existingEmailsMap.set(email, userData._id);
-          console.log(`Created user: ${email}`);
+          console.log(`✓ Created user: ${email} (${displayName})`);
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -151,6 +177,7 @@ export async function backfillAllUsers(): Promise<BackfillResult> {
 
 /**
  * Get backfill status - shows how many users are in each collection
+ * Compares Wix members with registered users to identify missing users
  */
 export async function getBackfillStatus() {
   try {
@@ -159,14 +186,34 @@ export async function getBackfillStatus() {
       BaseCrudService.getAll<RegisteredUsers>('registeredusers').catch(() => ({ items: [] })),
     ]);
 
-    const wixMembersCount = (wixMembersData.items || []).filter(m => m.loginEmail).length;
-    const registeredUsersCount = (registeredUsersData.items || []).length;
-    const backfillNeeded = wixMembersCount - registeredUsersCount;
+    const wixMembers = (wixMembersData.items || []).filter(m => m.loginEmail);
+    const registeredUsers = (registeredUsersData.items || []);
+
+    // Create a map of registered user emails for comparison
+    const registeredEmailsMap = new Map(
+      registeredUsers.map(u => [u.email?.toLowerCase(), true])
+    );
+
+    // Count how many Wix members are NOT in registeredusers
+    const missingUsers = wixMembers.filter(
+      m => !registeredEmailsMap.has(m.loginEmail?.toLowerCase())
+    );
+
+    const wixMembersCount = wixMembers.length;
+    const registeredUsersCount = registeredUsers.length;
+    const backfillNeeded = missingUsers.length;
+
+    console.log('Backfill Status:', {
+      wixMembersCount,
+      registeredUsersCount,
+      backfillNeeded,
+      missingEmails: missingUsers.slice(0, 3).map(m => m.loginEmail)
+    });
 
     return {
       wixMembersCount,
       registeredUsersCount,
-      backfillNeeded: Math.max(0, backfillNeeded),
+      backfillNeeded,
       isBackfillNeeded: backfillNeeded > 0,
     };
   } catch (error) {

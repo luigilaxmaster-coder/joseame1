@@ -8,7 +8,7 @@ import { TrabajosdeServicio, JobApplications, UserRatings } from '@/entities';
 import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw, RotateCcw, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Users, Flame, Zap, Target, X, Star } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
-import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
+import { useSyncUser } from '@/lib/user-sync-hook';
 
 export default function ClientDashboardPage() {
   const { member, actions } = useMember();
@@ -27,12 +27,11 @@ export default function ClientDashboardPage() {
   const [joseadorRatings, setJoseadorRatings] = useState<UserRatings[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
 
+  // Sync user to registeredusers collection
+  useSyncUser();
+
   useEffect(() => {
     setUserRole('client');
-    // Sync user to registeredusers collection
-    if (member) {
-      syncUserToRegisteredUsers(member);
-    }
     loadJobs();
     loadApplications();
     

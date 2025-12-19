@@ -8,7 +8,7 @@ import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
-import { syncUserToRegisteredUsers } from '@/lib/user-sync-service';
+import { useSyncUser } from '@/lib/user-sync-hook';
 
 function ProfilePage() {
   const { member, actions } = useMember();
@@ -27,6 +27,9 @@ function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  // Sync user to registeredusers collection
+  useSyncUser();
+
   // Determine the back button destination based on user role
   const getBackButtonPath = () => {
     if (userRole === 'client') {
@@ -38,10 +41,6 @@ function ProfilePage() {
   };
 
   useEffect(() => {
-    // Sync user to registeredusers collection when profile page loads
-    if (member) {
-      syncUserToRegisteredUsers(member);
-    }
     loadProfileData();
   }, [member?.loginEmail]);
 
