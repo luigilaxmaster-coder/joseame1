@@ -1,0 +1,51 @@
+import wixData from 'wix-data';
+import { currentMember } from 'wix-members-backend';
+
+const COLLECTION = "UserDirectory";
+
+/**
+ * Upsert the current member to the UserDirectory collection
+ * This function is called whenever a member interacts with the system
+ * to keep their profile information up-to-date
+ * 
+ * @returns {Promise} The updated or inserted item
+ * @throws {Error} If no member session is found
+ */
+export async function upsertCurrentMember() {
+  const member = await currentMember.getMember({ fieldsets: ["FULL"] });
+  if (!member?._id) throw new Error("No member session found.");
+
+  const memberId = member._id;
+  const fullName = member.profile?.nickname || member.profile?.name || "";
+  const email = member.loginEmail || member.contact?.emails?.[0] || "";
+
+  // find existing record by memberId
+  const existing = await wixData.query(COLLECTION)
+    .eq("memberId", memberId)
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  const now = new Date();
+
+  if (existing.items.length) {
+    const item = existing.items[0];
+    item.fullName = fullName;
+    item.email = email;
+    item.lastSeen = now;
+    item.isActive = true;
+
+    return wixData.update(COLLECTION, item, { suppressAuth: true });
+  }
+
+  const newItem = {
+    memberId,
+    fullName,
+    email,
+    createdDate: member._createdDate || now,
+    lastSeen: now,
+    verificationStatus: "UNVERIFIED",
+    isActive: true
+  };
+
+  return wixData.insert(COLLECTION, newItem, { suppressAuth: true });
+}
