@@ -268,6 +268,31 @@ export interface TrabajosdeServicio {
 
 
 /**
+ * Collection ID: userdirectory
+ * Interface for UserDirectory
+ */
+export interface UserDirectory {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  memberId?: string;
+  /** @wixFieldType text */
+  fullName?: string;
+  /** @wixFieldType text */
+  email?: string;
+  /** @wixFieldType datetime */
+  createdDate?: Date | string;
+  /** @wixFieldType datetime */
+  lastSeen?: Date | string;
+  /** @wixFieldType text */
+  verificationStatus?: string;
+  /** @wixFieldType boolean */
+  isActive?: boolean;
+}
+
+
+/**
  * Collection ID: userratings
  * Interface for UserRatings
  */
@@ -308,4 +333,29 @@ export interface UserVerification {
   verificationDate?: Date | string;
   /** @wixFieldType text */
   verifiedByAdmin?: string;
+}
+
+
+/**
+ * Collection ID: userdirectory
+ * Interface for UserDirectory
+ */
+export interface UserDirectory {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  memberId?: string;
+  /** @wixFieldType text */
+  fullName?: string;
+  /** @wixFieldType text */
+  email?: string;
+  /** @wixFieldType datetime */
+  createdDate?: Date | string;
+  /** @wixFieldType datetime */
+  lastSeen?: Date | string;
+  /** @wixFieldType text */
+  verificationStatus?: string;
+  /** @wixFieldType boolean */
+  isActive?: boolean;
 }

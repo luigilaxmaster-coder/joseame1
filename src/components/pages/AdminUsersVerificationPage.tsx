@@ -2,417 +2,208 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
-import { BaseCrudService } from '@/integrations';
-import { UserVerification, PiqueteBalances, RegisteredUsers } from '@/entities';
-import { ArrowLeft, Search, CheckCircle, XCircle, Plus, Minus, Shield, RefreshCw, Activity, Clock, Download } from 'lucide-react';
-import { backfillAllUsers, getBackfillStatus, BackfillResult } from '@/lib/user-backfill-service';
+import { UserDirectory } from '@/entities';
+import { ArrowLeft, Search, CheckCircle, XCircle, RefreshCw, Activity, Clock, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  syncAllMembersToDirectory, 
+  getSyncStatus, 
+  SyncResult 
+} from '@/lib/sync-members-service';
+import {
+  listDirectoryUsers,
+  getDirectoryStats,
+  toggleVerificationStatus,
+  getActivityStatus,
+  formatLastActivity,
+  DirectoryFilters
+} from '@/lib/user-directory-service';
+import { touchLastSeen } from '@/lib/user-directory-service';
 
-interface UserWithBalance extends RegisteredUsers {
-  balance?: PiqueteBalances;
-  isVerified?: boolean;
-  verificationDate?: Date;
-  isActive?: boolean;
-  lastActivityTime?: Date;
-  activityStatus?: 'online' | 'idle' | 'offline';
+interface DirectoryStats {
+  total: number;
+  verified: number;
+  unverified: number;
+  online: number;
+  inactive: number;
+  offline: number;
 }
 
 export default function AdminUsersVerificationPage() {
   const { member } = useMember();
-  const [users, setUsers] = useState<UserWithBalance[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserWithBalance[]>([]);
+  const [users, setUsers] = useState<UserDirectory[]>([]);
+  const [stats, setStats] = useState<DirectoryStats>({
+    total: 0,
+    verified: 0,
+    unverified: 0,
+    online: 0,
+    inactive: 0,
+    offline: 0
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVerified, setFilterVerified] = useState<'all' | 'verified' | 'unverified'>('all');
-  const [filterActivity, setFilterActivity] = useState<'all' | 'online' | 'idle' | 'offline'>('all');
+  const [filterActivity, setFilterActivity] = useState<'all' | 'online' | 'inactive' | 'offline'>('all');
   const [loading, setLoading] = useState(true);
-  const [editingUserId, setEditingUserId] = useState<string | null>(null);
-  const [piqueteInput, setPiqueteInput] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [newUsersCount, setNewUsersCount] = useState(0);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const previousUserCountRef = useRef(0);
-  const activityTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+  const [showSyncResult, setShowSyncResult] = useState(false);
+  const [syncStatus, setSyncStatus] = useState({ wixMembersCount: 0, directoryMembersCount: 0, syncNeeded: false });
   
-  // Backfill states
-  const [isBackfilling, setIsBackfilling] = useState(false);
-  const [backfillStatus, setBackfillStatus] = useState<{ wixMembersCount: number; registeredUsersCount: number; backfillNeeded: number; isBackfillNeeded: boolean }>({
-    wixMembersCount: 0,
-    registeredUsersCount: 0,
-    backfillNeeded: 0,
-    isBackfillNeeded: false,
-  });
-  const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
-  const [showBackfillResult, setShowBackfillResult] = useState(false);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [totalUsers, setTotalUsers] = useState(0);
 
-  useEffect(() => {
-    loadUsers();
-    checkBackfillStatus();
-    previousUserCountRef.current = 0;
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Set up polling interval - refresh every 5 seconds
-    pollIntervalRef.current = setInterval(() => {
-      loadUsers();
-    }, 5000);
-
-    // Cleanup interval on unmount
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-      // Clear all activity timers
-      activityTimersRef.current.forEach(timer => clearTimeout(timer));
-      activityTimersRef.current.clear();
-    };
-  }, []);
-
-  useEffect(() => {
-    filterUsers();
-  }, [users, searchTerm, filterVerified, filterActivity]);
-
-  const checkBackfillStatus = async () => {
-    const status = await getBackfillStatus();
-    setBackfillStatus(status);
-  };
-
-  const handleBackfill = async () => {
-    setIsBackfilling(true);
-    setShowBackfillResult(false);
-    try {
-      const result = await backfillAllUsers();
-      setBackfillResult(result);
-      setShowBackfillResult(true);
-      // Reload users after backfill
-      await loadUsers();
-      await checkBackfillStatus();
-    } catch (error) {
-      console.error('Backfill error:', error);
-      setBackfillResult({
-        success: false,
-        totalProcessed: 0,
-        created: 0,
-        updated: 0,
-        skipped: 0,
-        errors: [],
-        message: 'Error during backfill operation',
-      });
-      setShowBackfillResult(true);
-    } finally {
-      setIsBackfilling(false);
-    }
-  };
-
-  const loadUsers = async () => {
+  // Load users and stats
+  const loadData = async () => {
     try {
       setIsRefreshing(true);
       
-      // Fetch all required data from custom collections
-      const [verificationData, balancesData, registeredUsersData, wixMembersData] = await Promise.all([
-        BaseCrudService.getAll<UserVerification>('userverification').catch(err => {
-          console.error('Error fetching userverification:', err);
-          return { items: [] };
-        }),
-        BaseCrudService.getAll<PiqueteBalances>('piquetebalances').catch(err => {
-          console.error('Error fetching piquetebalances:', err);
-          return { items: [] };
-        }),
-        // Fetch from custom registeredusers collection
-        BaseCrudService.getAll<RegisteredUsers>('registeredusers').catch(err => {
-          console.error('Error fetching registeredusers:', err);
-          return { items: [] };
-        }),
-        // Fetch all Wix members (including those who only logged in)
-        BaseCrudService.getAll<any>('Members/FullData').catch(err => {
-          console.error('Error fetching Wix members:', err);
-          return { items: [] };
-        })
-      ]);
+      // Get stats
+      const newStats = await getDirectoryStats();
+      setStats(newStats);
 
-      const registeredUsersArray = registeredUsersData.items || [];
-      const verificationArray = verificationData.items || [];
-      const balancesArray = balancesData.items || [];
-      const wixMembersArray = wixMembersData.items || [];
+      // Get filtered users with pagination
+      const filters: DirectoryFilters = {
+        verificationStatus: filterVerified === 'all' ? 'all' : filterVerified === 'verified' ? 'VERIFIED' : 'UNVERIFIED',
+        activityStatus: filterActivity === 'all' ? 'all' : filterActivity,
+        search: searchTerm || undefined
+      };
 
-      console.log('Loaded data:', {
-        registeredUsersCount: registeredUsersArray.length,
-        wixMembersCount: wixMembersArray.length,
-        verificationCount: verificationArray.length,
-        balancesCount: balancesArray.length,
-        wixMemberEmails: wixMembersArray.slice(0, 5).map(u => u.loginEmail) // Log first 5 emails for debugging
-      });
-
-      // Create a map of verified users for quick lookup
-      const verifiedUsersMap = new Map(
-        verificationArray.map(user => [user.joseadorEmail, user])
+      const { items, total } = await listDirectoryUsers(
+        filters,
+        { limit: pageSize, offset: (currentPage - 1) * pageSize }
       );
 
-      // Create a map of registered users for quick lookup
-      const registeredUsersMap = new Map(
-        registeredUsersArray.map(user => [user.email, user])
-      );
-
-      // Combine Wix members with registered user data and verification/balance data
-      const usersWithBalance: UserWithBalance[] = wixMembersArray
-        .filter(member => member.loginEmail) // Only include members with email
-        .map(member => {
-          const userEmail = member.loginEmail || '';
-          const registeredUserInfo = registeredUsersMap.get(userEmail);
-          const verificationInfo = verifiedUsersMap.get(userEmail);
-          const balance = balancesArray.find(b => b.joseadorEmail === userEmail);
-          
-          // Use lastLoginDate if available, otherwise use _updatedDate
-          let lastActivity: Date;
-          if (member.lastLoginDate) {
-            lastActivity = typeof member.lastLoginDate === 'string' 
-              ? new Date(member.lastLoginDate) 
-              : member.lastLoginDate;
-          } else if (member._updatedDate) {
-            lastActivity = typeof member._updatedDate === 'string'
-              ? new Date(member._updatedDate)
-              : member._updatedDate;
-          } else if (member._createdDate) {
-            lastActivity = typeof member._createdDate === 'string'
-              ? new Date(member._createdDate)
-              : member._createdDate;
-          } else {
-            lastActivity = new Date();
-          }
-
-          const now = new Date();
-          const timeDiffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
-
-          // Determine activity status based on last login time
-          let activityStatus: 'online' | 'idle' | 'offline' = 'offline';
-          if (timeDiffMinutes < 5) {
-            activityStatus = 'online';
-          } else if (timeDiffMinutes < 30) {
-            activityStatus = 'idle';
-          } else {
-            activityStatus = 'offline';
-          }
-
-          // Create a combined user object with data from both sources
-          const combinedUser: RegisteredUsers = {
-            _id: member._id || crypto.randomUUID(),
-            userId: member._id,
-            email: userEmail,
-            firstName: member.contact?.firstName || registeredUserInfo?.firstName || '',
-            lastName: member.contact?.lastName || registeredUserInfo?.lastName || '',
-            nickname: member.profile?.nickname || registeredUserInfo?.nickname || '',
-            photoUrl: member.profile?.photo?.url || registeredUserInfo?.photoUrl || '',
-            registrationDate: member._createdDate,
-            lastLoginDate: member.lastLoginDate,
-            role: registeredUserInfo?.role || '',
-            _createdDate: member._createdDate,
-            _updatedDate: member._updatedDate
-          };
-
-          return {
-            ...combinedUser,
-            balance,
-            isVerified: verificationInfo?.isVerified || false,
-            verificationDate: verificationInfo?.verificationDate,
-            lastActivityTime: lastActivity,
-            activityStatus,
-            isActive: activityStatus === 'online' || activityStatus === 'idle'
-          } as UserWithBalance;
-        });
-
-      console.log('Processed users:', usersWithBalance.length, usersWithBalance.slice(0, 3));
-
-      // Detect new users
-      const currentUserCount = usersWithBalance.length;
-      if (previousUserCountRef.current > 0 && currentUserCount > previousUserCountRef.current) {
-        const newCount = currentUserCount - previousUserCountRef.current;
-        setNewUsersCount(newCount);
-        // Auto-clear the notification after 5 seconds
-        setTimeout(() => setNewUsersCount(0), 5000);
-      }
-      previousUserCountRef.current = currentUserCount;
-
-      setUsers(usersWithBalance);
+      setUsers(items);
+      setTotalUsers(total);
       setLastRefreshTime(new Date());
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
     }
   };
 
-  const filterUsers = () => {
-    let filtered = users;
+  // Initial load and setup polling
+  useEffect(() => {
+    loadData();
+    checkSyncStatus();
 
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(user => {
-        const displayName = user.nickname || user.firstName || user.email || '';
-        return displayName.toLowerCase().includes(term) ||
-          user.email?.toLowerCase().includes(term);
+    // Set up polling - refresh every 5 seconds
+    pollIntervalRef.current = setInterval(() => {
+      loadData();
+    }, 5000);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Reload when filters or search change
+  useEffect(() => {
+    setCurrentPage(1);
+    loadData();
+  }, [searchTerm, filterVerified, filterActivity]);
+
+  // Reload when page changes
+  useEffect(() => {
+    loadData();
+  }, [currentPage, pageSize]);
+
+  // Check sync status
+  const checkSyncStatus = async () => {
+    try {
+      const status = await getSyncStatus();
+      setSyncStatus(status);
+    } catch (error) {
+      console.error('Error checking sync status:', error);
+    }
+  };
+
+  // Handle sync
+  const handleSync = async () => {
+    try {
+      setIsSyncing(true);
+      const result = await syncAllMembersToDirectory();
+      setSyncResult(result);
+      setShowSyncResult(true);
+      
+      // Reload data after sync
+      await loadData();
+      await checkSyncStatus();
+    } catch (error) {
+      console.error('Error syncing members:', error);
+      setSyncResult({
+        success: false,
+        message: 'Error during sync',
+        created: 0,
+        updated: 0,
+        skipped: 0,
+        errors: []
       });
+      setShowSyncResult(true);
+    } finally {
+      setIsSyncing(false);
     }
-
-    // Filter by verification status
-    if (filterVerified === 'verified') {
-      filtered = filtered.filter(user => user.isVerified === true);
-    } else if (filterVerified === 'unverified') {
-      filtered = filtered.filter(user => user.isVerified !== true);
-    }
-
-    // Filter by activity status
-    if (filterActivity !== 'all') {
-      filtered = filtered.filter(user => user.activityStatus === filterActivity);
-    }
-
-    setFilteredUsers(filtered);
   };
 
-  const toggleVerification = async (userId: string, currentStatus: boolean) => {
+  // Handle verification toggle
+  const handleToggleVerification = async (memberId: string) => {
     try {
-      const user = users.find(u => u._id === userId);
-      if (!user) return;
-
-      const newStatus = !currentStatus;
-      const userEmail = user.email || '';
-
-      // Find existing verification record by email
-      const { items: existingVerifications } = await BaseCrudService.getAll<UserVerification>('userverification');
-      const existingVerification = existingVerifications.find(v => v.joseadorEmail === userEmail);
-
-      if (existingVerification) {
-        // Update existing verification record
-        await BaseCrudService.update('userverification', {
-          _id: existingVerification._id,
-          isVerified: newStatus,
-          verificationDate: newStatus ? new Date().toISOString() : existingVerification.verificationDate,
-          verifiedByAdmin: newStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : existingVerification.verifiedByAdmin
-        });
-      } else {
-        // Create new verification record
-        const verificationData: UserVerification = {
-          _id: crypto.randomUUID(),
-          joseadorId: userId,
-          joseadorEmail: userEmail,
-          joseadorName: user.nickname || user.firstName || user.email || '',
-          isVerified: newStatus,
-          verificationDate: newStatus ? new Date().toISOString() : undefined,
-          verifiedByAdmin: newStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : undefined
-        };
-        await BaseCrudService.create('userverification', verificationData);
-      }
-
-      // Reload users to reflect changes
-      await loadUsers();
+      await toggleVerificationStatus(memberId);
+      await loadData();
     } catch (error) {
-      console.error('Error updating verification status:', error);
+      console.error('Error toggling verification:', error);
     }
   };
 
-  const updatePiquetes = async (userId: string, userEmail: string, action: 'add' | 'remove', amount: number) => {
-    if (amount <= 0) return;
-
-    try {
-      // Find or create balance record
-      let balance = users.find(u => u._id === userId)?.balance;
-
-      if (!balance) {
-        // Create new balance record
-        const newBalance: PiqueteBalances = {
-          _id: crypto.randomUUID(),
-          joseadorEmail: userEmail,
-          joseadorId: userId,
-          currentBalance: action === 'add' ? amount : -amount,
-          freeQuotaBalance: 0,
-          totalPiquetesEarned: action === 'add' ? amount : 0,
-          totalPiquetesSpent: action === 'remove' ? amount : 0,
-          lastUpdated: new Date().toISOString()
-        };
-        await BaseCrudService.create('piquetebalances', newBalance);
-      } else {
-        // Update existing balance
-        const newBalance = action === 'add'
-          ? (balance.currentBalance || 0) + amount
-          : (balance.currentBalance || 0) - amount;
-
-        await BaseCrudService.update('piquetebalances', {
-          _id: balance._id,
-          currentBalance: newBalance,
-          totalPiquetesEarned: action === 'add'
-            ? (balance.totalPiquetesEarned || 0) + amount
-            : balance.totalPiquetesEarned,
-          totalPiquetesSpent: action === 'remove'
-            ? (balance.totalPiquetesSpent || 0) + amount
-            : balance.totalPiquetesSpent,
-          lastUpdated: new Date().toISOString()
-        });
-      }
-
-      await loadUsers();
-      setEditingUserId(null);
-      setPiqueteInput('');
-    } catch (error) {
-      console.error('Error updating piquetes:', error);
+  // Touch last seen when member logs in (called from other pages)
+  useEffect(() => {
+    if (member?.loginEmail) {
+      touchLastSeen(member.loginEmail).catch(err => console.error('Error touching lastSeen:', err));
     }
-  };
+  }, [member?.loginEmail]);
 
-  const verifiedCount = users.filter(u => u.isVerified).length;
-  const unverifiedCount = users.length - verifiedCount;
-  const onlineCount = users.filter(u => u.activityStatus === 'online').length;
-  const idleCount = users.filter(u => u.activityStatus === 'idle').length;
-  const offlineCount = users.filter(u => u.activityStatus === 'offline').length;
+  const totalPages = Math.ceil(totalUsers / pageSize);
 
-  const getActivityColor = (status?: 'online' | 'idle' | 'offline') => {
+  const getActivityColor = (status: 'online' | 'inactive' | 'offline') => {
     switch (status) {
       case 'online':
         return 'text-accent';
-      case 'idle':
+      case 'inactive':
         return 'text-secondary';
       case 'offline':
         return 'text-muted-text';
-      default:
-        return 'text-muted-text';
     }
   };
 
-  const getActivityBgColor = (status?: 'online' | 'idle' | 'offline') => {
+  const getActivityBgColor = (status: 'online' | 'inactive' | 'offline') => {
     switch (status) {
       case 'online':
         return 'bg-accent/10';
-      case 'idle':
+      case 'inactive':
         return 'bg-secondary/10';
       case 'offline':
         return 'bg-muted-text/10';
-      default:
-        return 'bg-muted-text/10';
     }
   };
 
-  const getActivityLabel = (status?: 'online' | 'idle' | 'offline') => {
+  const getActivityLabel = (status: 'online' | 'inactive' | 'offline') => {
     switch (status) {
       case 'online':
         return 'En línea';
-      case 'idle':
+      case 'inactive':
         return 'Inactivo';
       case 'offline':
         return 'Desconectado';
-      default:
-        return 'Desconocido';
     }
-  };
-
-  const formatLastActivity = (date?: Date) => {
-    if (!date) return 'N/A';
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'Hace unos segundos';
-    if (diffMins < 60) return `Hace ${diffMins} min`;
-    if (diffHours < 24) return `Hace ${diffHours}h`;
-    if (diffDays < 7) return `Hace ${diffDays}d`;
-    return date.toLocaleDateString('es-DO');
   };
 
   return (
@@ -433,7 +224,7 @@ export default function AdminUsersVerificationPage() {
               </span>
             )}
             <motion.button
-              onClick={loadUsers}
+              onClick={loadData}
               disabled={isRefreshing}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -459,8 +250,8 @@ export default function AdminUsersVerificationPage() {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
-          {/* Backfill Status Alert */}
-          {backfillStatus.isBackfillNeeded && !showBackfillResult && (
+          {/* Sync Status Alert */}
+          {syncStatus.syncNeeded && !showSyncResult && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -470,45 +261,44 @@ export default function AdminUsersVerificationPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="font-heading font-semibold text-foreground mb-2">
-                    Sincronización de Usuarios Históricos
+                    Sincronización de Usuarios Necesaria
                   </h3>
                   <p className="font-paragraph text-sm text-muted-text mb-4">
-                    Se detectaron {backfillStatus.backfillNeeded} usuario{backfillStatus.backfillNeeded !== 1 ? 's' : ''} histórico{backfillStatus.backfillNeeded !== 1 ? 's' : ''} que no están en la lista de verificación.
-                    Haz clic en "Sincronizar Ahora" para importar todos los usuarios registrados en la plataforma.
+                    Se detectaron {syncStatus.wixMembersCount - syncStatus.directoryMembersCount} usuario(s) nuevo(s) en Wix que no están en el directorio.
+                    Haz clic en "Sincronizar Ahora" para importar todos los usuarios.
                   </p>
                   <div className="flex items-center gap-4 text-xs font-paragraph text-muted-text mb-4">
-                    <span>Usuarios en Wix: <strong className="text-foreground">{backfillStatus.wixMembersCount}</strong></span>
-                    <span>Usuarios sincronizados: <strong className="text-foreground">{backfillStatus.registeredUsersCount}</strong></span>
-                    <span>Pendientes: <strong className="text-secondary">{backfillStatus.backfillNeeded}</strong></span>
+                    <span>Usuarios en Wix: <strong className="text-foreground">{syncStatus.wixMembersCount}</strong></span>
+                    <span>En Directorio: <strong className="text-foreground">{syncStatus.directoryMembersCount}</strong></span>
                   </div>
                   <motion.button
-                    onClick={handleBackfill}
-                    disabled={isBackfilling}
+                    onClick={handleSync}
+                    disabled={isSyncing}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white font-heading font-semibold rounded-lg hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <motion.div
-                      animate={isBackfilling ? { rotate: 360 } : { rotate: 0 }}
-                      transition={{ duration: 1, repeat: isBackfilling ? Infinity : 0 }}
+                      animate={isSyncing ? { rotate: 360 } : { rotate: 0 }}
+                      transition={{ duration: 1, repeat: isSyncing ? Infinity : 0 }}
                     >
                       <Download size={18} />
                     </motion.div>
-                    {isBackfilling ? 'Sincronizando...' : 'Sincronizar Ahora'}
+                    {isSyncing ? 'Sincronizando...' : 'Sincronizar Ahora'}
                   </motion.button>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Backfill Result Alert */}
-          {showBackfillResult && backfillResult && (
+          {/* Sync Result Alert */}
+          {showSyncResult && syncResult && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className={`rounded-2xl p-6 border ${
-                backfillResult.success
+                syncResult.success
                   ? 'bg-accent/10 border-accent'
                   : 'bg-destructive/10 border-destructive'
               }`}
@@ -516,50 +306,50 @@ export default function AdminUsersVerificationPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="font-heading font-semibold text-foreground mb-2">
-                    {backfillResult.success ? '✓ Sincronización Completada' : '✗ Error en la Sincronización'}
+                    {syncResult.success ? '✓ Sincronización Completada' : '✗ Error en la Sincronización'}
                   </h3>
                   <p className="font-paragraph text-sm text-muted-text mb-3">
-                    {backfillResult.message}
+                    {syncResult.message}
                   </p>
-                  {backfillResult.created > 0 || backfillResult.updated > 0 || backfillResult.skipped > 0 ? (
+                  {(syncResult.created > 0 || syncResult.updated > 0 || syncResult.skipped > 0) && (
                     <div className="grid grid-cols-3 gap-3 text-xs font-paragraph mb-4">
-                      {backfillResult.created > 0 && (
+                      {syncResult.created > 0 && (
                         <div className="bg-white/50 rounded-lg p-2">
                           <p className="text-muted-text">Creados</p>
-                          <p className="font-heading font-semibold text-accent">{backfillResult.created}</p>
+                          <p className="font-heading font-semibold text-accent">{syncResult.created}</p>
                         </div>
                       )}
-                      {backfillResult.updated > 0 && (
+                      {syncResult.updated > 0 && (
                         <div className="bg-white/50 rounded-lg p-2">
                           <p className="text-muted-text">Actualizados</p>
-                          <p className="font-heading font-semibold text-secondary">{backfillResult.updated}</p>
+                          <p className="font-heading font-semibold text-secondary">{syncResult.updated}</p>
                         </div>
                       )}
-                      {backfillResult.skipped > 0 && (
+                      {syncResult.skipped > 0 && (
                         <div className="bg-white/50 rounded-lg p-2">
                           <p className="text-muted-text">Omitidos</p>
-                          <p className="font-heading font-semibold text-muted-text">{backfillResult.skipped}</p>
+                          <p className="font-heading font-semibold text-muted-text">{syncResult.skipped}</p>
                         </div>
                       )}
                     </div>
-                  ) : null}
-                  {backfillResult.errors.length > 0 && (
+                  )}
+                  {syncResult.errors.length > 0 && (
                     <div className="bg-white/50 rounded-lg p-3 mb-4">
                       <p className="font-heading text-xs font-semibold text-destructive mb-2">
-                        Errores ({backfillResult.errors.length}):
+                        Errores ({syncResult.errors.length}):
                       </p>
                       <ul className="space-y-1 text-xs font-paragraph text-muted-text">
-                        {backfillResult.errors.slice(0, 3).map((err, idx) => (
-                          <li key={idx}>• {err.email}: {err.error}</li>
+                        {syncResult.errors.slice(0, 3).map((err, idx) => (
+                          <li key={idx}>• {err.email || err.memberId}: {err.error}</li>
                         ))}
-                        {backfillResult.errors.length > 3 && (
-                          <li>... y {backfillResult.errors.length - 3} más</li>
+                        {syncResult.errors.length > 3 && (
+                          <li>... y {syncResult.errors.length - 3} más</li>
                         )}
                       </ul>
                     </div>
                   )}
                   <motion.button
-                    onClick={() => setShowBackfillResult(false)}
+                    onClick={() => setShowSyncResult(false)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="text-xs px-3 py-1 bg-white/50 text-foreground rounded-lg hover:bg-white transition-colors font-paragraph font-semibold"
@@ -571,50 +361,24 @@ export default function AdminUsersVerificationPage() {
             </motion.div>
           )}
 
-          {/* New Users Notification */}
-          {newUsersCount > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-accent/10 border border-accent rounded-2xl p-4 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  <CheckCircle size={24} className="text-accent" />
-                </motion.div>
-                <div>
-                  <p className="font-heading font-semibold text-foreground">
-                    {newUsersCount} nuevo{newUsersCount > 1 ? 's' : ''} usuario{newUsersCount > 1 ? 's' : ''} registrado{newUsersCount > 1 ? 's' : ''}
-                  </p>
-                  <p className="font-paragraph text-sm text-muted-text">
-                    {newUsersCount > 1 ? 'Los nuevos usuarios' : 'El nuevo usuario'} aparecerá{newUsersCount > 1 ? 'n' : ''} en la lista abajo
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
           {/* Title */}
           <div>
             <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
               Verificación de Usuarios
             </h1>
             <p className="font-paragraph text-muted-text">
-              Gestiona la verificación de Joseadores y administra sus piquetes
+              Gestiona la verificación de usuarios y monitorea su actividad en tiempo real
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
-                <Shield size={28} className="text-primary" />
-                <h3 className="font-heading text-lg font-semibold text-foreground">Total de Usuarios</h3>
+                <Activity size={28} className="text-primary" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Total</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-foreground">{users.length}</p>
+              <p className="font-heading text-4xl font-bold text-foreground">{stats.total}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
@@ -622,7 +386,7 @@ export default function AdminUsersVerificationPage() {
                 <CheckCircle size={28} className="text-accent" />
                 <h3 className="font-heading text-lg font-semibold text-foreground">Verificados</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-accent">{verifiedCount}</p>
+              <p className="font-heading text-4xl font-bold text-accent">{stats.verified}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
@@ -630,17 +394,17 @@ export default function AdminUsersVerificationPage() {
                 <XCircle size={28} className="text-destructive" />
                 <h3 className="font-heading text-lg font-semibold text-foreground">Sin Verificar</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-destructive">{unverifiedCount}</p>
+              <p className="font-heading text-4xl font-bold text-destructive">{stats.unverified}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                  <Activity size={28} className="text-accent" />
+                  <div className="w-7 h-7 rounded-full bg-accent" />
                 </motion.div>
                 <h3 className="font-heading text-lg font-semibold text-foreground">En Línea</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-accent">{onlineCount}</p>
+              <p className="font-heading text-4xl font-bold text-accent">{stats.online}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
@@ -648,7 +412,15 @@ export default function AdminUsersVerificationPage() {
                 <Clock size={28} className="text-secondary" />
                 <h3 className="font-heading text-lg font-semibold text-foreground">Inactivos</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-secondary">{idleCount}</p>
+              <p className="font-heading text-4xl font-bold text-secondary">{stats.inactive}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-7 h-7 rounded-full bg-muted-text/30" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Desconectados</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-muted-text">{stats.offline}</p>
             </div>
           </div>
 
@@ -666,40 +438,40 @@ export default function AdminUsersVerificationPage() {
                   className="w-full pl-10 pr-4 py-2 border border-border rounded-xl font-paragraph focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+            </div>
 
-              {/* Filter Buttons */}
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={() => setFilterVerified('all')}
-                  className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                    filterVerified === 'all'
-                      ? 'bg-primary text-white'
-                      : 'bg-background text-foreground border border-border hover:bg-border'
-                  }`}
-                >
-                  Todos
-                </button>
-                <button
-                  onClick={() => setFilterVerified('verified')}
-                  className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                    filterVerified === 'verified'
-                      ? 'bg-accent text-white'
-                      : 'bg-background text-foreground border border-border hover:bg-border'
-                  }`}
-                >
-                  Verificados
-                </button>
-                <button
-                  onClick={() => setFilterVerified('unverified')}
-                  className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                    filterVerified === 'unverified'
-                      ? 'bg-destructive text-white'
-                      : 'bg-background text-foreground border border-border hover:bg-border'
-                  }`}
-                >
-                  Sin Verificar
-                </button>
-              </div>
+            {/* Filter Buttons */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setFilterVerified('all')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterVerified === 'all'
+                    ? 'bg-primary text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Todos
+              </button>
+              <button
+                onClick={() => setFilterVerified('verified')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterVerified === 'verified'
+                    ? 'bg-accent text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Verificados
+              </button>
+              <button
+                onClick={() => setFilterVerified('unverified')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterVerified === 'unverified'
+                    ? 'bg-destructive text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Sin Verificar
+              </button>
             </div>
 
             {/* Activity Filter */}
@@ -730,15 +502,15 @@ export default function AdminUsersVerificationPage() {
                 En Línea
               </button>
               <button
-                onClick={() => setFilterActivity('idle')}
+                onClick={() => setFilterActivity('inactive')}
                 className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
-                  filterActivity === 'idle'
+                  filterActivity === 'inactive'
                     ? 'bg-secondary text-white'
                     : 'bg-background text-foreground border border-border hover:bg-border'
                 }`}
               >
                 <div className={`w-2 h-2 rounded-full ${
-                  filterActivity === 'idle' ? 'bg-white' : 'bg-secondary'
+                  filterActivity === 'inactive' ? 'bg-white' : 'bg-secondary'
                 }`} />
                 Inactivos
               </button>
@@ -764,7 +536,7 @@ export default function AdminUsersVerificationPage() {
               <div className="p-8 text-center">
                 <p className="font-paragraph text-muted-text">Cargando usuarios...</p>
               </div>
-            ) : filteredUsers.length === 0 ? (
+            ) : users.length === 0 ? (
               <div className="p-8 text-center">
                 <p className="font-paragraph text-muted-text">No se encontraron usuarios</p>
               </div>
@@ -775,128 +547,147 @@ export default function AdminUsersVerificationPage() {
                     <tr>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Nombre</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Email</th>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Estado Actividad</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Estado</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Última Actividad</th>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Piquetes</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Verificación</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((user, index) => (
-                      <motion.tr
-                        key={user._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="border-b border-border hover:bg-background/50 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <p className="font-paragraph font-semibold text-foreground">{user.nickname || user.firstName || user.email}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="font-paragraph text-sm text-muted-text">{user.email}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(user.activityStatus)} ${getActivityColor(user.activityStatus)}`}>
-                            {user.activityStatus === 'online' && (
-                              <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                                <div className="w-2 h-2 rounded-full bg-current" />
-                              </motion.div>
-                            )}
-                            {user.activityStatus === 'idle' && <div className="w-2 h-2 rounded-full bg-current" />}
-                            {user.activityStatus === 'offline' && <div className="w-2 h-2 rounded-full bg-current opacity-50" />}
-                            {getActivityLabel(user.activityStatus)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="font-paragraph text-sm text-muted-text">{formatLastActivity(user.lastActivityTime)}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-heading font-bold text-primary">
-                              {user.balance?.currentBalance || 0}
+                    {users.map((user, index) => {
+                      const activityStatus = getActivityStatus(user.lastSeen);
+                      return (
+                        <motion.tr
+                          key={user._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="border-b border-border hover:bg-background/50 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <p className="font-paragraph font-semibold text-foreground">{user.fullName}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-paragraph text-sm text-muted-text">{user.email || 'N/A'}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(activityStatus)} ${getActivityColor(activityStatus)}`}>
+                              {activityStatus === 'online' && (
+                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                                  <div className="w-2 h-2 rounded-full bg-current" />
+                                </motion.div>
+                              )}
+                              {activityStatus === 'inactive' && <div className="w-2 h-2 rounded-full bg-current" />}
+                              {activityStatus === 'offline' && <div className="w-2 h-2 rounded-full bg-current opacity-50" />}
+                              {getActivityLabel(activityStatus)}
                             </span>
-                            {editingUserId === user._id ? (
-                              <div className="flex gap-2">
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={piqueteInput}
-                                  onChange={(e) => setPiqueteInput(e.target.value)}
-                                  placeholder="Cantidad"
-                                  className="w-20 px-2 py-1 border border-border rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                                />
-                                <button
-                                  onClick={() => updatePiquetes(user._id, user.email || '', 'add', parseInt(piqueteInput) || 0)}
-                                  className="p-1 bg-accent text-white rounded-lg hover:bg-accent/80 transition-colors"
-                                  title="Agregar piquetes"
-                                >
-                                  <Plus size={16} />
-                                </button>
-                                <button
-                                  onClick={() => updatePiquetes(user._id, user.email || '', 'remove', parseInt(piqueteInput) || 0)}
-                                  className="p-1 bg-destructive text-white rounded-lg hover:bg-destructive/80 transition-colors"
-                                  title="Quitar piquetes"
-                                >
-                                  <Minus size={16} />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingUserId(null);
-                                    setPiqueteInput('');
-                                  }}
-                                  className="px-2 py-1 bg-muted-text/20 text-foreground rounded-lg hover:bg-muted-text/30 transition-colors font-paragraph text-sm"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => setEditingUserId(user._id)}
-                                className="px-3 py-1 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-paragraph text-sm"
-                              >
-                                Editar
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            {user.isVerified ? (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full font-paragraph text-sm font-semibold">
-                                <CheckCircle size={16} />
-                                Verificado
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-destructive/10 text-destructive rounded-full font-paragraph text-sm font-semibold">
-                                <XCircle size={16} />
-                                Sin Verificar
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => toggleVerification(user._id, user.isVerified || false)}
-                            className={`px-4 py-2 rounded-lg font-paragraph font-semibold transition-all ${
-                              user.isVerified
-                                ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
-                                : 'bg-accent/10 text-accent hover:bg-accent/20'
-                            }`}
-                          >
-                            {user.isVerified ? 'Desverificar' : 'Verificar'}
-                          </motion.button>
-                        </td>
-                      </motion.tr>
-                    ))}
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-paragraph text-sm text-muted-text">{formatLastActivity(user.lastSeen)}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {user.verificationStatus === 'VERIFIED' ? (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full font-paragraph text-sm font-semibold">
+                                  <CheckCircle size={16} />
+                                  Verificado
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-destructive/10 text-destructive rounded-full font-paragraph text-sm font-semibold">
+                                  <XCircle size={16} />
+                                  Sin Verificar
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleToggleVerification(user.memberId || '')}
+                              className={`px-4 py-2 rounded-lg font-paragraph font-semibold transition-all ${
+                                user.verificationStatus === 'VERIFIED'
+                                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
+                                  : 'bg-accent/10 text-accent hover:bg-accent/20'
+                              }`}
+                            >
+                              {user.verificationStatus === 'VERIFIED' ? 'Desverificar' : 'Verificar'}
+                            </motion.button>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-4">
+                <span className="font-paragraph text-sm text-muted-text">
+                  Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, totalUsers)} de {totalUsers} usuarios
+                </span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-2 border border-border rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value={25}>25 por página</option>
+                  <option value={50}>50 por página</option>
+                  <option value={100}>100 por página</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <motion.button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 rounded-lg border border-border hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft size={20} />
+                </motion.button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <motion.button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`w-10 h-10 rounded-lg font-paragraph font-semibold transition-all ${
+                          currentPage === pageNum
+                            ? 'bg-primary text-white'
+                            : 'border border-border hover:bg-background'
+                        }`}
+                      >
+                        {pageNum}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                <motion.button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 rounded-lg border border-border hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight size={20} />
+                </motion.button>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
