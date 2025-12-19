@@ -243,20 +243,36 @@ export default function AdminUsersVerificationPage() {
       const user = users.find(u => u._id === userId);
       if (!user) return;
 
-      // Update or create verification record
-      const verificationId = user._id;
-      const verificationData = {
-        _id: verificationId,
-        joseadorId: userId,
-        joseadorEmail: user.email || '',
-        joseadorName: user.nickname || user.firstName || user.email || '',
-        isVerified: !currentStatus,
-        verificationDate: !currentStatus ? new Date().toISOString() : undefined,
-        verifiedByAdmin: !currentStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : undefined
-      };
+      const newStatus = !currentStatus;
+      const userEmail = user.email || '';
 
-      // Try to update existing verification record
-      await BaseCrudService.update('userverification', verificationData);
+      // Find existing verification record by email
+      const { items: existingVerifications } = await BaseCrudService.getAll<UserVerification>('userverification');
+      const existingVerification = existingVerifications.find(v => v.joseadorEmail === userEmail);
+
+      if (existingVerification) {
+        // Update existing verification record
+        await BaseCrudService.update('userverification', {
+          _id: existingVerification._id,
+          isVerified: newStatus,
+          verificationDate: newStatus ? new Date().toISOString() : existingVerification.verificationDate,
+          verifiedByAdmin: newStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : existingVerification.verifiedByAdmin
+        });
+      } else {
+        // Create new verification record
+        const verificationData: UserVerification = {
+          _id: crypto.randomUUID(),
+          joseadorId: userId,
+          joseadorEmail: userEmail,
+          joseadorName: user.nickname || user.firstName || user.email || '',
+          isVerified: newStatus,
+          verificationDate: newStatus ? new Date().toISOString() : undefined,
+          verifiedByAdmin: newStatus ? member?.profile?.nickname || member?.loginEmail || 'Admin' : undefined
+        };
+        await BaseCrudService.create('userverification', verificationData);
+      }
+
+      // Reload users to reflect changes
       await loadUsers();
     } catch (error) {
       console.error('Error updating verification status:', error);
