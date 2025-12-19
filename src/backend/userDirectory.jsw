@@ -1,42 +1,97 @@
 import wixData from 'wix-data';
+import { members } from 'wix-members-backend';
 import { currentMember } from 'wix-members-backend';
 
-const COLLECTION = "UserDirectory";
+const COLLECTION = "userdirectory";
+const PAGE_SIZE = 100;
 
 /**
- * Upsert the current member to the UserDirectory collection
- * This function is called whenever a member interacts with the system
- * to keep their profile information up-to-date
- * 
- * @returns {Promise} The updated or inserted item
- * @throws {Error} If no member session is found
+ * Check if current member is an admin
+ * @returns {Promise<boolean>}
  */
-export async function upsertCurrentMember() {
-  const member = await currentMember.getMember({ fieldsets: ["FULL"] });
-  if (!member?._id) throw new Error("No member session found.");
+async function isAdmin() {
+  try {
+    const member = await currentMember.getMember({ fieldsets: ["FULL"] });
+    // Check if member has admin role or is in admin group
+    return member?.profile?.title === "admin" || member?.status === "APPROVED";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Sync all Wix members to UserDirectory collection with pagination
+ * @returns {Promise<{synced: number, updated: number, created: number}>}
+ */
+export async function syncAllMembersToDirectory() {
+  const admin = await isAdmin();
+  if (!admin) throw new Error("Unauthorized: Admin access required");
+
+  let synced = 0;
+  let updated = 0;
+  let created = 0;
+  let offset = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const result = await members.queryMembers()
+      .limit(PAGE_SIZE)
+      .offset(offset)
+      .find();
+
+    if (!result.items || result.items.length === 0) {
+      hasMore = false;
+      break;
+    }
+
+    for (const member of result.items) {
+      const upsertResult = await upsertMemberToDirectory(member);
+      synced++;
+      if (upsertResult.isNew) {
+        created++;
+      } else {
+        updated++;
+      }
+    }
+
+    offset += PAGE_SIZE;
+    hasMore = result.items.length === PAGE_SIZE;
+  }
+
+  return { synced, updated, created };
+}
+
+/**
+ * Upsert a member to UserDirectory
+ * @param {Object} member - Wix member object
+ * @returns {Promise<{isNew: boolean, item: Object}>}
+ */
+export async function upsertMemberToDirectory(member) {
+  if (!member?._id) throw new Error("Invalid member object");
 
   const memberId = member._id;
-  const fullName = member.profile?.nickname || member.profile?.name || "";
-  const email = member.loginEmail || member.contact?.emails?.[0] || "";
+  const fullName = member.profile?.nickname || member.contact?.firstName || member.loginEmail?.split("@")[0] || "Unknown";
+  const email = member.loginEmail || "";
+  const now = new Date();
 
-  // find existing record by memberId
+  // Find existing record by memberId
   const existing = await wixData.query(COLLECTION)
     .eq("memberId", memberId)
     .limit(1)
     .find({ suppressAuth: true });
 
-  const now = new Date();
-
-  if (existing.items.length) {
+  if (existing.items.length > 0) {
+    // Update existing record
     const item = existing.items[0];
     item.fullName = fullName;
     item.email = email;
     item.lastSeen = now;
-    item.isActive = true;
 
-    return wixData.update(COLLECTION, item, { suppressAuth: true });
+    await wixData.update(COLLECTION, item, { suppressAuth: true });
+    return { isNew: false, item };
   }
 
+  // Create new record
   const newItem = {
     memberId,
     fullName,
@@ -47,5 +102,155 @@ export async function upsertCurrentMember() {
     isActive: true
   };
 
+  const created = await wixData.insert(COLLECTION, newItem, { suppressAuth: true });
+  return { isNew: true, item: created };
+}
+
+/**
+ * Update lastSeen timestamp for a member
+ * @param {string} memberId - Member ID
+ * @returns {Promise<Object>}
+ */
+export async function touchLastSeen(memberId) {
+  if (!memberId) throw new Error("memberId is required");
+
+  const now = new Date();
+
+  // Find existing record
+  const existing = await wixData.query(COLLECTION)
+    .eq("memberId", memberId)
+    .limit(1)
+    .find({ suppressAuth: true });
+
+  if (existing.items.length > 0) {
+    const item = existing.items[0];
+    item.lastSeen = now;
+    return wixData.update(COLLECTION, item, { suppressAuth: true });
+  }
+
+  // Create new record if doesn't exist
+  const newItem = {
+    memberId,
+    fullName: "Unknown",
+    email: "",
+    createdDate: now,
+    lastSeen: now,
+    verificationStatus: "UNVERIFIED",
+    isActive: true
+  };
+
   return wixData.insert(COLLECTION, newItem, { suppressAuth: true });
+}
+
+/**
+ * List directory users with filtering and pagination
+ * @param {Object} options - {search, verificationFilter, statusFilter, page, pageSize}
+ * @returns {Promise<{items: Array, total: number, page: number, pageSize: number}>}
+ */
+export async function listDirectoryUsers(options = {}) {
+  const {
+    search = "",
+    verificationFilter = "ALL", // ALL, VERIFIED, UNVERIFIED
+    statusFilter = "ALL", // ALL, ONLINE, INACTIVE, DISCONNECTED
+    page = 0,
+    pageSize = 20
+  } = options;
+
+  let query = wixData.query(COLLECTION);
+
+  // Apply search filter
+  if (search) {
+    query = query.contains("fullName", search).or(query.contains("email", search));
+  }
+
+  // Apply verification filter
+  if (verificationFilter === "VERIFIED") {
+    query = query.eq("verificationStatus", "VERIFIED");
+  } else if (verificationFilter === "UNVERIFIED") {
+    query = query.eq("verificationStatus", "UNVERIFIED");
+  }
+
+  // Get total count before pagination
+  const countResult = await query.find({ suppressAuth: true });
+  const total = countResult.items.length;
+
+  // Apply status filter (requires date calculations)
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  let filteredItems = countResult.items;
+
+  if (statusFilter === "ONLINE") {
+    filteredItems = filteredItems.filter(item => {
+      const lastSeen = new Date(item.lastSeen);
+      return lastSeen >= fiveMinutesAgo;
+    });
+  } else if (statusFilter === "INACTIVE") {
+    filteredItems = filteredItems.filter(item => {
+      const lastSeen = new Date(item.lastSeen);
+      return lastSeen < fiveMinutesAgo && lastSeen >= thirtyDaysAgo;
+    });
+  } else if (statusFilter === "DISCONNECTED") {
+    filteredItems = filteredItems.filter(item => {
+      const lastSeen = new Date(item.lastSeen);
+      return lastSeen < thirtyDaysAgo;
+    });
+  }
+
+  // Apply pagination
+  const offset = page * pageSize;
+  const paginatedItems = filteredItems.slice(offset, offset + pageSize);
+
+  return {
+    items: paginatedItems,
+    total: filteredItems.length,
+    page,
+    pageSize
+  };
+}
+
+/**
+ * Get user statistics
+ * @returns {Promise<{total: number, verified: number, unverified: number, online: number, inactive: number, disconnected: number}>}
+ */
+export async function getStats() {
+  const result = await wixData.query(COLLECTION).find({ suppressAuth: true });
+  const items = result.items || [];
+
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  let verified = 0;
+  let unverified = 0;
+  let online = 0;
+  let inactive = 0;
+  let disconnected = 0;
+
+  for (const item of items) {
+    if (item.verificationStatus === "VERIFIED") {
+      verified++;
+    } else {
+      unverified++;
+    }
+
+    const lastSeen = new Date(item.lastSeen);
+    if (lastSeen >= fiveMinutesAgo) {
+      online++;
+    } else if (lastSeen >= thirtyDaysAgo) {
+      inactive++;
+    } else {
+      disconnected++;
+    }
+  }
+
+  return {
+    total: items.length,
+    verified,
+    unverified,
+    online,
+    inactive,
+    disconnected
+  };
 }
