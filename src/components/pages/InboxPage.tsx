@@ -16,6 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Image } from '@/components/ui/image';
 
 interface Chat {
@@ -65,8 +70,8 @@ export default function InboxPage() {
   const [countdown, setCountdown] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUserInfo, setSelectedUserInfo] = useState<UserInfo | null>(null);
-  const [showRenegotiatePanel, setShowRenegotiatePanel] = useState(false);
   const [newPrice, setNewPrice] = useState('');
+  const [openRenegotiatePopover, setOpenRenegotiatePopover] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -217,7 +222,6 @@ export default function InboxPage() {
       await BaseCrudService.create('messages', renegotiationMessage);
 
       // Reset form
-      setShowRenegotiatePanel(false);
       setNewPrice('');
       const textarea = document.querySelector('textarea');
       if (textarea) textarea.value = '';
@@ -530,15 +534,104 @@ export default function InboxPage() {
                   >
                     {userRole === 'joseador' ? (
                       <>
-                        <motion.button
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
-                        >
-                          <DollarSign size={14} />
-                          <span className="hidden sm:inline">Renegociar</span>
-                        </motion.button>
+                        <Popover open={openRenegotiatePopover} onOpenChange={setOpenRenegotiatePopover}>
+                          <PopoverTrigger asChild>
+                            <motion.button
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                            >
+                              <DollarSign size={14} />
+                              <span className="hidden sm:inline">Renegociar</span>
+                            </motion.button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
+                            <div className="p-4 space-y-3">
+                              {/* Header */}
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
+                                  <DollarSign size={16} className="text-secondary" />
+                                  Proponer nuevo monto
+                                </h3>
+                              </div>
+
+                              {/* Price Comparison */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="p-2.5 rounded-lg border-2 bg-secondary/5 border-secondary/20">
+                                  <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                                  <p className="font-heading font-bold text-base text-secondary">
+                                    $500
+                                  </p>
+                                </div>
+                                <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
+                                  <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                                  <p className="font-heading font-bold text-base text-foreground">
+                                    {newPrice ? `$${parseFloat(newPrice).toFixed(0)}` : '—'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Input and Submit */}
+                              <div className="space-y-2.5">
+                                {/* Price Input */}
+                                <div>
+                                  <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                    Nuevo monto
+                                  </label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-secondary">
+                                      $
+                                    </span>
+                                    <input
+                                      type="number"
+                                      value={newPrice}
+                                      onChange={(e) => setNewPrice(e.target.value)}
+                                      placeholder="0.00"
+                                      step="0.01"
+                                      min="0"
+                                      className="w-full pl-7 pr-3 py-2.5 border-2 border-border/50 rounded-lg font-paragraph text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Optional Message */}
+                                <div>
+                                  <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                    Nota (opcional)
+                                  </label>
+                                  <textarea
+                                    placeholder="Ej: Presupuesto ajustado..."
+                                    className="w-full px-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
+                                    rows={2}
+                                  />
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-2 pt-1">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                      handleSendRenegotiationOffer();
+                                      setOpenRenegotiatePopover(false);
+                                    }}
+                                    className="flex-1 px-3 py-2 rounded-lg font-paragraph font-bold text-xs transition-all bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg"
+                                  >
+                                    Enviar
+                                  </motion.button>
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setOpenRenegotiatePopover(false)}
+                                    className="flex-1 px-3 py-2 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                  >
+                                    Cancelar
+                                  </motion.button>
+                                </div>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
@@ -558,15 +651,104 @@ export default function InboxPage() {
                       </>
                     ) : (
                       <>
-                        <motion.button
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
-                        >
-                          <DollarSign size={14} />
-                          <span className="hidden sm:inline">Renegociar</span>
-                        </motion.button>
+                        <Popover open={openRenegotiatePopover} onOpenChange={setOpenRenegotiatePopover}>
+                          <PopoverTrigger asChild>
+                            <motion.button
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                            >
+                              <DollarSign size={14} />
+                              <span className="hidden sm:inline">Renegociar</span>
+                            </motion.button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
+                            <div className="p-4 space-y-3">
+                              {/* Header */}
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
+                                  <DollarSign size={16} className="text-primary" />
+                                  Proponer nuevo monto
+                                </h3>
+                              </div>
+
+                              {/* Price Comparison */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="p-2.5 rounded-lg border-2 bg-primary/5 border-primary/20">
+                                  <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                                  <p className="font-heading font-bold text-base text-primary">
+                                    $500
+                                  </p>
+                                </div>
+                                <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
+                                  <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                                  <p className="font-heading font-bold text-base text-foreground">
+                                    {newPrice ? `$${parseFloat(newPrice).toFixed(0)}` : '—'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Input and Submit */}
+                              <div className="space-y-2.5">
+                                {/* Price Input */}
+                                <div>
+                                  <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                    Nuevo monto
+                                  </label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-primary">
+                                      $
+                                    </span>
+                                    <input
+                                      type="number"
+                                      value={newPrice}
+                                      onChange={(e) => setNewPrice(e.target.value)}
+                                      placeholder="0.00"
+                                      step="0.01"
+                                      min="0"
+                                      className="w-full pl-7 pr-3 py-2.5 border-2 border-border/50 rounded-lg font-paragraph text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Optional Message */}
+                                <div>
+                                  <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
+                                    Nota (opcional)
+                                  </label>
+                                  <textarea
+                                    placeholder="Ej: Presupuesto ajustado..."
+                                    className="w-full px-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
+                                    rows={2}
+                                  />
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-2 pt-1">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                      handleSendRenegotiationOffer();
+                                      setOpenRenegotiatePopover(false);
+                                    }}
+                                    className="flex-1 px-3 py-2 rounded-lg font-paragraph font-bold text-xs transition-all bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg"
+                                  >
+                                    Enviar
+                                  </motion.button>
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setOpenRenegotiatePopover(false)}
+                                    className="flex-1 px-3 py-2 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                  >
+                                    Cancelar
+                                  </motion.button>
+                                </div>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
@@ -586,109 +768,6 @@ export default function InboxPage() {
                       </>
                     )}
                   </motion.div>
-
-                  {/* Renegotiate Panel - Inline Accordion */}
-                  <AnimatePresence>
-                    {showRenegotiatePanel && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
-                      >
-                        <div className="p-4 space-y-3">
-                          {/* Header */}
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
-                              <DollarSign size={16} className={userRole === 'joseador' ? 'text-secondary' : 'text-primary'} />
-                              Proponer nuevo monto
-                            </h3>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => setShowRenegotiatePanel(false)}
-                              className="p-1 rounded-lg hover:bg-white/50 transition-colors text-muted-text"
-                            >
-                              <X size={16} />
-                            </motion.button>
-                          </div>
-
-                          {/* Price Comparison - Compact */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className={`p-2.5 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
-                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                              <p className={`font-heading font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                $500
-                              </p>
-                            </div>
-                            <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
-                              <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
-                              <p className="font-heading font-bold text-base text-foreground">
-                                {newPrice ? `${parseFloat(newPrice).toFixed(0)}` : '—'}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Input and Submit */}
-                          <div className="space-y-2.5">
-                            {/* Price Input - Desktop Optimized */}
-                            <div>
-                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
-                                Nuevo monto
-                              </label>
-                              <div className="relative">
-                                <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                  $
-                                </span>
-                                <input
-                                  type="number"
-                                  value={newPrice}
-                                  onChange={(e) => setNewPrice(e.target.value)}
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  min="0"
-                                  className="w-full pl-7 pr-3 py-2.5 border-2 border-border/50 rounded-lg font-paragraph text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Optional Message - Compact */}
-                            <div>
-                              <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
-                                Nota (opcional)
-                              </label>
-                              <textarea
-                                placeholder="Ej: Presupuesto ajustado..."
-                                className="w-full px-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
-                                rows={2}
-                              />
-                            </div>
-
-                            {/* Action Buttons - Compact */}
-                            <div className="flex gap-2 pt-1">
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={handleSendRenegotiationOffer}
-                                className={`flex-1 px-3 py-2 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
-                              >
-                                Enviar
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setShowRenegotiatePanel(false)}
-                                className="flex-1 px-3 py-2 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
-                              >
-                                Cancelar
-                              </motion.button>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
                   {/* Messages Area */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white/50 to-white/30">
@@ -939,15 +1018,104 @@ export default function InboxPage() {
                     >
                       {userRole === 'joseador' ? (
                         <>
-                          <motion.button
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
-                          >
-                            <DollarSign size={12} />
-                            <span className="hidden xs:inline">Renegociar</span>
-                          </motion.button>
+                          <Popover open={openRenegotiatePopover} onOpenChange={setOpenRenegotiatePopover}>
+                            <PopoverTrigger asChild>
+                              <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                              >
+                                <DollarSign size={12} />
+                                <span className="hidden xs:inline">Renegociar</span>
+                              </motion.button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
+                              <div className="p-3 space-y-2.5">
+                                {/* Header */}
+                                <div className="flex items-center justify-between">
+                                  <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
+                                    <DollarSign size={14} className="text-secondary" />
+                                    Proponer nuevo monto
+                                  </h3>
+                                </div>
+
+                                {/* Price Comparison */}
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  <div className="p-2 rounded-lg border-2 bg-secondary/5 border-secondary/20">
+                                    <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                                    <p className="font-heading font-bold text-sm text-secondary">
+                                      $500
+                                    </p>
+                                  </div>
+                                  <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
+                                    <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                                    <p className="font-heading font-bold text-sm text-foreground">
+                                      {newPrice ? `$${parseFloat(newPrice).toFixed(0)}` : '—'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Input and Submit */}
+                                <div className="space-y-2">
+                                  {/* Price Input */}
+                                  <div>
+                                    <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                      Nuevo monto
+                                    </label>
+                                    <div className="relative">
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-secondary">
+                                        $
+                                      </span>
+                                      <input
+                                        type="number"
+                                        value={newPrice}
+                                        onChange={(e) => setNewPrice(e.target.value)}
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full pl-6 pr-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs font-semibold focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Optional Message */}
+                                  <div>
+                                    <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                      Nota (opcional)
+                                    </label>
+                                    <textarea
+                                      placeholder="Ej: Presupuesto ajustado..."
+                                      className="w-full px-2.5 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
+                                      rows={2}
+                                    />
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex gap-2 pt-0.5">
+                                    <motion.button
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => {
+                                        handleSendRenegotiationOffer();
+                                        setOpenRenegotiatePopover(false);
+                                      }}
+                                      className="flex-1 px-2.5 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg"
+                                    >
+                                      Enviar
+                                    </motion.button>
+                                    <motion.button
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => setOpenRenegotiatePopover(false)}
+                                      className="flex-1 px-2.5 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                    >
+                                      Cancelar
+                                    </motion.button>
+                                  </div>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
@@ -967,15 +1135,104 @@ export default function InboxPage() {
                         </>
                       ) : (
                         <>
-                          <motion.button
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setShowRenegotiatePanel(!showRenegotiatePanel)}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
-                          >
-                            <DollarSign size={12} />
-                            <span className="hidden xs:inline">Renegociar</span>
-                          </motion.button>
+                          <Popover open={openRenegotiatePopover} onOpenChange={setOpenRenegotiatePopover}>
+                            <PopoverTrigger asChild>
+                              <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                              >
+                                <DollarSign size={12} />
+                                <span className="hidden xs:inline">Renegociar</span>
+                              </motion.button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
+                              <div className="p-3 space-y-2.5">
+                                {/* Header */}
+                                <div className="flex items-center justify-between">
+                                  <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
+                                    <DollarSign size={14} className="text-primary" />
+                                    Proponer nuevo monto
+                                  </h3>
+                                </div>
+
+                                {/* Price Comparison */}
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  <div className="p-2 rounded-lg border-2 bg-primary/5 border-primary/20">
+                                    <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
+                                    <p className="font-heading font-bold text-sm text-primary">
+                                      $500
+                                    </p>
+                                  </div>
+                                  <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
+                                    <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
+                                    <p className="font-heading font-bold text-sm text-foreground">
+                                      {newPrice ? `$${parseFloat(newPrice).toFixed(0)}` : '—'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Input and Submit */}
+                                <div className="space-y-2">
+                                  {/* Price Input */}
+                                  <div>
+                                    <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                      Nuevo monto
+                                    </label>
+                                    <div className="relative">
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-primary">
+                                        $
+                                      </span>
+                                      <input
+                                        type="number"
+                                        value={newPrice}
+                                        onChange={(e) => setNewPrice(e.target.value)}
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full pl-6 pr-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs font-semibold focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Optional Message */}
+                                  <div>
+                                    <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
+                                      Nota (opcional)
+                                    </label>
+                                    <textarea
+                                      placeholder="Ej: Presupuesto ajustado..."
+                                      className="w-full px-2.5 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
+                                      rows={2}
+                                    />
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex gap-2 pt-0.5">
+                                    <motion.button
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => {
+                                        handleSendRenegotiationOffer();
+                                        setOpenRenegotiatePopover(false);
+                                      }}
+                                      className="flex-1 px-2.5 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg"
+                                    >
+                                      Enviar
+                                    </motion.button>
+                                    <motion.button
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => setOpenRenegotiatePopover(false)}
+                                      className="flex-1 px-2.5 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
+                                    >
+                                      Cancelar
+                                    </motion.button>
+                                  </div>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
@@ -995,109 +1252,6 @@ export default function InboxPage() {
                         </>
                       )}
                     </motion.div>
-
-                    {/* Renegotiate Panel - Inline Accordion (Mobile) */}
-                    <AnimatePresence>
-                      {showRenegotiatePanel && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden border-b border-border/50 bg-gradient-to-r from-secondary/5 via-accent/5 to-secondary/5"
-                        >
-                          <div className="p-3 space-y-2.5">
-                            {/* Header */}
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
-                                <DollarSign size={14} className={userRole === 'joseador' ? 'text-secondary' : 'text-primary'} />
-                                Proponer nuevo monto
-                              </h3>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setShowRenegotiatePanel(false)}
-                                className="p-1 rounded-lg hover:bg-white/50 transition-colors text-muted-text"
-                              >
-                                <X size={14} />
-                              </motion.button>
-                            </div>
-
-                            {/* Price Comparison - Compact Mobile */}
-                            <div className="grid grid-cols-2 gap-1.5">
-                              <div className={`p-2 rounded-lg border-2 ${ userRole === 'joseador' ? 'bg-secondary/5 border-secondary/20' : 'bg-primary/5 border-primary/20' }`}>
-                                <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                                <p className={`font-heading font-bold text-sm ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                  $500
-                                </p>
-                              </div>
-                              <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
-                                <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
-                                <p className="font-heading font-bold text-sm text-foreground">
-                                  {newPrice ? `${parseFloat(newPrice).toFixed(0)}` : '—'}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Input and Submit */}
-                            <div className="space-y-2">
-                              {/* Price Input - Optimized Mobile */}
-                              <div>
-                                <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
-                                  Nuevo monto
-                                </label>
-                                <div className="relative">
-                                  <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm ${ userRole === 'joseador' ? 'text-secondary' : 'text-primary' }`}>
-                                    $
-                                  </span>
-                                  <input
-                                    type="number"
-                                    value={newPrice}
-                                    onChange={(e) => setNewPrice(e.target.value)}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0"
-                                    className="w-full pl-6 pr-3 py-2 border-2 border-border/50 rounded-lg font-paragraph text-xs font-semibold focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all placeholder:text-muted-text/40"
-                                  />
-                                </div>
-                              </div>
-
-                              {/* Optional Message - Compact Mobile */}
-                              <div>
-                                <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
-                                  Nota (opcional)
-                                </label>
-                                <textarea
-                                  placeholder="Ej: Presupuesto ajustado..."
-                                  className="w-full px-2.5 py-1.5 border-2 border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:border-transparent bg-white transition-all resize-none placeholder:text-muted-text/40"
-                                  rows={2}
-                                />
-                              </div>
-
-                              {/* Action Buttons - Compact Mobile */}
-                              <div className="flex gap-2 pt-0.5">
-                                <motion.button
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={handleSendRenegotiationOffer}
-                                  className={`flex-1 px-2.5 py-1.5 rounded-lg font-paragraph font-bold text-xs transition-all ${ userRole === 'joseador' ? 'bg-gradient-to-r from-secondary to-accent text-white hover:shadow-lg' : 'bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg' }`}
-                                >
-                                  Enviar
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => setShowRenegotiatePanel(false)}
-                                  className="flex-1 px-2.5 py-1.5 bg-white border-2 border-border rounded-lg font-paragraph font-bold text-xs text-foreground hover:bg-background transition-all"
-                                >
-                                  Cancelar
-                                </motion.button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
 
                     {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-white/50 to-white/30">
