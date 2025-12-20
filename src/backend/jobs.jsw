@@ -1,4 +1,4 @@
-import { query, get, insert, update } from 'wix-data';
+import wixData from 'wix-data';
 import { getLoggedInMember } from 'wix-members-backend';
 
 // ============================================================================
@@ -21,7 +21,7 @@ async function getCurrentUserId() {
  * Validate user belongs to job (either as client or joseador)
  */
 async function validateUserBelongsToJob(jobOrderId, userId) {
-  const job = await get('joborders', jobOrderId);
+  const job = await wixData.get('joborders', jobOrderId);
   if (!job) {
     throw new Error('Job not found');
   }
@@ -35,7 +35,7 @@ async function validateUserBelongsToJob(jobOrderId, userId) {
  * Check if active completion attempt exists for job
  */
 async function checkActiveAttemptExists(jobOrderId) {
-  const attempts = await query('completionattempts')
+  const attempts = await wixData.query('completionattempts')
     .eq('jobOrderId', jobOrderId)
     .eq('status', 'active')
     .find();
@@ -47,7 +47,7 @@ async function checkActiveAttemptExists(jobOrderId) {
  */
 async function checkRateLimitRejections(userId) {
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-  const recentRejections = await query('rejections')
+  const recentRejections = await wixData.query('rejections')
     .eq('createdByUserId', userId)
     .gt('createdAt', fiveMinutesAgo)
     .find();
@@ -62,7 +62,7 @@ async function checkRateLimitRejections(userId) {
  */
 async function createJobEvent(jobOrderId, actorId, action, meta = {}) {
   const eventId = Math.random().toString(36).substr(2, 9);
-  await insert('jobevents', {
+  await wixData.insert('jobevents', {
     _id: eventId,
     jobOrderId,
     actorId,
@@ -77,7 +77,7 @@ async function createJobEvent(jobOrderId, actorId, action, meta = {}) {
  */
 async function createAuditLog(actionType, actorId, targetResourceType, targetResourceId, details = '') {
   const logId = Math.random().toString(36).substr(2, 9);
-  await insert('auditlogs', {
+  await wixData.insert('auditlogs', {
     _id: logId,
     actionType,
     actorId,
@@ -105,7 +105,7 @@ export async function getJobContext(threadId) {
     }
 
     // Find job by threadId
-    const jobs = await query('joborders')
+    const jobs = await wixData.query('joborders')
         .eq('threadId', threadId)
         .find();
 
@@ -123,7 +123,7 @@ export async function getJobContext(threadId) {
       // Get active completion attempt if exists
       let activeAttempt = null;
       if (job.activeCompletionAttemptId) {
-        activeAttempt = await get('completionattempts', job.activeCompletionAttemptId);
+        activeAttempt = await wixData.get('completionattempts', job.activeCompletionAttemptId);
       }
 
       return {
@@ -201,13 +201,13 @@ export async function proposeCompletion(params) {
         status: 'active',
         createdAt: new Date(),
       };
-      await insert('completionattempts', attempt);
+      await wixData.insert('completionattempts', attempt);
 
       // Save attachments
       if (attachments && attachments.length > 0) {
         for (const att of attachments) {
           const attId = Math.random().toString(36).substr(2, 9);
-          await insert('completionattachments', {
+          await wixData.insert('completionattachments', {
             _id: attId,
             completionAttemptId: attemptId,
             fileUrl: att.fileUrl,
@@ -220,7 +220,7 @@ export async function proposeCompletion(params) {
       }
 
       // Update JobOrder status and activeCompletionAttemptId
-      await update('joborders', {
+      await wixData.update('joborders', {
         _id: jobOrderId,
         status: 'COMPLETION_PROPOSED',
         activeCompletionAttemptId: attemptId,
@@ -267,7 +267,7 @@ export async function acceptCompletion(params) {
       if (!completionAttemptId) throw new Error('completionAttemptId is required');
 
       // Get attempt
-      const attempt = await get('completionattempts', completionAttemptId);
+      const attempt = await wixData.get('completionattempts', completionAttemptId);
       if (!attempt) {
         throw new Error('Completion attempt not found');
       }
@@ -285,13 +285,13 @@ export async function acceptCompletion(params) {
       }
 
       // Update attempt status
-      await update('completionattempts', {
+      await wixData.update('completionattempts', {
         _id: completionAttemptId,
         status: 'accepted',
       });
 
       // Update job: status = COMPLETED, clear activeCompletionAttemptId
-      await update('joborders', {
+      await wixData.update('joborders', {
         _id: attempt.jobOrderId,
         status: 'COMPLETED',
         activeCompletionAttemptId: null,
@@ -360,7 +360,7 @@ export async function rejectUnified(params) {
       const job = await validateUserBelongsToJob(jobOrderId, userId);
 
       // Get rejection reason from catalog
-      const reasons = await query('rejectreasons')
+      const reasons = await wixData.query('rejectreasons')
         .eq('reasonCode', reasonCode)
         .eq('context', context)
         .find();
@@ -390,7 +390,7 @@ export async function rejectUnified(params) {
         }
 
         // Get and validate attempt
-        const attempt = await get('completionattempts', completionAttemptId);
+        const attempt = await wixData.get('completionattempts', completionAttemptId);
         if (!attempt) {
           throw new Error('Completion attempt not found');
         }
@@ -417,13 +417,13 @@ export async function rejectUnified(params) {
         createdByUserId: userId,
         createdAt: new Date(),
       };
-      await insert('rejections', rejection);
+      await wixData.insert('rejections', rejection);
 
       // Save rejection attachments
       if (attachments && attachments.length > 0) {
         for (const att of attachments) {
           const attId = Math.random().toString(36).substr(2, 9);
-          await insert('rejectionattachments', {
+          await wixData.insert('rejectionattachments', {
             _id: attId,
             rejectionId,
             fileUrl: att.fileUrl,
@@ -437,13 +437,13 @@ export async function rejectUnified(params) {
       // Handle COMPLETION context: update attempt and job status
       if (context === 'COMPLETION') {
         // Update attempt status
-        await update('completionattempts', {
+        await wixData.update('completionattempts', {
           _id: completionAttemptId,
           status: 'rejected',
         });
 
         // Update job status to outcome
-        await update('joborders', {
+        await wixData.update('joborders', {
           _id: jobOrderId,
           status: outcome,
           activeCompletionAttemptId: null,
@@ -497,7 +497,7 @@ export async function getJobTimeline(jobOrderId) {
     await validateUserBelongsToJob(jobOrderId, userId);
 
       // Get all events
-      const events = await query('jobevents')
+      const events = await wixData.query('jobevents')
         .eq('jobOrderId', jobOrderId)
         .ascending('createdAt')
         .find();
