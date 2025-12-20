@@ -22,6 +22,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Image } from '@/components/ui/image';
+import ReportModal from '@/components/ReportModal';
 
 interface Chat {
   id: string;
@@ -72,6 +73,7 @@ export default function InboxPage() {
   const [selectedUserInfo, setSelectedUserInfo] = useState<UserInfo | null>(null);
   const [newPrice, setNewPrice] = useState('');
   const [openRenegotiatePopover, setOpenRenegotiatePopover] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -635,6 +637,7 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowReportModal(true)}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-secondary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
                         >
                           <AlertCircle size={14} />
@@ -1119,6 +1122,7 @@ export default function InboxPage() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowReportModal(true)}
                             className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-secondary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
                           >
                             <AlertCircle size={12} />
@@ -1353,6 +1357,19 @@ export default function InboxPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Report Modal */}
+      <ReportModal
+        open={showReportModal}
+        onOpenChange={setShowReportModal}
+        targetUserId={selectedChatData?.otherUserId || ''}
+        threadId={selectedChat || ''}
+        jobOrderId=""
+        messages={messages}
+        onSuccess={() => {
+          // Optionally refresh chats or show success message
+        }}
+      />
 
       {/* User Info Modal */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

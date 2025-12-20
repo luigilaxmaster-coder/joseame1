@@ -1,0 +1,328 @@
+import { getLoggedInMember } from 'wix-members-backend';
+import { query, insert } from 'wix-data';
+
+// Rate limiting: max 5 reports per 5 minutes per user
+const RATE_LIMIT_REPORTS = 5;
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Validates that a user is logged in
+ */
+async function validateLogin() {
+  try {
+    const member = await getLoggedInMember();
+    if (!member) {
+      throw new Error('User not authenticated');
+    }
+    return member;
+  } catch (error) {
+    throw new Error('Authentication failed: ' + error.message);
+  }
+}
+
+/**
+ * Checks rate limit for report submissions
+ */
+async function checkRateLimit(reporterId) {
+  try {
+    const fiveMinutesAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
+    
+    const recentReports = await query('userreports')
+      .eq('reporterId', reporterId)
+      .gt('createdAt', fiveMinutesAgo)
+      .find();
+    
+    if (recentReports.items.length >= RATE_LIMIT_REPORTS) {
+      throw new Error(`Rate limit exceeded. Maximum ${RATE_LIMIT_REPORTS} reports per 5 minutes.`);
+    }
+  } catch (error) {
+    if (error.message.includes('Rate limit')) {
+      throw error;
+    }
+    // If query fails, allow the submission (don't block on rate limit check failure)
+    console.error('Rate limit check error:', error);
+  }
+}
+
+/**
+ * Checks for duplicate active reports
+ */
+async function checkDuplicateReport(reporterId, targetUserId, jobOrderId) {
+  try {
+    const duplicateReports = await query('userreports')
+      .eq('reporterId', reporterId)
+      .eq('targetUserId', targetUserId)
+      .eq('jobOrderId', jobOrderId)
+      .eq('status', 'open')
+      .find();
+    
+    if (duplicateReports.items.length > 0) {
+      throw new Error('An active report already exists for this user and job order.');
+    }
+  } catch (error) {
+    if (error.message.includes('already exists')) {
+      throw error;
+    }
+    console.error('Duplicate check error:', error);
+  }
+}
+
+/**
+ * Main function to submit a report
+ * @param {Object} payload - Report submission payload
+ * @returns {Object} - Result with reportId and success status
+ */
+export async function submitReport(payload) {
+  try {
+    // Validate login
+    const member = await validateLogin();
+    const reporterId = member._id;
+
+    // Validate required fields
+    if (!payload.category || !payload.reasonCode || !payload.description) {
+      throw new Error('Missing required fields: category, reasonCode, description');
+    }
+
+    if (payload.description.length < 20) {
+      throw new Error('Description must be at least 20 characters long');
+    }
+
+    if (!payload.targetUserId) {
+      throw new Error('Target user ID is required');
+    }
+
+    // Check rate limit
+    await checkRateLimit(reporterId);
+
+    // Check for duplicate active reports
+    await checkDuplicateReport(reporterId, payload.targetUserId, payload.jobOrderId);
+
+    // Create report record
+    const reportId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const reportData = {
+      _id: reportId,
+      category: payload.category,
+      reasonCode: payload.reasonCode,
+      reasonLabelSnapshot: payload.reasonLabelSnapshot || payload.reasonCode,
+      severity: payload.severity || 1,
+      priority: payload.priority || 1,
+      description: payload.description,
+      reporterId: reporterId,
+      targetUserId: payload.targetUserId,
+      threadId: payload.threadId || '',
+      jobOrderId: payload.jobOrderId || '',
+      messageIds: payload.messageIds ? payload.messageIds.join(',') : '',
+      status: 'open',
+      assignedTo: '',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    // Insert report
+    await insert('userreports', reportData);
+
+    // Insert attachments if provided
+    if (payload.attachments && payload.attachments.length > 0) {
+      for (const attachment of payload.attachments) {
+        const attachmentId = crypto.randomUUID();
+        const attachmentData = {
+          _id: attachmentId,
+          fileName: attachment.fileName,
+          fileUrl: attachment.fileUrl,
+          fileSize: attachment.fileSize || 0,
+          fileType: attachment.fileType || 'unknown',
+          uploadDate: now,
+          isEvidence: true,
+        };
+        await insert('reportattachments', attachmentData);
+      }
+    }
+
+    // Create initial report event
+    const eventId = crypto.randomUUID();
+    const eventData = {
+      _id: eventId,
+      reportId: reportId,
+      actionType: 'created',
+      performedByUserId: reporterId,
+      performedAt: now,
+      oldValue: '',
+      newValue: 'open',
+      comment: 'Report created',
+    };
+    await insert('reportevents', eventData);
+
+    // Create audit log entry
+    const auditId = crypto.randomUUID();
+    const auditData = {
+      _id: auditId,
+      actionType: 'REPORT_CREATED',
+      actorId: reporterId,
+      targetResourceType: 'Report',
+      targetResourceId: reportId,
+      timestamp: now,
+      details: JSON.stringify({
+        category: payload.category,
+        targetUserId: payload.targetUserId,
+        severity: payload.severity,
+      }),
+    };
+    await insert('auditlogs', auditData);
+
+    return {
+      success: true,
+      reportId: reportId,
+      message: 'Report submitted successfully',
+    };
+  } catch (error) {
+    console.error('Error submitting report:', error);
+    throw new Error('Failed to submit report: ' + error.message);
+  }
+}
+
+/**
+ * Get report details by ID
+ */
+export async function getReportDetails(reportId) {
+  try {
+    const member = await validateLogin();
+    
+    const report = await query('userreports')
+      .eq('_id', reportId)
+      .find();
+    
+    if (report.items.length === 0) {
+      throw new Error('Report not found');
+    }
+
+    const reportData = report.items[0];
+
+    // Check permissions - user can view if they're the reporter or an admin
+    if (reportData.reporterId !== member._id && member.role !== 'admin') {
+      throw new Error('Unauthorized to view this report');
+    }
+
+    return reportData;
+  } catch (error) {
+    console.error('Error getting report details:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update report status
+ */
+export async function updateReportStatus(reportId, newStatus, comment) {
+  try {
+    const member = await validateLogin();
+    
+    // Verify user is admin
+    if (member.role !== 'admin' && member.role !== 'moderator') {
+      throw new Error('Only admins and moderators can update report status');
+    }
+
+    const now = new Date().toISOString();
+
+    // Update report
+    await query('userreports')
+      .eq('_id', reportId)
+      .update({
+        status: newStatus,
+        updatedAt: now,
+      });
+
+    // Create event
+    const eventId = crypto.randomUUID();
+    const eventData = {
+      _id: eventId,
+      reportId: reportId,
+      actionType: 'status_changed',
+      performedByUserId: member._id,
+      performedAt: now,
+      oldValue: 'previous_status',
+      newValue: newStatus,
+      comment: comment || '',
+    };
+    await insert('reportevents', eventData);
+
+    // Create audit log
+    const auditId = crypto.randomUUID();
+    const auditData = {
+      _id: auditId,
+      actionType: 'REPORT_STATUS_UPDATED',
+      actorId: member._id,
+      targetResourceType: 'Report',
+      targetResourceId: reportId,
+      timestamp: now,
+      details: JSON.stringify({ newStatus, comment }),
+    };
+    await insert('auditlogs', auditData);
+
+    return { success: true, message: 'Report status updated' };
+  } catch (error) {
+    console.error('Error updating report status:', error);
+    throw error;
+  }
+}
+
+/**
+ * Apply sanction to user
+ */
+export async function applySanction(targetUserId, sanctionType, reason, duration) {
+  try {
+    const member = await validateLogin();
+    
+    // Verify user is admin
+    if (member.role !== 'admin' && member.role !== 'moderator') {
+      throw new Error('Only admins and moderators can apply sanctions');
+    }
+
+    const now = new Date();
+    const sanctionId = crypto.randomUUID();
+    let endDate = null;
+    let isPermanent = false;
+
+    if (sanctionType === 'banned' || sanctionType === 'suspended') {
+      if (duration === 'permanent') {
+        isPermanent = true;
+      } else if (duration) {
+        endDate = new Date(now.getTime() + duration);
+      }
+    }
+
+    const sanctionData = {
+      _id: sanctionId,
+      sanctionType: sanctionType,
+      targetUserId: targetUserId,
+      sanctionReason: reason,
+      appliedBy: member._id,
+      appliedAt: now.toISOString(),
+      startDate: now.toISOString(),
+      endDate: endDate ? endDate.toISOString() : null,
+      status: 'active',
+      isPermanent: isPermanent,
+    };
+
+    await insert('usersanctions', sanctionData);
+
+    // Create audit log
+    const auditId = crypto.randomUUID();
+    const auditData = {
+      _id: auditId,
+      actionType: 'SANCTION_APPLIED',
+      actorId: member._id,
+      targetResourceType: 'User',
+      targetResourceId: targetUserId,
+      timestamp: now.toISOString(),
+      details: JSON.stringify({ sanctionType, reason, isPermanent }),
+    };
+    await insert('auditlogs', auditData);
+
+    return { success: true, sanctionId: sanctionId };
+  } catch (error) {
+    console.error('Error applying sanction:', error);
+    throw error;
+  }
+}

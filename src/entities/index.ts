@@ -4,6 +4,29 @@
  */
 
 /**
+ * Collection ID: auditlogs
+ * Interface for SystemAuditLogs
+ */
+export interface SystemAuditLogs {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  actionType?: string;
+  /** @wixFieldType text */
+  actorId?: string;
+  /** @wixFieldType text */
+  targetResourceType?: string;
+  /** @wixFieldType text */
+  targetResourceId?: string;
+  /** @wixFieldType datetime */
+  timestamp?: Date | string;
+  /** @wixFieldType text */
+  details?: string;
+}
+
+
+/**
  * Collection ID: jobapplications
  * Interface for JobApplications
  */
@@ -237,6 +260,81 @@ export interface RenegotiationOffers {
 
 
 /**
+ * Collection ID: reportattachments
+ * Interface for ReportAttachments
+ */
+export interface ReportAttachments {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  fileName?: string;
+  /** @wixFieldType url */
+  fileUrl?: string;
+  /** @wixFieldType number */
+  fileSize?: number;
+  /** @wixFieldType text */
+  fileType?: string;
+  /** @wixFieldType datetime */
+  uploadDate?: Date | string;
+  /** @wixFieldType boolean */
+  isEvidence?: boolean;
+  /** @wixFieldType multi_reference */
+  userreports?: UserReports[];
+}
+
+
+/**
+ * Collection ID: reportevents
+ * Interface for ReportEvents
+ */
+export interface ReportEvents {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  reportId?: string;
+  /** @wixFieldType text */
+  actionType?: string;
+  /** @wixFieldType text */
+  performedByUserId?: string;
+  /** @wixFieldType datetime */
+  performedAt?: Date | string;
+  /** @wixFieldType text */
+  oldValue?: string;
+  /** @wixFieldType text */
+  newValue?: string;
+  /** @wixFieldType text */
+  comment?: string;
+  /** @wixFieldType multi_reference */
+  userreports?: UserReports[];
+}
+
+
+/**
+ * Collection ID: reportreasons
+ * Interface for ReportReasons
+ */
+export interface ReportReasons {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  label?: string;
+  /** @wixFieldType number */
+  severity?: number;
+  /** @wixFieldType boolean */
+  requiresEvidence?: boolean;
+  /** @wixFieldType number */
+  autoPriority?: number;
+}
+
+
+/**
  * Collection ID: servicejobs
  * Interface for TrabajosdeServicio
  */
@@ -314,6 +412,86 @@ export interface UserRatings {
 
 
 /**
+ * Collection ID: userreports
+ * Interface for UserReports
+ */
+export interface UserReports {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType reference */
+  reportreason?: ReportReasons;
+  /** @wixFieldType multi_reference */
+  sanctions?: UserSanctions[];
+  /** @wixFieldType multi_reference */
+  events?: ReportEvents[];
+  /** @wixFieldType multi_reference */
+  attachments?: ReportAttachments[];
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  reasonLabelSnapshot?: string;
+  /** @wixFieldType number */
+  severity?: number;
+  /** @wixFieldType number */
+  priority?: number;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType text */
+  reporterId?: string;
+  /** @wixFieldType text */
+  targetUserId?: string;
+  /** @wixFieldType text */
+  threadId?: string;
+  /** @wixFieldType text */
+  jobOrderId?: string;
+  /** @wixFieldType text */
+  messageIds?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType text */
+  assignedTo?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
+}
+
+
+/**
+ * Collection ID: usersanctions
+ * Interface for UserSanctions
+ */
+export interface UserSanctions {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  sanctionType?: string;
+  /** @wixFieldType text */
+  targetUserId?: string;
+  /** @wixFieldType text */
+  sanctionReason?: string;
+  /** @wixFieldType text */
+  appliedBy?: string;
+  /** @wixFieldType datetime */
+  appliedAt?: Date | string;
+  /** @wixFieldType datetime */
+  startDate?: Date | string;
+  /** @wixFieldType datetime */
+  endDate?: Date | string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType boolean */
+  isPermanent?: boolean;
+  /** @wixFieldType multi_reference */
+  userreports?: UserReports[];
+}
+
+
+/**
  * Collection ID: userverification
  * Interface for UserVerification
  */
@@ -333,4 +511,162 @@ export interface UserVerification {
   verificationDate?: Date | string;
   /** @wixFieldType text */
   verifiedByAdmin?: string;
+}
+
+/**
+ * Collection ID: reportreasons
+ * Interface for ReportReasons
+ */
+export interface ReportReasons {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  label?: string;
+  /** @wixFieldType number */
+  severity?: number;
+  /** @wixFieldType boolean */
+  requiresEvidence?: boolean;
+  /** @wixFieldType number */
+  autoPriority?: number;
+}
+
+/**
+ * Collection ID: userreports
+ * Interface for UserReports
+ */
+export interface UserReports {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  reasonLabelSnapshot?: string;
+  /** @wixFieldType number */
+  severity?: number;
+  /** @wixFieldType number */
+  priority?: number;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType text */
+  reporterId?: string;
+  /** @wixFieldType text */
+  targetUserId?: string;
+  /** @wixFieldType text */
+  threadId?: string;
+  /** @wixFieldType text */
+  jobOrderId?: string;
+  /** @wixFieldType text */
+  messageIds?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType text */
+  assignedTo?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
+}
+
+/**
+ * Collection ID: reportattachments
+ * Interface for ReportAttachments
+ */
+export interface ReportAttachments {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  fileName?: string;
+  /** @wixFieldType url */
+  fileUrl?: string;
+  /** @wixFieldType number */
+  fileSize?: number;
+  /** @wixFieldType text */
+  fileType?: string;
+  /** @wixFieldType datetime */
+  uploadDate?: Date | string;
+  /** @wixFieldType boolean */
+  isEvidence?: boolean;
+}
+
+/**
+ * Collection ID: reportevents
+ * Interface for ReportEvents
+ */
+export interface ReportEvents {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  reportId?: string;
+  /** @wixFieldType text */
+  actionType?: string;
+  /** @wixFieldType text */
+  performedByUserId?: string;
+  /** @wixFieldType datetime */
+  performedAt?: Date | string;
+  /** @wixFieldType text */
+  oldValue?: string;
+  /** @wixFieldType text */
+  newValue?: string;
+  /** @wixFieldType text */
+  comment?: string;
+}
+
+/**
+ * Collection ID: usersanctions
+ * Interface for UserSanctions
+ */
+export interface UserSanctions {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  sanctionType?: string;
+  /** @wixFieldType text */
+  targetUserId?: string;
+  /** @wixFieldType text */
+  sanctionReason?: string;
+  /** @wixFieldType text */
+  appliedBy?: string;
+  /** @wixFieldType datetime */
+  appliedAt?: Date | string;
+  /** @wixFieldType datetime */
+  startDate?: Date | string;
+  /** @wixFieldType datetime */
+  endDate?: Date | string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType boolean */
+  isPermanent?: boolean;
+}
+
+/**
+ * Collection ID: auditlogs
+ * Interface for AuditLogs
+ */
+export interface AuditLogs {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  actionType?: string;
+  /** @wixFieldType text */
+  actorId?: string;
+  /** @wixFieldType text */
+  targetResourceType?: string;
+  /** @wixFieldType text */
+  targetResourceId?: string;
+  /** @wixFieldType datetime */
+  timestamp?: Date | string;
+  /** @wixFieldType text */
+  details?: string;
 }
