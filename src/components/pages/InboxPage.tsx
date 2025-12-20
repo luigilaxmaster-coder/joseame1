@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
-  Calendar, MapPin, Sparkles, ChevronLeft
+  Calendar, MapPin, Sparkles, ChevronLeft, History
 } from 'lucide-react';
 import {
   Dialog,
@@ -27,6 +27,7 @@ import ReportModal from '@/components/ReportModal';
 import CompleteJobModal from '@/components/CompleteJobModal';
 import RejectJobModal from '@/components/RejectJobModal';
 import CompletionConfirmationBar from '@/components/CompletionConfirmationBar';
+import JobTimeline from '@/components/JobTimeline';
 
 interface Chat {
   id: string;
@@ -91,6 +92,9 @@ export default function InboxPage() {
   const [showCompletionBar, setShowCompletionBar] = useState(false);
   const [completionBarData, setCompletionBarData] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -225,6 +229,27 @@ export default function InboxPage() {
       description: 'Completion accepted successfully',
     });
     await refreshChatData();
+  };
+
+  const loadJobTimeline = async (jobOrderId: string) => {
+    try {
+      setTimelineLoading(true);
+      const response = await fetch(`/api/jobs/timeline?jobOrderId=${jobOrderId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTimelineEvents(data.events || []);
+      }
+    } catch (error) {
+      console.error('Error loading timeline:', error);
+      setTimelineEvents([]);
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
+  const handleShowTimeline = async (jobOrderId: string) => {
+    setShowTimeline(true);
+    await loadJobTimeline(jobOrderId);
   };
 
   const messages = selectedChat ? [
