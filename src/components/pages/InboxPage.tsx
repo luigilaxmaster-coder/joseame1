@@ -25,6 +25,7 @@ import { Image } from '@/components/ui/image';
 import ReportModal from '@/components/ReportModal';
 import CompleteJobModal from '@/components/CompleteJobModal';
 import RejectJobModal from '@/components/RejectJobModal';
+import RejectionConfirmationBar from '@/components/RejectionConfirmationBar';
 import CompletionConfirmationBar from '@/components/CompletionConfirmationBar';
 
 interface Chat {
@@ -84,6 +85,8 @@ export default function InboxPage() {
   const [jobOrderId, setJobOrderId] = useState<string>('');
   const [showCompletionBar, setShowCompletionBar] = useState(false);
   const [completionBarData, setCompletionBarData] = useState<any>(null);
+  const [showRejectionBar, setShowRejectionBar] = useState(false);
+  const [rejectionBarData, setRejectionBarData] = useState<any>(null);
 
   useEffect(() => {
     loadChats();
@@ -1389,6 +1392,64 @@ export default function InboxPage() {
           // Optionally refresh chats or show success message
         }}
       />
+
+      {/* Complete Job Modal */}
+      <CompleteJobModal
+        isOpen={showCompleteModal}
+        onClose={() => setShowCompleteModal(false)}
+        jobOrderId={jobOrderId}
+        threadId={selectedChat}
+        onSuccess={() => {
+          setShowCompleteModal(false);
+          loadChats();
+        }}
+      />
+
+      {/* Reject Job Modal */}
+      <RejectJobModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        jobOrderId={jobOrderId}
+        completionAttemptId={activeCompletionAttemptId || undefined}
+        context={rejectContext}
+        onSuccess={() => {
+          setShowRejectModal(false);
+          // Show rejection confirmation bar
+          setShowRejectionBar(true);
+          setRejectionBarData({
+            context: rejectContext,
+            reasonLabel: 'Rechazo registrado',
+          });
+          // Refresh chats after 2 seconds
+          setTimeout(() => {
+            loadChats();
+          }, 2000);
+        }}
+      />
+
+      {/* Rejection Confirmation Bar */}
+      <RejectionConfirmationBar
+        show={showRejectionBar}
+        context={rejectionBarData?.context || 'GENERAL'}
+        reasonLabel={rejectionBarData?.reasonLabel}
+        onDismiss={() => setShowRejectionBar(false)}
+      />
+
+      {/* Completion Confirmation Bar */}
+      {showCompletionBar && completionBarData && (
+        <CompletionConfirmationBar
+          completionAttemptId={activeCompletionAttemptId || ''}
+          jobOrderId={completionBarData.jobOrderId}
+          proposedByRole={completionBarData.proposedByRole || 'joseador'}
+          proposedByUserId={completionBarData.proposedByUserId || ''}
+          currentUserId={member?.profile?.nickname || ''}
+          onAccepted={() => {
+            setShowCompletionBar(false);
+            loadChats();
+          }}
+          onDismiss={() => setShowCompletionBar(false)}
+        />
+      )}
 
       {/* User Info Modal */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
