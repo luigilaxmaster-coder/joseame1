@@ -6,6 +6,7 @@ import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
 import { RenegotiationOffers, Messages, JobOrders } from '@/entities';
 import { useToast } from '@/hooks/use-toast';
+import { getJobTimeline } from '@/lib/jobs';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
@@ -234,10 +235,12 @@ export default function InboxPage() {
   const loadJobTimeline = async (jobOrderId: string) => {
     try {
       setTimelineLoading(true);
-      const response = await fetch(`/api/jobs/timeline?jobOrderId=${jobOrderId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setTimelineEvents(data.events || []);
+      const result = await getJobTimeline(jobOrderId);
+      if (result.ok && result.events) {
+        setTimelineEvents(result.events);
+      } else {
+        console.error('Error loading timeline:', result.error);
+        setTimelineEvents([]);
       }
     } catch (error) {
       console.error('Error loading timeline:', error);
