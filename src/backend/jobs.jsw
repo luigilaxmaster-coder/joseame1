@@ -1,5 +1,3 @@
-import { Permissions, webMethod } from 'wix-web-module';
-import { contacts } from 'wix-crm';
 import wixData from 'wix-data';
 import { getCurrentUser } from 'wix-members';
 
@@ -99,17 +97,15 @@ async function createAuditLog(actionType, actorId, targetResourceType, targetRes
  * Returns JobOrder + activeCompletionAttempt if exists
  * Validates current user belongs to job
  */
-export const getJobContext = webMethod(
-  Permissions.Anyone,
-  async (threadId) => {
-    try {
-      const userId = await getCurrentUserId();
-      if (!userId) {
-        throw new Error('UNAUTHORIZED: User not logged in');
-      }
+export async function getJobContext(threadId) {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      throw new Error('UNAUTHORIZED: User not logged in');
+    }
 
-      // Find job by threadId
-      const jobs = await wixData.query('joborders')
+    // Find job by threadId
+    const jobs = await wixData.query('joborders')
         .eq('threadId', threadId)
         .find();
 
@@ -157,16 +153,13 @@ export const getJobContext = webMethod(
       return { ok: false, error: e.message };
     }
   }
-);
 
 /**
  * proposeCompletion({ jobOrderId, note, attachments })
  * Creates CompletionAttempt + saves attachments + updates JobOrder status
  */
-export const proposeCompletion = webMethod(
-  Permissions.Anyone,
-  async (params) => {
-    try {
+export async function proposeCompletion(params) {
+  try {
       const userId = await getCurrentUserId();
       if (!userId) {
         throw new Error('UNAUTHORIZED: User not logged in');
@@ -258,18 +251,15 @@ export const proposeCompletion = webMethod(
       return { ok: false, error: e.message };
     }
   }
-);
 
 /**
  * acceptCompletion({ completionAttemptId })
  * Validates attempt exists, current user is NOT proposer, then accepts
  */
-export const acceptCompletion = webMethod(
-  Permissions.Anyone,
-  async (params) => {
-    try {
-      const userId = await getCurrentUserId();
-      if (!userId) {
+export async function acceptCompletion(params) {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
         throw new Error('UNAUTHORIZED: User not logged in');
       }
 
@@ -330,24 +320,21 @@ export const acceptCompletion = webMethod(
       return { ok: false, error: e.message };
     }
   }
-);
 
 /**
  * rejectUnified({ context, jobOrderId, completionAttemptId, reasonCode, description, outcome, attachments, blockUser })
  * Unified rejection for GENERAL and COMPLETION contexts
  */
-export const rejectUnified = webMethod(
-  Permissions.Anyone,
-  async (params) => {
-    try {
-      const userId = await getCurrentUserId();
-      if (!userId) {
-        throw new Error('UNAUTHORIZED: User not logged in');
-      }
+export async function rejectUnified(params) {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      throw new Error('UNAUTHORIZED: User not logged in');
+    }
 
-      const {
-        context,
-        jobOrderId,
+    const {
+      context,
+      jobOrderId,
         completionAttemptId,
         reasonCode,
         description,
@@ -494,23 +481,20 @@ export const rejectUnified = webMethod(
       return { ok: false, error: e.message };
     }
   }
-);
 
 /**
  * getJobTimeline(jobOrderId)
  * Returns all events for a job in chronological order
  */
-export const getJobTimeline = webMethod(
-  Permissions.Anyone,
-  async (jobOrderId) => {
-    try {
-      const userId = await getCurrentUserId();
-      if (!userId) {
-        throw new Error('UNAUTHORIZED: User not logged in');
-      }
+export async function getJobTimeline(jobOrderId) {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      throw new Error('UNAUTHORIZED: User not logged in');
+    }
 
-      // Validate user belongs to job
-      await validateUserBelongsToJob(jobOrderId, userId);
+    // Validate user belongs to job
+    await validateUserBelongsToJob(jobOrderId, userId);
 
       // Get all events
       const events = await wixData.query('jobevents')
@@ -532,4 +516,4 @@ export const getJobTimeline = webMethod(
       return { ok: false, error: e.message };
     }
   }
-);
+
