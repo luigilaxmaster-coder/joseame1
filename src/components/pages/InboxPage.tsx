@@ -23,6 +23,9 @@ import {
 } from '@/components/ui/popover';
 import { Image } from '@/components/ui/image';
 import ReportModal from '@/components/ReportModal';
+import CompleteJobModal from '@/components/CompleteJobModal';
+import RejectJobModal from '@/components/RejectJobModal';
+import CompletionConfirmationBar from '@/components/CompletionConfirmationBar';
 
 interface Chat {
   id: string;
@@ -74,6 +77,13 @@ export default function InboxPage() {
   const [newPrice, setNewPrice] = useState('');
   const [openRenegotiatePopover, setOpenRenegotiatePopover] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectContext, setRejectContext] = useState<'GENERAL' | 'COMPLETION'>('GENERAL');
+  const [activeCompletionAttemptId, setActiveCompletionAttemptId] = useState<string | null>(null);
+  const [jobOrderId, setJobOrderId] = useState<string>('');
+  const [showCompletionBar, setShowCompletionBar] = useState(false);
+  const [completionBarData, setCompletionBarData] = useState<any>(null);
 
   useEffect(() => {
     loadChats();
@@ -755,6 +765,10 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setJobOrderId('job-' + selectedChat);
+                            setShowCompleteModal(true);
+                          }}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
                           <CheckCircle size={14} />
@@ -763,6 +777,11 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setJobOrderId('job-' + selectedChat);
+                            setRejectContext('GENERAL');
+                            setShowRejectModal(true);
+                          }}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
                           <X size={14} />
