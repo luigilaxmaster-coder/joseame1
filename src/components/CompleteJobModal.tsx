@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { AlertCircle, Upload, X } from 'lucide-react';
-import { proposeCompletion } from '@/backend/jobs.jsw';
+import { proposeCompletion } from '@/lib/jobs';
 
 interface Attachment {
   id: string;

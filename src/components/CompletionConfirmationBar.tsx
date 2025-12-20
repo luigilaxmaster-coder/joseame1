@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
-import { acceptCompletion } from '@/backend/jobs.jsw';
+import { acceptCompletion } from '@/lib/jobs';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface CompletionConfirmationBarProps {

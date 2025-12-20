@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import wixData from 'wix-data';
-import { getLoggedInMember } from 'wix-members-backend';
+import { BaseCrudService } from '@/integrations';
+import { JobOrders, CompletionAttempts, Rejections, RejectionAttachments, RejectionReasons, JobEvents, SystemAuditLogs } from '@/entities';
 
 /**
  * POST /api/jobs/reject
@@ -15,16 +15,10 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Get current user
-    const member = await getLoggedInMember();
-    if (!member) {
-      return new Response(JSON.stringify({ message: 'UNAUTHORIZED: User not logged in' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    // TODO: Get userId from authenticated session
+    // For now, using placeholder - should be replaced with actual auth
+    const userId = 'user-placeholder';
 
-    const userId = member._id;
     const body = await request.json();
     const {
       context,
@@ -68,12 +62,14 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Rate limit check: max 5 rejections in 5 minutes per user
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const recentRejections = await wixData.query('rejections')
-      .eq('createdByUserId', userId)
-      .gt('createdAt', fiveMinutesAgo)
-      .find();
+    const { items: recentRejections } = await BaseCrudService.getAll<Rejections>('rejections');
+    const userRecentRejections = recentRejections.filter(
+      r => r.createdByUserId === userId && 
+           r.createdAt && 
+           new Date(r.createdAt) > fiveMinutesAgo
+    );
 
-    if (recentRejections.items.length >= 5) {
+    if (userRecentRejections.length >= 5) {
       return new Response(
         JSON.stringify({ message: 'RATE_LIMIT: Too many rejections in a short time' }),
         {
@@ -84,7 +80,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Get and validate job
-    const job = await wixData.get('joborders', jobOrderId);
+    const job = await BaseCrudService.getById<JobOrders>('joborders', jobOrderId);
     if (!job) {
       return new Response(JSON.stringify({ message: 'Job not found' }), {
         status: 404,
@@ -100,12 +96,12 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Get rejection reason from catalog
-    const reasons = await wixData.query('rejectreasons')
-      .eq('reasonCode', reasonCode)
-      .eq('context', context)
-      .find();
+    const { items: reasons } = await BaseCrudService.getAll<RejectionReasons>('rejectreasons');
+    const reasonRecord = reasons.find(
+      r => r.reasonCode === reasonCode && r.context === context
+    );
 
-    if (reasons.items.length === 0) {
+    if (!reasonRecord) {
       return new Response(
         JSON.stringify({
           message: `Rejection reason not found: ${reasonCode} in context ${context}`,
@@ -116,8 +112,6 @@ export const POST: APIRoute = async ({ request }) => {
         }
       );
     }
-
-    const reasonRecord = reasons.items[0];
 
     // GENERAL context validation
     if (context === 'GENERAL') {
@@ -151,7 +145,10 @@ export const POST: APIRoute = async ({ request }) => {
       }
 
       // Get and validate attempt
-      const attempt = await wixData.get('completionattempts', completionAttemptId);
+      const attempt = await BaseCrudService.getById<CompletionAttempts>(
+        'completionattempts',
+        completionAttemptId
+      );
       if (!attempt) {
         return new Response(JSON.stringify({ message: 'Completion attempt not found' }), {
           status: 404,
@@ -181,8 +178,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create Rejection record
-    const rejectionId = Math.random().toString(36).substr(2, 9);
-    const rejection = {
+    const rejectionId = crypto.randomUUID();
+    const rejection: Rejections = {
       _id: rejectionId,
       context,
       categorySnapshot: reasonRecord.category,
@@ -191,45 +188,46 @@ export const POST: APIRoute = async ({ request }) => {
       description: description.trim(),
       outcome: outcome || 'NONE',
       createdByUserId: userId,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
-    await wixData.insert('rejections', rejection);
+    await BaseCrudService.create('rejections', rejection);
 
     // Save rejection attachments
     if (attachments && attachments.length > 0) {
       for (const att of attachments) {
-        const attId = Math.random().toString(36).substr(2, 9);
-        await wixData.insert('rejectionattachments', {
+        const attId = crypto.randomUUID();
+        const attachment: RejectionAttachments = {
           _id: attId,
           rejectionId,
           fileUrl: att.fileUrl,
           fileType: att.fileType,
           fileName: att.fileName || 'file',
-          createdAt: new Date(),
-        });
+          createdAt: new Date().toISOString(),
+        };
+        await BaseCrudService.create('rejectionattachments', attachment);
       }
     }
 
     // Handle COMPLETION context: update attempt and job status
     if (context === 'COMPLETION') {
       // Update attempt status
-      await wixData.update('completionattempts', {
+      await BaseCrudService.update('completionattempts', {
         _id: completionAttemptId,
         status: 'rejected',
       });
 
       // Update job status to outcome
-      await wixData.update('joborders', {
+      await BaseCrudService.update('joborders', {
         _id: jobOrderId,
         status: outcome,
         activeCompletionAttemptId: null,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       });
     }
 
     // Create JobEvent
-    const eventId = Math.random().toString(36).substr(2, 9);
-    await wixData.insert('jobevents', {
+    const eventId = crypto.randomUUID();
+    const event: JobEvents = {
       _id: eventId,
       jobOrderId,
       actorId: userId,
@@ -239,20 +237,22 @@ export const POST: APIRoute = async ({ request }) => {
         context,
         outcome,
       }),
-      createdAt: new Date(),
-    });
+      createdAt: new Date().toISOString(),
+    };
+    await BaseCrudService.create('jobevents', event);
 
     // Create audit log
-    const logId = Math.random().toString(36).substr(2, 9);
-    await wixData.insert('auditlogs', {
+    const logId = crypto.randomUUID();
+    const log: SystemAuditLogs = {
       _id: logId,
       actionType: 'REJECTION_CREATED',
       actorId: userId,
       targetResourceType: 'JobOrder',
       targetResourceId: jobOrderId,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       details: `${context} rejection: ${reasonCode}`,
-    });
+    };
+    await BaseCrudService.create('auditlogs', log);
 
     return new Response(
       JSON.stringify({

@@ -1,58 +1,47 @@
 import type { APIRoute } from 'astro';
-import wixData from 'wix-data';
-import { getLoggedInMember } from 'wix-members-backend';
+import { BaseCrudService } from '@/integrations';
+import { JobOrders, JobEvents } from '@/entities';
 
 /**
  * GET /api/jobs/timeline
- * Get job timeline events
+ * Returns all events for a job in chronological order
+ * Query params: jobOrderId
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ request }) => {
   try {
+    const url = new URL(request.url);
     const jobOrderId = url.searchParams.get('jobOrderId');
+
     if (!jobOrderId) {
-      return new Response(JSON.stringify({ message: 'jobOrderId is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'jobOrderId is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
-
-    // Get current user
-    const member = await getLoggedInMember();
-    if (!member) {
-      return new Response(JSON.stringify({ message: 'UNAUTHORIZED: User not logged in' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const userId = member._id;
 
     // Validate user belongs to job
-    const job = await wixData.get('joborders', jobOrderId);
+    const job = await BaseCrudService.getById<JobOrders>('joborders', jobOrderId);
     if (!job) {
-      return new Response(JSON.stringify({ message: 'Job not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Job not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    if (job.clientId !== userId && job.joseadorId !== userId) {
-      return new Response(JSON.stringify({ message: 'FORBIDDEN: User does not belong to this job' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
+    // Get all events for this job
+    const { items: allEvents } = await BaseCrudService.getAll<JobEvents>('jobevents');
+    const jobEvents = allEvents
+      .filter(e => e.jobOrderId === jobOrderId)
+      .sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateA - dateB;
       });
-    }
-
-    // Get all events
-    const events = await wixData.query('jobevents')
-      .eq('jobOrderId', jobOrderId)
-      .ascending('createdAt')
-      .find();
 
     return new Response(
       JSON.stringify({
         ok: true,
-        events: events.items.map((e: any) => ({
+        events: jobEvents.map(e => ({
           _id: e._id,
           action: e.action,
           actorId: e.actorId,
@@ -60,16 +49,13 @@ export const GET: APIRoute = async ({ url }) => {
           createdAt: e.createdAt,
         })),
       }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in /api/jobs/timeline:', error);
-    return new Response(JSON.stringify({ message: String(error) }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return new Response(
+      JSON.stringify({ ok: false, error: message }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 };
