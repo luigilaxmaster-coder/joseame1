@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { RenegotiationOffers, Messages } from '@/entities';
+import { RenegotiationOffers, Messages, JobOrders } from '@/entities';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
@@ -29,6 +30,8 @@ import CompletionConfirmationBar from '@/components/CompletionConfirmationBar';
 
 interface Chat {
   id: string;
+  jobOrderId: string;
+  threadId: string;
   name: string;
   jobTitle: string;
   lastMessage: string;
@@ -37,6 +40,8 @@ interface Chat {
   otherUserId: string;
   avatar?: string;
   status?: 'active' | 'pending' | 'completed';
+  jobStatus?: string;
+  activeCompletionAttemptId?: string | null;
 }
 
 interface Message {
@@ -65,6 +70,7 @@ interface UserInfo {
 export default function InboxPage() {
   const { member } = useMember();
   const { userRole } = useRoleStore();
+  const { toast } = useToast();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [showChatList, setShowChatList] = useState(true);
@@ -84,6 +90,7 @@ export default function InboxPage() {
   const [jobOrderId, setJobOrderId] = useState<string>('');
   const [showCompletionBar, setShowCompletionBar] = useState(false);
   const [completionBarData, setCompletionBarData] = useState<any>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -108,49 +115,60 @@ export default function InboxPage() {
   const loadChats = async () => {
     try {
       setLoading(true);
-      const mockChats: Chat[] = [
-        {
-          id: '1',
-          name: 'Juan Pérez',
-          jobTitle: 'Reparación de tubería',
-          lastMessage: 'Perfecto, nos vemos mañana',
-          time: '10:30 AM',
-          unread: 2,
-          otherUserId: 'user-1',
-          status: 'pending'
-        },
-        {
-          id: '2',
-          name: 'María González',
-          jobTitle: 'Instalación eléctrica',
-          lastMessage: '¿A qué hora puedes venir?',
-          time: 'Ayer',
-          unread: 0,
-          otherUserId: 'user-2',
-          status: 'active'
-        },
-        {
-          id: '3',
-          name: 'Carlos López',
-          jobTitle: 'Pintura de casa',
-          lastMessage: 'El trabajo está casi listo',
-          time: 'Hace 2h',
-          unread: 1,
-          otherUserId: 'user-3',
-          status: 'completed'
+      if (!member?.profile?.nickname) {
+        setChats([]);
+        return;
+      }
+
+      // Get all JobOrders where current user is client or joseador
+      const { items: jobOrders } = await BaseCrudService.getAll<JobOrders>('joborders');
+      
+      if (!jobOrders || jobOrders.length === 0) {
+        setChats([]);
+        return;
+      }
+
+      // Filter jobs for current user and map to Chat format
+      const userChats: Chat[] = jobOrders
+        .filter(job => job.clientId === member.profile?.nickname || job.joseadorId === member.profile?.nickname)
+        .map(job => {
+          const otherUserId = job.clientId === member.profile?.nickname ? job.joseadorId : job.clientId;
+          return {
+            id: job._id,
+            jobOrderId: job._id,
+            threadId: job.threadId || '',
+            name: otherUserId || 'Unknown User',
+            jobTitle: 'Service Job',
+            lastMessage: 'Last message here',
+            time: job._updatedDate ? new Date(job._updatedDate).toLocaleTimeString() : 'Now',
+            unread: 0,
+            otherUserId: otherUserId || '',
+            status: job.status === 'IN_PROGRESS' ? 'active' : job.status === 'COMPLETED' ? 'completed' : 'pending',
+            jobStatus: job.status,
+            activeCompletionAttemptId: job.activeCompletionAttemptId,
+          };
+        });
+
+      setChats(userChats);
+      
+      // Auto-select first chat
+      if (userChats.length > 0) {
+        setSelectedChat(userChats[0].id);
+        
+        // Check if first chat has active completion attempt
+        if (userChats[0].activeCompletionAttemptId) {
+          setActiveCompletionAttemptId(userChats[0].activeCompletionAttemptId);
+          setShowCompletionBar(true);
+          setCompletionBarData(userChats[0]);
         }
-      ];
-      setChats(mockChats);
-      setSelectedChat('1');
-      setPendingRequest({
-        id: '1',
-        type: 'completion',
-        title: 'Confirmar trabajo completado',
-        expiresIn: 300
-      });
-      setCountdown(300);
+      }
     } catch (error) {
       console.error('Error loading chats:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load conversations',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -165,6 +183,48 @@ export default function InboxPage() {
       jobsCompleted: 24
     });
     setShowUserModal(true);
+  };
+
+  const refreshChatData = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadChats();
+      toast({
+        title: 'Success',
+        description: 'Conversations refreshed',
+      });
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleCompleteModalSuccess = async () => {
+    setShowCompleteModal(false);
+    toast({
+      title: 'Success',
+      description: 'Completion proposed successfully',
+    });
+    await refreshChatData();
+  };
+
+  const handleRejectModalSuccess = async () => {
+    setShowRejectModal(false);
+    toast({
+      title: 'Success',
+      description: 'Rejection recorded successfully',
+    });
+    await refreshChatData();
+  };
+
+  const handleCompletionBarAccepted = async () => {
+    setShowCompletionBar(false);
+    toast({
+      title: 'Success',
+      description: 'Completion accepted successfully',
+    });
+    await refreshChatData();
   };
 
   const messages = selectedChat ? [
@@ -766,10 +826,13 @@ export default function InboxPage() {
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => {
-                            setJobOrderId('job-' + selectedChat);
-                            setShowCompleteModal(true);
+                            if (selectedChatData?.jobOrderId) {
+                              setJobOrderId(selectedChatData.jobOrderId);
+                              setShowCompleteModal(true);
+                            }
                           }}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          disabled={!selectedChatData?.jobOrderId || selectedChatData?.jobStatus !== 'IN_PROGRESS'}
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <CheckCircle size={14} />
                           <span className="hidden sm:inline">Completado</span>
@@ -778,11 +841,14 @@ export default function InboxPage() {
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => {
-                            setJobOrderId('job-' + selectedChat);
-                            setRejectContext('GENERAL');
-                            setShowRejectModal(true);
+                            if (selectedChatData?.jobOrderId) {
+                              setJobOrderId(selectedChatData.jobOrderId);
+                              setRejectContext('GENERAL');
+                              setShowRejectModal(true);
+                            }
                           }}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          disabled={!selectedChatData?.jobOrderId}
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <X size={14} />
                           <span className="hidden sm:inline">Cancelar</span>
@@ -1383,12 +1449,48 @@ export default function InboxPage() {
         onOpenChange={setShowReportModal}
         targetUserId={selectedChatData?.otherUserId || ''}
         threadId={selectedChat || ''}
-        jobOrderId=""
+        jobOrderId={selectedChatData?.jobOrderId || ''}
         messages={messages}
         onSuccess={() => {
-          // Optionally refresh chats or show success message
+          setShowReportModal(false);
+          toast({
+            title: 'Success',
+            description: 'Report submitted successfully',
+          });
         }}
       />
+
+      {/* Complete Job Modal */}
+      <CompleteJobModal
+        isOpen={showCompleteModal}
+        onClose={() => setShowCompleteModal(false)}
+        jobOrderId={jobOrderId}
+        threadId={selectedChatData?.threadId}
+        onSuccess={handleCompleteModalSuccess}
+      />
+
+      {/* Reject Job Modal */}
+      <RejectJobModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        jobOrderId={jobOrderId}
+        completionAttemptId={activeCompletionAttemptId || undefined}
+        context={rejectContext}
+        onSuccess={handleRejectModalSuccess}
+      />
+
+      {/* Completion Confirmation Bar */}
+      {showCompletionBar && completionBarData && (
+        <CompletionConfirmationBar
+          completionAttemptId={activeCompletionAttemptId || ''}
+          jobOrderId={completionBarData.jobOrderId}
+          proposedByRole={completionBarData.proposedByRole || 'joseador'}
+          proposedByUserId={completionBarData.proposedByUserId || ''}
+          currentUserId={member?.profile?.nickname || ''}
+          onAccepted={handleCompletionBarAccepted}
+          onDismiss={() => setShowCompletionBar(false)}
+        />
+      )}
 
       {/* User Info Modal */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>

@@ -20,7 +20,7 @@ interface CompleteJobModalProps {
   isOpen: boolean;
   onClose: () => void;
   jobOrderId: string;
-  threadId: string;
+  threadId?: string;
   onSuccess?: () => void;
 }
 
