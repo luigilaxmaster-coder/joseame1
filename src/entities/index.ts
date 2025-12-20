@@ -27,6 +27,60 @@ export interface SystemAuditLogs {
 
 
 /**
+ * Collection ID: completionattachments
+ * Interface for CompletionAttachments
+ */
+export interface CompletionAttachments {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  completionAttemptId?: string;
+  /** @wixFieldType url */
+  fileUrl?: string;
+  /** @wixFieldType text */
+  fileType?: string;
+  /** @wixFieldType text */
+  fileName?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  completionattempts?: CompletionAttempts[];
+}
+
+
+/**
+ * Collection ID: completionattempts
+ * Interface for CompletionAttempts
+ */
+export interface CompletionAttempts {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  jobOrderId?: string;
+  /** @wixFieldType multi_reference */
+  rejections?: Rejections[];
+  /** @wixFieldType multi_reference */
+  attachments?: CompletionAttachments[];
+  /** @wixFieldType text */
+  proposedByUserId?: string;
+  /** @wixFieldType text */
+  proposedByRole?: string;
+  /** @wixFieldType text */
+  note?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  joborders?: JobOrders[];
+}
+
+
+/**
  * Collection ID: jobapplications
  * Interface for JobApplications
  */
@@ -77,6 +131,62 @@ export interface DisputasdeTrabajos {
   resolutionDetails?: string;
   /** @wixFieldType text */
   adminNotes?: string;
+}
+
+
+/**
+ * Collection ID: jobevents
+ * Interface for JobEvents
+ */
+export interface JobEvents {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  jobOrderId?: string;
+  /** @wixFieldType text */
+  actorId?: string;
+  /** @wixFieldType text */
+  action?: string;
+  /** @wixFieldType text */
+  meta?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  joborders?: JobOrders[];
+}
+
+
+/**
+ * Collection ID: joborders
+ * Interface for JobOrders
+ */
+export interface JobOrders {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType multi_reference */
+  rejections?: Rejections[];
+  /** @wixFieldType multi_reference */
+  jobevents?: JobEvents[];
+  /** @wixFieldType text */
+  clientId?: string;
+  /** @wixFieldType multi_reference */
+  completionattempts?: CompletionAttempts[];
+  /** @wixFieldType reference */
+  activecompletionattempt?: CompletionAttempts;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType text */
+  threadId?: string;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType text */
+  activeCompletionAttemptId?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
 }
 
 
@@ -227,6 +337,89 @@ export interface RegisteredUsers {
   lastLoginDate?: Date | string;
   /** @wixFieldType text */
   role?: string;
+}
+
+
+/**
+ * Collection ID: rejectionattachments
+ * Interface for RejectionAttachments
+ */
+export interface RejectionAttachments {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  rejectionId?: string;
+  /** @wixFieldType url */
+  fileUrl?: string;
+  /** @wixFieldType text */
+  fileType?: string;
+  /** @wixFieldType text */
+  fileName?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  rejections?: Rejections[];
+}
+
+
+/**
+ * Collection ID: rejections
+ * Interface for Rejections
+ */
+export interface Rejections {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  context?: string;
+  /** @wixFieldType multi_reference */
+  attachments?: RejectionAttachments[];
+  /** @wixFieldType reference */
+  reason?: RejectionReasons;
+  /** @wixFieldType text */
+  categorySnapshot?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  reasonLabelSnapshot?: string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType text */
+  outcome?: string;
+  /** @wixFieldType text */
+  createdByUserId?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType multi_reference */
+  joborders?: JobOrders[];
+  /** @wixFieldType multi_reference */
+  completionattempts?: CompletionAttempts[];
+}
+
+
+/**
+ * Collection ID: rejectreasons
+ * Interface for RejectionReasons
+ */
+export interface RejectionReasons {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  context?: string;
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  reasonCode?: string;
+  /** @wixFieldType text */
+  label?: string;
+  /** @wixFieldType number */
+  severity?: number;
+  /** @wixFieldType boolean */
+  requiresOutcome?: boolean;
+  /** @wixFieldType boolean */
+  requiresEvidence?: boolean;
 }
 
 
