@@ -1,17 +1,19 @@
+import { Permissions, webMethod } from 'wix-web-module';
+import { contacts } from 'wix-crm';
 import wixData from 'wix-data';
-import { getLoggedInMember } from 'wix-members-backend';
+import { getCurrentUser } from 'wix-members';
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
 /**
- * Get current user ID from Wix Members Backend
+ * Get current user ID from Wix Members
  */
 async function getCurrentUserId() {
   try {
-    const member = await getLoggedInMember();
-    return member?.id;
+    const user = await getCurrentUser();
+    return user?.id;
   } catch (e) {
     return null;
   }
@@ -97,15 +99,17 @@ async function createAuditLog(actionType, actorId, targetResourceType, targetRes
  * Returns JobOrder + activeCompletionAttempt if exists
  * Validates current user belongs to job
  */
-export async function getJobContext(threadId) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) {
-      throw new Error('UNAUTHORIZED: User not logged in');
-    }
+export const getJobContext = webMethod(
+  Permissions.Anyone,
+  async (threadId) => {
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        throw new Error('UNAUTHORIZED: User not logged in');
+      }
 
-    // Find job by threadId
-    const jobs = await wixData.query('joborders')
+      // Find job by threadId
+      const jobs = await wixData.query('joborders')
         .eq('threadId', threadId)
         .find();
 
@@ -153,13 +157,16 @@ export async function getJobContext(threadId) {
       return { ok: false, error: e.message };
     }
   }
+);
 
 /**
  * proposeCompletion({ jobOrderId, note, attachments })
  * Creates CompletionAttempt + saves attachments + updates JobOrder status
  */
-export async function proposeCompletion(params) {
-  try {
+export const proposeCompletion = webMethod(
+  Permissions.Anyone,
+  async (params) => {
+    try {
       const userId = await getCurrentUserId();
       if (!userId) {
         throw new Error('UNAUTHORIZED: User not logged in');
@@ -251,15 +258,18 @@ export async function proposeCompletion(params) {
       return { ok: false, error: e.message };
     }
   }
+);
 
 /**
  * acceptCompletion({ completionAttemptId })
  * Validates attempt exists, current user is NOT proposer, then accepts
  */
-export async function acceptCompletion(params) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) {
+export const acceptCompletion = webMethod(
+  Permissions.Anyone,
+  async (params) => {
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
         throw new Error('UNAUTHORIZED: User not logged in');
       }
 
@@ -320,21 +330,24 @@ export async function acceptCompletion(params) {
       return { ok: false, error: e.message };
     }
   }
+);
 
 /**
  * rejectUnified({ context, jobOrderId, completionAttemptId, reasonCode, description, outcome, attachments, blockUser })
  * Unified rejection for GENERAL and COMPLETION contexts
  */
-export async function rejectUnified(params) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) {
-      throw new Error('UNAUTHORIZED: User not logged in');
-    }
+export const rejectUnified = webMethod(
+  Permissions.Anyone,
+  async (params) => {
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        throw new Error('UNAUTHORIZED: User not logged in');
+      }
 
-    const {
-      context,
-      jobOrderId,
+      const {
+        context,
+        jobOrderId,
         completionAttemptId,
         reasonCode,
         description,
@@ -481,20 +494,23 @@ export async function rejectUnified(params) {
       return { ok: false, error: e.message };
     }
   }
+);
 
 /**
  * getJobTimeline(jobOrderId)
  * Returns all events for a job in chronological order
  */
-export async function getJobTimeline(jobOrderId) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) {
-      throw new Error('UNAUTHORIZED: User not logged in');
-    }
+export const getJobTimeline = webMethod(
+  Permissions.Anyone,
+  async (jobOrderId) => {
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        throw new Error('UNAUTHORIZED: User not logged in');
+      }
 
-    // Validate user belongs to job
-    await validateUserBelongsToJob(jobOrderId, userId);
+      // Validate user belongs to job
+      await validateUserBelongsToJob(jobOrderId, userId);
 
       // Get all events
       const events = await wixData.query('jobevents')
@@ -516,3 +532,4 @@ export async function getJobTimeline(jobOrderId) {
       return { ok: false, error: e.message };
     }
   }
+);
