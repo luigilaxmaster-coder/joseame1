@@ -659,6 +659,11 @@ export default function InboxPage() {
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setJobOrderId('job-' + selectedChat);
+                            setRejectContext('GENERAL');
+                            setShowRejectModal(true);
+                          }}
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
                           <X size={14} />
