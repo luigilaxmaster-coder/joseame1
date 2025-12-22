@@ -9,8 +9,9 @@ import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, Shoppin
 import { Image } from '@/components/ui/image';
 import { getPiqueteBalance } from '@/lib/piquete-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
+import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
 
-export default function JoseadorDashboardPage() {
+function JoseadorDashboardContent() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
   const { setUserRole } = useRoleStore();
@@ -130,7 +131,7 @@ export default function JoseadorDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden pb-[90px]">
       {/* Animated background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
@@ -613,5 +614,41 @@ export default function JoseadorDashboardPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function JoseadorDashboardPage() {
+  const navigate = useNavigate();
+  const { member } = useMember();
+
+  const handleTabNavigation = (tab: string) => {
+    switch (tab) {
+      case 'home':
+        navigate('/joseador/dashboard');
+        break;
+      case 'applications':
+        navigate('/joseador/my-applications');
+        break;
+      case 'messages':
+        navigate('/joseador/inbox');
+        break;
+      case 'wallet':
+        navigate('/joseador/wallet');
+        break;
+      case 'profile':
+        navigate('/profile');
+        break;
+    }
+  };
+
+  return (
+    <DashboardWithBottomTabs
+      role="joseador"
+      homeContent={<JoseadorDashboardContent />}
+      applicationsContent={<JoseadorDashboardContent />}
+      messagesContent={<JoseadorDashboardContent />}
+      walletContent={<JoseadorDashboardContent />}
+      profileContent={<JoseadorDashboardContent />}
+    />
   );
 }

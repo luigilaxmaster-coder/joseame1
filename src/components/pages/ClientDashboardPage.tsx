@@ -9,8 +9,9 @@ import { Plus, MapPin, Search, LogOut, User, Briefcase, MessageSquare, RefreshCw
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
 import { useSyncUser } from '@/lib/user-sync-hook';
+import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
 
-export default function ClientDashboardPage() {
+function ClientDashboardContent() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
   const { setUserRole } = useRoleStore();
@@ -168,7 +169,7 @@ export default function ClientDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-[#f0f8fb] to-background relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-[#f0f8fb] to-background relative overflow-hidden pb-[90px]">
       {/* Animated background elements */}
       <div className="absolute top-0 left-1/4 w-40 h-40 bg-primary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-secondary/10 rounded-full blur-3xl -z-10" />
@@ -895,5 +896,41 @@ export default function ClientDashboardPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function ClientDashboardPage() {
+  const navigate = useNavigate();
+  const { member } = useMember();
+
+  const handleTabNavigation = (tab: string) => {
+    switch (tab) {
+      case 'home':
+        navigate('/client/dashboard');
+        break;
+      case 'applications':
+        navigate('/client/my-jobs');
+        break;
+      case 'messages':
+        navigate('/client/inbox');
+        break;
+      case 'wallet':
+        navigate('/client/dashboard'); // Placeholder - can be updated with wallet page
+        break;
+      case 'profile':
+        navigate('/profile');
+        break;
+    }
+  };
+
+  return (
+    <DashboardWithBottomTabs
+      role="client"
+      homeContent={<ClientDashboardContent />}
+      applicationsContent={<ClientDashboardContent />}
+      messagesContent={<ClientDashboardContent />}
+      walletContent={<ClientDashboardContent />}
+      profileContent={<ClientDashboardContent />}
+    />
   );
 }
