@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Home, Briefcase, MessageSquare, Wallet, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { isAppMode } from '@/lib/platform-detector';
 
 export type TabType = 'home' | 'applications' | 'messages' | 'wallet' | 'profile';
 
@@ -26,12 +27,15 @@ export default function BottomTabBar({
   badges = {},
 }: BottomTabBarProps) {
   const [mounted, setMounted] = useState(false);
+  const [showTabBar, setShowTabBar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<TabType>('home');
 
   useEffect(() => {
     setMounted(true);
+    // Only show tab bar in app mode
+    setShowTabBar(isAppMode());
   }, []);
 
   // Determine active tab based on current route
@@ -75,7 +79,7 @@ export default function BottomTabBar({
     navigate(tab.path);
   };
 
-  if (!mounted) return null;
+  if (!mounted || !showTabBar) return null;
 
   return (
     <motion.div
