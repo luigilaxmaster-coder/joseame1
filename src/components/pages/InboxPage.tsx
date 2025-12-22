@@ -27,6 +27,7 @@ import CompleteJobModal from '@/components/CompleteJobModal';
 import RejectJobModal from '@/components/RejectJobModal';
 import RejectionConfirmationBar from '@/components/RejectionConfirmationBar';
 import CompletionConfirmationBar from '@/components/CompletionConfirmationBar';
+import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
 
 interface Chat {
   id: string;
@@ -63,7 +64,7 @@ interface UserInfo {
   jobsCompleted?: number;
 }
 
-export default function InboxPage() {
+function InboxContent() {
   const { member } = useMember();
   const { userRole } = useRoleStore();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -1563,5 +1564,15 @@ export default function InboxPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function InboxPage() {
+  const { userRole } = useRoleStore();
+  
+  return (
+    <DashboardWithBottomTabs role={userRole === 'client' ? 'client' : 'joseador'}>
+      <InboxContent />
+    </DashboardWithBottomTabs>
   );
 }

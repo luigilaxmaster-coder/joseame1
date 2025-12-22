@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Wallet, TrendingUp, ShoppingCart, DollarSign, Calendar, Zap, Award, Target, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
 
-export default function WalletPage() {
+function WalletContent() {
   const [balance] = useState(0);
   const [freeQuotaBalance] = useState(5);
   const [piquetesBalance] = useState(5);
@@ -15,19 +16,16 @@ export default function WalletPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0fbf8] via-background to-[#e8f5f1]">
+    <div className="min-h-screen bg-gradient-to-br from-[#f0fbf8] via-background to-[#e8f5f1] pb-[90px]">
       {/* Header */}
-      <header className="bg-gradient-to-r from-secondary/95 to-accent/95 backdrop-blur-md border-b border-secondary/20 sticky top-0 z-40 shadow-lg">
-        <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-3 md:py-4">
-          <Link to="/joseador/dashboard" className="inline-flex items-center gap-2 text-white hover:text-white/80 transition-colors font-paragraph font-semibold group">
-            <motion.div
-              whileHover={{ x: -4 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ArrowLeft size={18} />
-            </motion.div>
-            <span className="text-sm md:text-base">Volver</span>
-          </Link>
+      <header className="bg-white border-b border-border sticky top-0 z-30">
+        <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-4">
+          <h1 className="font-heading text-2xl font-bold text-foreground">
+            Mi Wallet
+          </h1>
+          <p className="font-paragraph text-muted-text text-sm">
+            Gestiona tus fondos y piquetes
+          </p>
         </div>
       </header>
 
@@ -320,5 +318,13 @@ export default function WalletPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function WalletPage() {
+  return (
+    <DashboardWithBottomTabs role="joseador">
+      <WalletContent />
+    </DashboardWithBottomTabs>
   );
 }

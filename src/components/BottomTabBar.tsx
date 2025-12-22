@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Home, Briefcase, MessageSquare, Wallet, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export type TabType = 'home' | 'applications' | 'messages' | 'wallet' | 'profile';
 
@@ -9,11 +10,10 @@ interface Tab {
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  path: string;
 }
 
 interface BottomTabBarProps {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
   role: 'client' | 'joseador';
   badges?: {
     applications?: number;
@@ -22,34 +22,58 @@ interface BottomTabBarProps {
 }
 
 export default function BottomTabBar({
-  activeTab,
-  onTabChange,
   role,
   badges = {},
 }: BottomTabBarProps) {
   const [mounted, setMounted] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<TabType>('home');
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Determine active tab based on current route
+  useEffect(() => {
+    const path = location.pathname;
+    
+    if (role === 'client') {
+      if (path === '/client/dashboard') setActiveTab('home');
+      else if (path === '/client/my-jobs') setActiveTab('applications');
+      else if (path === '/client/inbox') setActiveTab('messages');
+      else if (path === '/client/wallet') setActiveTab('wallet');
+      else if (path === '/profile') setActiveTab('profile');
+    } else if (role === 'joseador') {
+      if (path === '/joseador/dashboard') setActiveTab('home');
+      else if (path === '/joseador/my-applications') setActiveTab('applications');
+      else if (path === '/joseador/inbox') setActiveTab('messages');
+      else if (path === '/joseador/wallet') setActiveTab('wallet');
+      else if (path === '/profile') setActiveTab('profile');
+    }
+  }, [location.pathname, role]);
+
   const clientTabs: Tab[] = [
-    { id: 'home', label: 'Home', icon: <Home size={24} /> },
-    { id: 'applications', label: 'Solicitudes', icon: <Briefcase size={24} />, badge: badges.applications },
-    { id: 'messages', label: 'Mensajes', icon: <MessageSquare size={24} />, badge: badges.messages },
-    { id: 'wallet', label: 'Wallet', icon: <Wallet size={24} /> },
-    { id: 'profile', label: 'Perfil', icon: <User size={24} /> },
+    { id: 'home', label: 'Home', icon: <Home size={24} />, path: '/client/dashboard' },
+    { id: 'applications', label: 'Solicitudes', icon: <Briefcase size={24} />, badge: badges.applications, path: '/client/my-jobs' },
+    { id: 'messages', label: 'Mensajes', icon: <MessageSquare size={24} />, badge: badges.messages, path: '/client/inbox' },
+    { id: 'wallet', label: 'Wallet', icon: <Wallet size={24} />, path: '/client/wallet' },
+    { id: 'profile', label: 'Perfil', icon: <User size={24} />, path: '/profile' },
   ];
 
   const joseadorTabs: Tab[] = [
-    { id: 'home', label: 'Home', icon: <Home size={24} /> },
-    { id: 'applications', label: 'Aplicaciones', icon: <Briefcase size={24} />, badge: badges.applications },
-    { id: 'messages', label: 'Mensajes', icon: <MessageSquare size={24} />, badge: badges.messages },
-    { id: 'wallet', label: 'Wallet', icon: <Wallet size={24} /> },
-    { id: 'profile', label: 'Perfil', icon: <User size={24} /> },
+    { id: 'home', label: 'Home', icon: <Home size={24} />, path: '/joseador/dashboard' },
+    { id: 'applications', label: 'Aplicaciones', icon: <Briefcase size={24} />, badge: badges.applications, path: '/joseador/my-applications' },
+    { id: 'messages', label: 'Mensajes', icon: <MessageSquare size={24} />, badge: badges.messages, path: '/joseador/inbox' },
+    { id: 'wallet', label: 'Wallet', icon: <Wallet size={24} />, path: '/joseador/wallet' },
+    { id: 'profile', label: 'Perfil', icon: <User size={24} />, path: '/profile' },
   ];
 
   const tabs = role === 'client' ? clientTabs : joseadorTabs;
+
+  const handleTabClick = (tab: Tab) => {
+    navigate(tab.path);
+  };
 
   if (!mounted) return null;
 
@@ -69,7 +93,7 @@ export default function BottomTabBar({
         {tabs.map((tab) => (
           <motion.button
             key={tab.id}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => handleTabClick(tab)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-200 group"

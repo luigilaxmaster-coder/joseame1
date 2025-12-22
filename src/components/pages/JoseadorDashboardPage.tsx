@@ -618,37 +618,9 @@ function JoseadorDashboardContent() {
 }
 
 export default function JoseadorDashboardPage() {
-  const navigate = useNavigate();
-  const { member } = useMember();
-
-  const handleTabNavigation = (tab: string) => {
-    switch (tab) {
-      case 'home':
-        navigate('/joseador/dashboard');
-        break;
-      case 'applications':
-        navigate('/joseador/my-applications');
-        break;
-      case 'messages':
-        navigate('/joseador/inbox');
-        break;
-      case 'wallet':
-        navigate('/joseador/wallet');
-        break;
-      case 'profile':
-        navigate('/profile');
-        break;
-    }
-  };
-
   return (
-    <DashboardWithBottomTabs
-      role="joseador"
-      homeContent={<JoseadorDashboardContent />}
-      applicationsContent={<JoseadorDashboardContent />}
-      messagesContent={<JoseadorDashboardContent />}
-      walletContent={<JoseadorDashboardContent />}
-      profileContent={<JoseadorDashboardContent />}
-    />
+    <DashboardWithBottomTabs role="joseador">
+      <JoseadorDashboardContent />
+    </DashboardWithBottomTabs>
   );
 }

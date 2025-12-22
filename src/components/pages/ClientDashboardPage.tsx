@@ -900,37 +900,9 @@ function ClientDashboardContent() {
 }
 
 export default function ClientDashboardPage() {
-  const navigate = useNavigate();
-  const { member } = useMember();
-
-  const handleTabNavigation = (tab: string) => {
-    switch (tab) {
-      case 'home':
-        navigate('/client/dashboard');
-        break;
-      case 'applications':
-        navigate('/client/my-jobs');
-        break;
-      case 'messages':
-        navigate('/client/inbox');
-        break;
-      case 'wallet':
-        navigate('/client/dashboard'); // Placeholder - can be updated with wallet page
-        break;
-      case 'profile':
-        navigate('/profile');
-        break;
-    }
-  };
-
   return (
-    <DashboardWithBottomTabs
-      role="client"
-      homeContent={<ClientDashboardContent />}
-      applicationsContent={<ClientDashboardContent />}
-      messagesContent={<ClientDashboardContent />}
-      walletContent={<ClientDashboardContent />}
-      profileContent={<ClientDashboardContent />}
-    />
+    <DashboardWithBottomTabs role="client">
+      <ClientDashboardContent />
+    </DashboardWithBottomTabs>
   );
 }

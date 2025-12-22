@@ -7,8 +7,9 @@ import { TrabajosdeServicio } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Calendar, Eye, Trash2, RotateCcw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useJobStore } from '@/store/jobStore';
+import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
 
-export default function ClientMyJobsPage() {
+function ClientMyJobsContent() {
   const navigate = useNavigate();
   const { member } = useMember();
   const { setJobToDuplicate } = useJobStore();
@@ -58,14 +59,16 @@ export default function ClientMyJobsPage() {
   const filteredJobs = filter === 'all' ? jobs : jobs.filter(job => job.status === filter);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-[90px]">
       {/* Header */}
-      <header className="bg-white border-b border-border">
+      <header className="bg-white border-b border-border sticky top-0 z-30">
         <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <Link to="/client/dashboard" className="inline-flex items-center gap-2 text-muted-text hover:text-foreground transition-colors">
-            <ArrowLeft size={20} />
-            <span className="font-paragraph">Volver al Dashboard</span>
-          </Link>
+          <h1 className="font-heading text-2xl font-bold text-foreground">
+            Mis Solicitudes
+          </h1>
+          <p className="font-paragraph text-muted-text text-sm">
+            Gestiona los trabajos que has publicado
+          </p>
         </div>
       </header>
 
@@ -76,14 +79,6 @@ export default function ClientMyJobsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-8">
-            <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
-              Mis Solicitudes
-            </h1>
-            <p className="font-paragraph text-muted-text">
-              Gestiona los trabajos que has publicado
-            </p>
-          </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 mb-8">
@@ -236,5 +231,13 @@ export default function ClientMyJobsPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function ClientMyJobsPage() {
+  return (
+    <DashboardWithBottomTabs role="client">
+      <ClientMyJobsContent />
+    </DashboardWithBottomTabs>
   );
 }
