@@ -131,6 +131,14 @@ const router = createBrowserRouter([
           </MemberProtectedRoute>
         ),
       },
+      {
+        path: "client/wallet",
+        element: (
+          <MemberProtectedRoute>
+            <WalletPage />
+          </MemberProtectedRoute>
+        ),
+      },
       // Joseador Routes
       {
         path: "joseador/onboarding",
