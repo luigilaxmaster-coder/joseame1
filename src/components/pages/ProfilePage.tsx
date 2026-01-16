@@ -49,10 +49,10 @@ function ProfilePage() {
   useEffect(() => {
     loadProfileData();
     
-    // Set up interval to refresh user data every 5 seconds for real-time updates
+    // Set up interval to refresh user data every 3 seconds for real-time updates
     const intervalId = setInterval(() => {
       loadUserDataFromAdmin();
-    }, 5000); // Reduced from 10s to 5s for faster updates
+    }, 3000); // Optimized to 3s for faster admin sync
 
     return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
