@@ -1,9 +1,9 @@
-// HPI 2.0 - Ultra Dynamic & Colorful Design
+// HPI 3.0 - Dynamic, Intuitive & Colorful Design
 import React, { useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
-import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, CheckCircle, Star, Rocket, Target, Search, FileText, Handshake, Wallet, Award, Clock, DollarSign, Heart, MessageCircle, MapPin } from 'lucide-react';
+import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, Star, Rocket, Target, Search, FileText, Handshake, Wallet, DollarSign, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSyncUser } from '@/lib/user-sync-hook';
 
@@ -112,8 +112,8 @@ const FloatingOrbs = () => {
   );
 };
 
-// Animated Stats Component
-const AnimatedStat = ({ value, label, icon: Icon, delay = 0 }: { value: string; label: string; icon: any; delay?: number }) => {
+// Animated Stats Component - No fake numbers
+const AnimatedStat = ({ icon: Icon, label, delay = 0 }: { icon: any; label: string; delay?: number }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -122,8 +122,7 @@ const AnimatedStat = ({ value, label, icon: Icon, delay = 0 }: { value: string; 
       className="flex flex-col items-center gap-2 p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20"
     >
       <Icon className="text-accent" size={32} />
-      <div className="text-3xl md:text-4xl font-heading font-bold text-white">{value}</div>
-      <div className="text-sm md:text-base text-white/80 text-center">{label}</div>
+      <div className="text-sm md:text-base text-white/80 text-center font-heading font-semibold">{label}</div>
     </motion.div>
   );
 };
@@ -235,6 +234,13 @@ export default function HomePage() {
         .card-hover:hover {
           transform: translateY(-12px) scale(1.02);
           box-shadow: 0 25px 50px rgba(14, 159, 168, 0.2), 0 10px 20px rgba(113, 210, 97, 0.15);
+          background: linear-gradient(135deg, rgba(14, 159, 168, 0.08) 0%, rgba(58, 182, 137, 0.08) 30%, rgba(113, 210, 97, 0.08) 100%);
+        }
+        .white-section-hover {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .white-section-hover:hover {
+          background: linear-gradient(135deg, rgba(14, 159, 168, 0.05) 0%, rgba(58, 182, 137, 0.05) 30%, rgba(113, 210, 97, 0.05) 100%);
         }
         .pulse-glow {
           animation: pulse-glow 2.5s ease-in-out infinite;
@@ -322,11 +328,11 @@ export default function HomePage() {
                 Conectamos clientes con profesionales. Publica un trabajo o encuentra tu próximo joseo en minutos.
               </p>
               
-              {/* Stats Row - Removed fake numbers */}
+              {/* Stats Row - Real indicators */}
               <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-4xl mx-auto mb-8 md:mb-12">
-                <AnimatedStat value="🚀" label="Creciendo" icon={TrendingUp} delay={0.3} />
-                <AnimatedStat value="💼" label="Oportunidades" icon={Briefcase} delay={0.4} />
-                <AnimatedStat value="⭐" label="Calidad" icon={Star} delay={0.5} />
+                <AnimatedStat label="Creciendo Rápido" icon={TrendingUp} delay={0.3} />
+                <AnimatedStat label="Oportunidades Reales" icon={Briefcase} delay={0.4} />
+                <AnimatedStat label="Calidad Garantizada" icon={Star} delay={0.5} />
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
@@ -585,39 +591,33 @@ export default function HomePage() {
                   icon: Briefcase, 
                   description: 'Publica trabajos y elige profesionales.',
                   color: 'from-primary to-secondary',
-                  bgColor: 'bg-primary/10',
-                  emoji: '👔'
+                  bgColor: 'bg-primary/10'
                 },
                 { 
                   title: 'Para Joseadores', 
                   icon: Users, 
                   description: 'Accede a oportunidades y gana dinero.',
                   color: 'from-secondary to-accent',
-                  bgColor: 'bg-secondary/10',
-                  emoji: '💪'
+                  bgColor: 'bg-secondary/10'
                 },
                 { 
                   title: 'Seguridad', 
                   icon: Shield, 
                   description: 'Pagos protegidos y confiables.',
                   color: 'from-accent to-support',
-                  bgColor: 'bg-accent/10',
-                  emoji: '🔒'
+                  bgColor: 'bg-accent/10'
                 }
               ].map((item, index) => (
                 <AnimatedElement key={index} delay={index * 100}>
                   <motion.div
                     whileHover={{ y: -8, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
-                    className={`card-hover ${item.bgColor} rounded-2xl p-4 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group`}
+                    className={`card-hover white-section-hover ${item.bgColor} rounded-2xl p-4 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
                   >
                     <motion.div
                       animate={{ opacity: [0.3, 0.7, 0.3] }}
                       transition={{ duration: 3, repeat: Infinity }}
                       className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
                     />
-                    <div className="absolute top-4 right-4 text-4xl opacity-20 group-hover:opacity-40 transition-opacity">
-                      {item.emoji}
-                    </div>
                     <div className="relative z-10">
                       <motion.div 
                         whileHover={{ rotate: [0, -15, 15, -15, 0], scale: 1.1, transition: { duration: 0.5 } }}
@@ -646,13 +646,6 @@ export default function HomePage() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                   >
-                    <motion.div
-                      animate={{ rotate: [0, 5, 0, -5, 0] }}
-                      transition={{ duration: 5, repeat: Infinity }}
-                      className="text-6xl mb-4"
-                    >
-                      🎯
-                    </motion.div>
                     <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                       La plataforma del <span className="gradient-text">joseador moderno</span>.
                     </h2>
@@ -667,7 +660,7 @@ export default function HomePage() {
                   <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
                     <motion.div
                       whileHover={{ y: -8, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
-                      className={`card-hover ${feature.bgColor} rounded-2xl p-5 md:p-8 h-full border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group`}
+                      className={`card-hover white-section-hover ${feature.bgColor} rounded-2xl p-5 md:p-8 h-full border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
                     >
                       <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                       <div className="relative z-10">
@@ -790,13 +783,6 @@ export default function HomePage() {
                 transition={{ duration: 0.8 }}
               >
                 <div className="flex items-center gap-4 mb-3">
-                  <motion.div
-                    animate={{ rotate: [0, 10, 0, -10, 0] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="text-5xl"
-                  >
-                    ✨
-                  </motion.div>
                   <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
                     Encuentra el <span className="gradient-text">talento</span> que necesitas
                   </h2>
@@ -845,13 +831,6 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="text-6xl mb-4"
-                >
-                  🌟
-                </motion.div>
                 <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
                   ¿Por qué elegir <span className="gradient-text">JOSEAME</span>?
                 </h2>
@@ -868,58 +847,49 @@ export default function HomePage() {
                   title: 'Crecimiento Rápido',
                   description: 'Acceso a oportunidades reales.',
                   color: 'from-primary to-secondary',
-                  bgColor: 'bg-primary/10',
-                  emoji: '🚀'
+                  bgColor: 'bg-primary/10'
                 },
                 {
                   icon: Target,
                   title: 'Precisión en Búsqueda',
                   description: 'Filtros inteligentes y precisos.',
                   color: 'from-secondary to-accent',
-                  bgColor: 'bg-secondary/10',
-                  emoji: '🎯'
+                  bgColor: 'bg-secondary/10'
                 },
                 {
                   icon: DollarSign,
                   title: 'Pagos Justos',
                   description: 'Trabajos bien pagados y verificados.',
                   color: 'from-accent to-support',
-                  bgColor: 'bg-accent/10',
-                  emoji: '💰'
+                  bgColor: 'bg-accent/10'
                 },
                 {
                   icon: Shield,
                   title: 'Protección Total',
                   description: 'Pagos seguros y garantizados.',
                   color: 'from-support to-primary',
-                  bgColor: 'bg-support/10',
-                  emoji: '🛡️'
+                  bgColor: 'bg-support/10'
                 },
                 {
                   icon: Users,
                   title: 'Comunidad Fuerte',
                   description: 'Conecta y crece con otros.',
                   color: 'from-primary to-accent',
-                  bgColor: 'bg-primary/10',
-                  emoji: '👥'
+                  bgColor: 'bg-primary/10'
                 },
                 {
                   icon: Heart,
                   title: 'Soporte Dedicado',
                   description: 'Equipo listo para ayudarte.',
                   color: 'from-accent to-secondary',
-                  bgColor: 'bg-accent/10',
-                  emoji: '❤️'
+                  bgColor: 'bg-accent/10'
                 }
               ].map((benefit, index) => (
                 <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
                   <motion.div
                     whileHover={{ y: -8, scale: 1.03 }}
-                    className={`card-hover ${benefit.bgColor} rounded-2xl p-5 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group`}
+                    className={`card-hover white-section-hover ${benefit.bgColor} rounded-2xl p-5 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
                   >
-                    <div className="absolute top-4 right-4 text-4xl opacity-20 group-hover:opacity-40 transition-opacity">
-                      {benefit.emoji}
-                    </div>
                     <motion.div
                       whileHover={{ rotate: [0, -20, 20, -20, 0], scale: 1.1, transition: { duration: 0.5 } }}
                       className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
