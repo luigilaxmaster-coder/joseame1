@@ -91,7 +91,7 @@ export const CursorGlow: React.FC = () => {
     const g = Math.round(lowerColor.g + (upperColor.g - lowerColor.g) * blend);
     const b = Math.round(lowerColor.b + (upperColor.b - lowerColor.b) * blend);
     
-    return `rgba(${r}, ${g}, ${b}, 0.55)`;
+    return `rgba(${r}, ${g}, ${b}, 0.85)`;
   };
 
   // Check if background is light/white
@@ -107,8 +107,8 @@ export const CursorGlow: React.FC = () => {
       // Calculate relative luminance
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       
-      // Consider it light if luminance > 0.65
-      if (luminance > 0.65) {
+      // Consider it light if luminance > 0.5 (more permissive threshold)
+      if (luminance > 0.5) {
         return true;
       }
     }
@@ -137,16 +137,16 @@ export const CursorGlow: React.FC = () => {
         position: 'fixed',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '200px',
-        height: '200px',
+        width: '350px',
+        height: '350px',
         borderRadius: '50%',
-        background: `radial-gradient(circle, ${currentColor} 0%, transparent 65%)`,
+        background: `radial-gradient(circle, ${currentColor} 0%, transparent 70%)`,
         transform: 'translate(-50%, -50%)',
         pointerEvents: 'none',
         zIndex: 9999,
         opacity: isActive ? 1 : 0,
-        transition: 'opacity 0.3s ease-out',
-        filter: 'blur(45px)',
+        transition: 'opacity 0.2s ease-out',
+        filter: 'blur(60px)',
         mixBlendMode: 'multiply',
         willChange: 'transform, opacity'
       }}
