@@ -191,6 +191,72 @@ export interface JobOrders {
 
 
 /**
+ * Collection ID: joseadordocs
+ * Interface for JoseadorDocuments
+ */
+export interface JoseadorDocuments {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType text */
+  documentType?: string;
+  /** @wixFieldType url */
+  fileUrl?: string;
+  /** @wixFieldType text */
+  metadata?: string;
+  /** @wixFieldType text */
+  verificationStatus?: string;
+  /** @wixFieldType text */
+  fileName?: string;
+}
+
+
+/**
+ * Collection ID: joseadores
+ * Interface for JoseadoresProfiles
+ */
+export interface JoseadoresProfiles {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  fullName?: string;
+  /** @wixFieldType text */
+  email?: string;
+  /** @wixFieldType text */
+  phoneNumber?: string;
+  /** @wixFieldType text */
+  cityZone?: string;
+  /** @wixFieldType text */
+  mainCategory?: string;
+  /** @wixFieldType text */
+  secondaryCategories?: string;
+  /** @wixFieldType number */
+  yearsOfExperience?: number;
+  /** @wixFieldType text */
+  verificationStatus?: string;
+  /** @wixFieldType text */
+  badges?: string;
+  /** @wixFieldType number */
+  testScore?: number;
+  /** @wixFieldType boolean */
+  testApproved?: boolean;
+  /** @wixFieldType text */
+  availability?: string;
+  /** @wixFieldType boolean */
+  worksByZone?: boolean;
+  /** @wixFieldType number */
+  basePriceEstimate?: number;
+  /** @wixFieldType text */
+  preferredContactMethod?: string;
+}
+
+
+/**
  * Collection ID: messages
  * Interface for Messages
  */
@@ -555,6 +621,27 @@ export interface TrabajosdeServicio {
   status?: string;
   /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   jobImage?: string;
+}
+
+
+/**
+ * Collection ID: skilltests
+ * Interface for SkillTests
+ */
+export interface SkillTests {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  category?: string;
+  /** @wixFieldType text */
+  questions?: string;
+  /** @wixFieldType number */
+  passingScore?: number;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType boolean */
+  isActive?: boolean;
 }
 
 

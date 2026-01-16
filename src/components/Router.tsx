@@ -27,6 +27,7 @@ import AboutPage from '@/components/pages/AboutPage';
 import CheckoutPage from '@/components/pages/CheckoutPage';
 import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
 import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
+import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
 
 // Layout component that includes ScrollToTop
 function Layout() {
@@ -185,6 +186,14 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute>
             <InboxPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "joseador/verification",
+        element: (
+          <MemberProtectedRoute>
+            <JoseadorVerificationPage />
           </MemberProtectedRoute>
         ),
       },
