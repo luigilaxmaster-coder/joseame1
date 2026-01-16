@@ -44,6 +44,13 @@ function ProfilePage() {
 
   useEffect(() => {
     loadProfileData();
+    
+    // Set up interval to refresh verification status every 30 seconds
+    const intervalId = setInterval(() => {
+      loadVerificationStatus();
+    }, 30000);
+
+    return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
 
   const loadProfileData = async () => {
@@ -407,23 +414,6 @@ function ProfilePage() {
                   <p className="font-paragraph text-xs md:text-sm text-muted-text font-semibold">Miembro desde</p>
                   <p className="font-paragraph text-foreground font-bold text-sm md:text-lg">
                     {new Date(member._createdDate).toLocaleDateString('es-DO')}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
-            {member?.status && (
-              <motion.div
-                whileHover={{ y: -6 }}
-                className="flex items-center gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border-2 border-support/20 shadow-lg hover:shadow-xl transition-all"
-              >
-                <div className="p-2 md:p-4 bg-gradient-to-br from-support to-support2 rounded-lg md:rounded-xl flex-shrink-0">
-                  <Shield size={20} className="md:w-7 md:h-7 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-paragraph text-xs md:text-sm text-muted-text font-semibold">Estado de la Cuenta</p>
-                  <p className="font-paragraph text-foreground font-bold text-sm md:text-lg">
-                    {member.status === 'APPROVED' ? 'Verificado' : 'Activo'}
                   </p>
                 </div>
               </motion.div>
