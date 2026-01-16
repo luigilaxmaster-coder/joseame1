@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings } from '@/entities';
@@ -634,6 +634,34 @@ function ProfilePage() {
                   </motion.div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Verification Section - For Joseadores */}
+          {userRole === 'joseador' && (
+            <div className="bg-gradient-to-r from-accent/10 to-support/10 rounded-2xl md:rounded-3xl p-6 md:p-8 border-2 border-accent/30 shadow-lg md:shadow-xl">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-3 bg-gradient-to-br from-accent to-support rounded-xl flex-shrink-0">
+                  <CheckCircle size={24} className="md:w-7 md:h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
+                    Verificación de Joseador
+                  </h3>
+                  <p className="font-paragraph text-sm md:text-base text-muted-text">
+                    Completa tu verificación para acceder a más oportunidades de trabajo y aumentar tu credibilidad.
+                  </p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/joseador/verification')}
+                className="w-full px-6 py-4 md:py-5 bg-gradient-to-r from-accent to-support text-white font-heading font-bold rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl transition-all text-base md:text-lg flex items-center justify-center gap-3"
+              >
+                <CheckCircle size={20} className="md:w-6 md:h-6" />
+                Iniciar Proceso de Verificación
+              </motion.button>
             </div>
           )}
 
