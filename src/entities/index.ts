@@ -258,7 +258,7 @@ export interface PiquetePackages {
   credits?: number;
   /** @wixFieldType boolean */
   isActive?: boolean;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   packageImage?: string;
 }
 
@@ -298,7 +298,7 @@ export interface ProfilePhotos {
   _id: string;
   _createdDate?: Date;
   _updatedDate?: Date;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   photo?: string;
   /** @wixFieldType text */
   caption?: string;
@@ -553,7 +553,7 @@ export interface TrabajosdeServicio {
   postedDate?: Date | string;
   /** @wixFieldType text */
   status?: string;
-  /** @wixFieldType image */
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
   jobImage?: string;
 }
 

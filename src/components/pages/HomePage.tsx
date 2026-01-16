@@ -1,9 +1,9 @@
-// HPI 1.6-V
+// HPI 1.7-V - Enhanced Dynamic & Colorful Design
 import React, { useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
-import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, CheckCircle, Star, Rocket, Target, Search, FileText, Handshake, Wallet } from 'lucide-react';
+import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, CheckCircle, Star, Rocket, Target, Search, FileText, Handshake, Wallet, Award, Clock, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSyncUser } from '@/lib/user-sync-hook';
 
@@ -54,26 +54,47 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-// Floating Orbs Background Component
+// Enhanced Floating Orbs with More Colors
 const FloatingOrbs = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
-        animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+        animate={{ y: [0, -40, 0], x: [0, 30, 0], scale: [1, 1.2, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl"
+        className="absolute top-10 left-10 w-80 h-80 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full blur-3xl"
       />
       <motion.div
-        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+        animate={{ y: [0, 40, 0], x: [0, -30, 0], scale: [1, 1.3, 1] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-accent/20 to-support/10 rounded-full blur-3xl"
+        className="absolute bottom-20 right-10 w-[28rem] h-[28rem] bg-gradient-to-br from-accent/30 to-support/20 rounded-full blur-3xl"
       />
       <motion.div
-        animate={{ y: [0, 20, 0], x: [0, 30, 0] }}
+        animate={{ y: [0, 30, 0], x: [0, 40, 0], scale: [1, 1.15, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-secondary/15 to-accent/10 rounded-full blur-3xl"
+        className="absolute top-1/2 right-1/4 w-72 h-72 bg-gradient-to-br from-secondary/25 to-accent/15 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ y: [0, -25, 0], x: [0, -25, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute top-1/3 left-1/3 w-64 h-64 bg-gradient-to-br from-support/20 to-primary/15 rounded-full blur-3xl"
       />
     </div>
+  );
+};
+
+// Animated Stats Component
+const AnimatedStat = ({ value, label, icon: Icon, delay = 0 }: { value: string; label: string; icon: any; delay?: number }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.6 }}
+      className="flex flex-col items-center gap-2 p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20"
+    >
+      <Icon className="text-accent" size={32} />
+      <div className="text-3xl md:text-4xl font-heading font-bold text-white">{value}</div>
+      <div className="text-sm md:text-base text-white/80 text-center">{label}</div>
+    </motion.div>
   );
 };
 
@@ -145,10 +166,11 @@ export default function HomePage() {
         .btn-gradient {
           background-image: linear-gradient(90deg, #0E9FA8, #3AB689, #71D261);
           background-size: 200% auto;
-          transition: background-position 0.5s ease;
+          transition: background-position 0.5s ease, transform 0.3s ease;
         }
         .btn-gradient:hover {
           background-position: right center;
+          transform: translateY(-2px);
         }
         .animate-reveal {
           opacity: 0;
@@ -178,10 +200,26 @@ export default function HomePage() {
           transform: translateY(-8px);
           box-shadow: 0 20px 40px rgba(14, 159, 168, 0.15);
         }
+        .pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(113, 210, 97, 0.4); }
+          50% { box-shadow: 0 0 40px rgba(113, 210, 97, 0.8); }
+        }
+        .shimmer {
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
       `}</style>
-      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
+      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">{/* ... keep existing code (rest of component) */}
         
-        {/* Hero Section - Optimized for Mobile */}
+        {/* Hero Section - Enhanced with Stats */}
         <section className="relative h-screen md:min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20">
           <FloatingOrbs />
           <div className="absolute inset-0 z-0">
@@ -205,37 +243,45 @@ export default function HomePage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="hidden md:inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8"
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
               >
                 <Sparkles size={18} className="text-yellow-300" />
                 <span className="text-white font-heading font-semibold text-sm md:text-base">Bienvenido a la revolución del trabajo</span>
               </motion.div>
 
-              <h1 className="font-heading text-4xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight">
-                JOSEAME
+              <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight">
+                <span className="inline-block">JOSEAME</span>
               </h1>
-              <p className="font-heading text-lg md:text-3xl text-white mb-4 md:mb-8 font-semibold">
+              <p className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold">
                 Trabajo cerca, rápido y fácil.
               </p>
-              <p className="text-sm md:text-xl text-white/90 mb-6 md:mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed">
                 Conectamos clientes con profesionales. Publica un trabajo o encuentra tu próximo joseo en minutos.
               </p>
+              
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-4xl mx-auto mb-8 md:mb-12">
+                <AnimatedStat value="5K+" label="Joseadores" icon={Users} delay={0.3} />
+                <AnimatedStat value="10K+" label="Trabajos" icon={Briefcase} delay={0.4} />
+                <AnimatedStat value="98%" label="Satisfacción" icon={Star} delay={0.5} />
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
                 <Link to="/login">
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg btn-gradient text-white font-heading font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+                    className="px-8 md:px-10 py-4 md:py-5 text-base md:text-lg btn-gradient text-white font-heading font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all w-full sm:w-auto"
                   >
                     Comenzar Ahora
-                    <ArrowRight className="inline-block ml-2" size={18} />
+                    <ArrowRight className="inline-block ml-2" size={20} />
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg bg-white/10 backdrop-blur-sm text-white font-heading font-semibold rounded-2xl border border-white/30 hover:bg-white/20 transition-all w-full sm:w-auto"
+                    className="px-8 md:px-10 py-4 md:py-5 text-base md:text-lg bg-white/10 backdrop-blur-sm text-white font-heading font-semibold rounded-2xl border-2 border-white/30 hover:bg-white/20 transition-all w-full sm:w-auto"
                   >
                     Conocer Más
                   </motion.button>
@@ -245,11 +291,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* App Flow Diagram Section - Optimized for Mobile */}
-        <section className="py-12 md:py-32 bg-gradient-to-b from-white via-background/50 to-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+        {/* App Flow Diagram Section - Enhanced Colors */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-accent/5 to-primary/5 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-[30rem] h-[30rem] bg-gradient-to-br from-primary to-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-gradient-to-br from-accent to-support rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25rem] h-[25rem] bg-gradient-to-br from-secondary to-accent rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
@@ -308,13 +355,16 @@ export default function HomePage() {
                       className="relative"
                     >
                       {/* Card */}
-                      <div className={`bg-gradient-to-br ${item.bgGradient} rounded-3xl p-8 border border-border/50 h-full relative overflow-hidden group hover:border-primary/30 transition-all duration-300`}>
+                      <div className={`bg-gradient-to-br ${item.bgGradient} rounded-3xl p-8 border-2 border-border/50 h-full relative overflow-hidden group hover:border-primary/50 transition-all duration-300 hover:shadow-2xl`}>
                         {/* Animated Background Glow */}
                         <motion.div
                           animate={{ opacity: [0.5, 1, 0.5] }}
                           transition={{ duration: 3, repeat: Infinity }}
-                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
                         />
+                        
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
                         {/* Content */}
                         <div className="relative z-10 flex flex-col items-center text-center">
@@ -425,17 +475,17 @@ export default function HomePage() {
                   )}
 
                   {/* Card */}
-                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-4 border border-border/50 relative overflow-hidden group hover:border-primary/30 transition-all`}>
+                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-4 border-2 border-border/50 relative overflow-hidden group hover:border-primary/50 transition-all hover:shadow-lg`}>
                     <div className="flex items-start gap-3">
                       {/* Icon Container */}
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: index * 0.1 + 0.1, type: 'spring' }}
-                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md relative`}
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg relative`}
                       >
                         <item.icon className="text-white" size={28} />
-                        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
+                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
                           {item.step}
                         </div>
                       </motion.div>
@@ -451,44 +501,50 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Feature Highlights - Compact */}
+            {/* Feature Highlights - Enhanced */}
             <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { 
                   title: 'Para Clientes', 
                   icon: Briefcase, 
                   description: 'Publica trabajos y elige profesionales.',
-                  color: 'from-primary to-secondary'
+                  color: 'from-primary to-secondary',
+                  bgColor: 'bg-primary/5'
                 },
                 { 
                   title: 'Para Joseadores', 
                   icon: Users, 
                   description: 'Accede a oportunidades y gana dinero.',
-                  color: 'from-secondary to-accent'
+                  color: 'from-secondary to-accent',
+                  bgColor: 'bg-secondary/5'
                 },
                 { 
                   title: 'Seguridad', 
                   icon: Shield, 
                   description: 'Pagos protegidos y confiables.',
-                  color: 'from-accent to-support'
+                  color: 'from-accent to-support',
+                  bgColor: 'bg-accent/5'
                 }
               ].map((item, index) => (
                 <AnimatedElement key={index} delay={index * 100}>
                   <motion.div
-                    whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300 } }}
-                    className="card-hover bg-white rounded-2xl p-4 md:p-8 border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
+                    whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 300 } }}
+                    className={`card-hover ${item.bgColor} rounded-2xl p-4 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group`}
                   >
                     <motion.div
                       animate={{ opacity: [0.3, 0.6, 0.3] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity`}
+                      className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 transition-opacity`}
                     />
                     <div className="relative z-10">
-                      <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
-                        <item.icon className="text-white" size={24} />
-                      </div>
-                      <h3 className="font-heading text-base md:text-lg font-bold text-foreground mb-2 md:mb-3">{item.title}</h3>
-                      <p className="text-xs md:text-sm text-muted-text leading-relaxed">{item.description}</p>
+                      <motion.div 
+                        whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
+                        className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 md:mb-6 shadow-lg`}
+                      >
+                        <item.icon className="text-white" size={28} />
+                      </motion.div>
+                      <h3 className="font-heading text-lg md:text-xl font-bold text-foreground mb-2 md:mb-3">{item.title}</h3>
+                      <p className="text-sm md:text-base text-muted-text leading-relaxed">{item.description}</p>
                     </div>
                   </motion.div>
                 </AnimatedElement>
@@ -497,36 +553,45 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section - Optimized */}
-        <section className="py-12 md:py-32 bg-gradient-to-b from-background to-white">
+        {/* Features Section - Enhanced Colors */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-secondary/5 via-white to-accent/5">
           <div className="max-w-[120rem] mx-auto px-4 md:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-16">
               <div className="lg:sticky top-32 h-fit">
                 <AnimatedElement>
-                  <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                    La plataforma del joseador moderno.
-                  </h2>
-                  <p className="text-sm md:text-lg text-muted-text max-w-md">
-                    Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
-                  </p>
+                  <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                      La plataforma del <span className="gradient-text">joseador moderno</span>.
+                    </h2>
+                    <p className="text-base md:text-lg text-muted-text max-w-md">
+                      Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
+                    </p>
+                  </motion.div>
                 </AnimatedElement>
               </div>
               <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
                 {features.map((feature) => (
                   <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
                     <motion.div
-                      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300 } }}
-                      className="card-hover bg-white rounded-2xl p-4 md:p-8 h-full border border-border/50 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
+                      whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 300 } }}
+                      className={`card-hover ${feature.bgColor} rounded-2xl p-5 md:p-8 h-full border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group`}
                     >
                       <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                       <div className="relative z-10">
-                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
-                          <feature.icon className="text-white" size={24} />
-                        </div>
-                        <h3 className="font-heading text-base md:text-2xl font-semibold text-foreground mb-2 md:mb-3">
+                        <motion.div
+                          whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+                          className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
+                        >
+                          <feature.icon className="text-white" size={28} />
+                        </motion.div>
+                        <h3 className="font-heading text-lg md:text-2xl font-semibold text-foreground mb-2 md:mb-3">
                           {feature.title}
                         </h3>
-                        <p className="text-xs md:text-base text-muted-text">
+                        <p className="text-sm md:text-base text-muted-text">
                           {feature.description}
                         </p>
                       </div>
@@ -538,11 +603,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How It Works Section - Optimized */}
-        <section className="py-12 md:py-32 bg-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+        {/* How It Works Section - Enhanced */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-primary/5 to-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-1/2 left-1/4 w-[28rem] h-[28rem] bg-gradient-to-br from-secondary to-accent rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-[28rem] h-[28rem] bg-gradient-to-br from-accent to-support rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-8 md:mb-24">
@@ -558,23 +623,29 @@ export default function HomePage() {
               {/* Para Clientes */}
               <div className="flex flex-col gap-4 md:gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
                     <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent opacity-[1]"></div>
-                    <h3 className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white">Para Clientes</h3>
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-[1]"></div>
+                    <motion.h3 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
+                    >
+                      Para Clientes
+                    </motion.h3>
                   </div>
                 </AnimatedElement>
                 <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
                   {clientSteps.map((item) => (
                     <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
                       <motion.div
-                        whileHover={{ x: 4 }}
-                        className="flex items-start gap-3 md:gap-6 p-2 md:p-4 rounded-xl hover:bg-background transition-colors"
+                        whileHover={{ x: 6, scale: 1.02 }}
+                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-primary/5 transition-all border border-transparent hover:border-primary/20"
                       >
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-lg md:text-xl font-bold text-white">{item.step}</span>
+                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="pt-1 md:pt-2.5 text-sm md:text-lg font-heading font-bold text-foreground">{item.text}</p>
+                        <p className="pt-1.5 md:pt-3 text-sm md:text-lg font-heading font-bold text-foreground">{item.text}</p>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -584,23 +655,29 @@ export default function HomePage() {
               {/* Para Joseadores */}
               <div className="flex flex-col gap-4 md:gap-8">
                 <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-xl group">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
                     <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-accent/70 to-transparent"></div>
-                    <h3 className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white">Para Joseadores</h3>
+                    <div className="absolute inset-0 bg-gradient-to-t from-accent/80 to-transparent"></div>
+                    <motion.h3 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
+                    >
+                      Para Joseadores
+                    </motion.h3>
                   </div>
                 </AnimatedElement>
                 <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
                   {joseadorSteps.map((item) => (
                     <AnimatedElement key={item.id} delay={joseadorSteps.indexOf(item) * 150}>
                       <motion.div
-                        whileHover={{ x: 4 }}
-                        className="flex items-start gap-3 md:gap-6 p-2 md:p-4 rounded-xl hover:bg-background transition-colors"
+                        whileHover={{ x: 6, scale: 1.02 }}
+                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-accent/5 transition-all border border-transparent hover:border-accent/20"
                       >
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
-                          <span className="font-heading text-lg md:text-xl font-bold text-white">{item.step}</span>
+                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
                         </div>
-                        <p className="font-paragraph text-sm md:text-lg pt-1 md:pt-2.5 font-bold text-foreground">{item.text}</p>
+                        <p className="font-paragraph text-sm md:text-lg pt-1.5 md:pt-3 font-bold text-foreground">{item.text}</p>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -610,30 +687,41 @@ export default function HomePage() {
           </div>
         </section>
         
-        {/* Popular Categories Section - Optimized */}
-        <section className="py-12 md:py-32 bg-gradient-to-b from-white to-background w-full relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+        {/* Popular Categories Section - Enhanced */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-accent/5 to-support/5 w-full relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-gradient-to-br from-primary to-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-1/3 w-[30rem] h-[30rem] bg-gradient-to-br from-accent to-support rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="mb-8 md:mb-12">
-              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground">Encuentra el talento que necesitas</h2>
-              <p className="text-sm md:text-lg text-muted-text mt-1 md:mt-2">Desde tareas rápidas hasta proyectos complejos.</p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
+                  Encuentra el <span className="gradient-text">talento</span> que necesitas
+                </h2>
+                <p className="text-base md:text-lg text-muted-text mt-2 md:mt-3">Desde tareas rápidas hasta proyectos complejos.</p>
+              </motion.div>
             </AnimatedElement>
           </div>
           <div className="w-full relative">
             <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto">
               {popularCategories.map((category) => (
                 <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[250px] sm:w-[280px] md:w-[350px]">
-                  <motion.div whileHover={{ y: -4 }} className="group card-hover">
-                    <div className="relative h-[320px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-lg category-card-mask">
+                  <motion.div 
+                    whileHover={{ y: -6, scale: 1.02 }} 
+                    className="group card-hover"
+                  >
+                    <div className="relative h-[320px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-xl category-card-mask border-2 border-border/30 hover:border-primary/40 transition-all">
                       <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={350} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                       <motion.h3
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-3 md:bottom-6 left-4 md:left-8 right-4 md:right-8 font-heading text-lg md:text-2xl font-bold text-white"
+                        className="absolute bottom-4 md:bottom-6 left-4 md:left-8 right-4 md:right-8 font-heading text-xl md:text-2xl font-bold text-white drop-shadow-lg"
                       >
                         {category.name}
                       </motion.h3>
@@ -642,24 +730,30 @@ export default function HomePage() {
                 </AnimatedElement>
               ))}
             </div>
-            <div className="absolute top-0 right-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden"></div>
           </div>
         </section>
 
-        {/* Benefits Section - Optimized */}
-        <section className="py-12 md:py-32 bg-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
-            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+        {/* Benefits Section - Enhanced */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-secondary/5 to-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-1/4 left-0 w-[28rem] h-[28rem] bg-gradient-to-br from-secondary to-accent rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-0 w-[28rem] h-[28rem] bg-gradient-to-br from-accent to-support rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-8 md:mb-16">
-              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                ¿Por qué elegir JOSEAME?
-              </h2>
-              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
-                Somos tu aliado en el crecimiento profesional.
-              </p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                  ¿Por qué elegir <span className="gradient-text">JOSEAME</span>?
+                </h2>
+                <p className="text-base md:text-lg text-muted-text max-w-3xl mx-auto">
+                  Somos tu aliado en el crecimiento profesional.
+                </p>
+              </motion.div>
             </AnimatedElement>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
@@ -668,51 +762,60 @@ export default function HomePage() {
                   icon: Rocket,
                   title: 'Crecimiento Rápido',
                   description: 'Acceso a miles de oportunidades.',
-                  color: 'from-primary to-secondary'
+                  color: 'from-primary to-secondary',
+                  bgColor: 'bg-primary/5'
                 },
                 {
                   icon: Target,
                   title: 'Precisión en Búsqueda',
                   description: 'Filtros inteligentes y precisos.',
-                  color: 'from-secondary to-accent'
+                  color: 'from-secondary to-accent',
+                  bgColor: 'bg-secondary/5'
                 },
                 {
                   icon: TrendingUp,
                   title: 'Ingresos Consistentes',
                   description: 'Trabajos bien pagados y verificados.',
-                  color: 'from-accent to-support'
+                  color: 'from-accent to-support',
+                  bgColor: 'bg-accent/5'
                 },
                 {
                   icon: Shield,
                   title: 'Protección Total',
                   description: 'Pagos seguros y garantizados.',
-                  color: 'from-support to-primary'
+                  color: 'from-support to-primary',
+                  bgColor: 'bg-support/5'
                 },
                 {
                   icon: Users,
                   title: 'Comunidad Fuerte',
                   description: 'Conecta y crece con otros.',
-                  color: 'from-primary to-accent'
+                  color: 'from-primary to-accent',
+                  bgColor: 'bg-primary/5'
                 },
                 {
                   icon: Sparkles,
                   title: 'Soporte 24/7',
                   description: 'Equipo listo para ayudarte.',
-                  color: 'from-accent to-secondary'
+                  color: 'from-accent to-secondary',
+                  bgColor: 'bg-accent/5'
                 }
               ].map((benefit, index) => (
                 <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
                   <motion.div
-                    whileHover={{ y: -4 }}
-                    className="card-hover bg-gradient-to-br from-white to-background rounded-2xl p-4 md:p-8 border border-border/50 shadow-sm hover:shadow-xl"
+                    whileHover={{ y: -6, scale: 1.02 }}
+                    className={`card-hover ${benefit.bgColor} rounded-2xl p-5 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all`}
                   >
-                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-3 md:mb-6 shadow-md`}>
-                      <benefit.icon className="text-white" size={24} />
-                    </div>
-                    <h3 className="font-heading text-base md:text-xl font-semibold text-foreground mb-2 md:mb-3">
+                    <motion.div
+                      whileHover={{ rotate: [0, -15, 15, -15, 0], transition: { duration: 0.5 } }}
+                      className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
+                    >
+                      <benefit.icon className="text-white" size={28} />
+                    </motion.div>
+                    <h3 className="font-heading text-lg md:text-xl font-semibold text-foreground mb-2 md:mb-3">
                       {benefit.title}
                     </h3>
-                    <p className="text-xs md:text-sm text-muted-text">
+                    <p className="text-sm md:text-base text-muted-text">
                       {benefit.description}
                     </p>
                   </motion.div>
@@ -722,9 +825,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA Section - Optimized */}
+        {/* CTA Section - Enhanced */}
         <section className="py-12 md:py-32 px-4 md:px-12">
-          <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-6 md:p-20 text-center relative overflow-hidden">
+          <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
             <FloatingOrbs />
             <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
             <AnimatedElement className="relative z-10">
@@ -732,23 +835,23 @@ export default function HomePage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="hidden md:inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8"
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
               >
-                <Sparkles size={18} className="text-yellow-300" />
+                <Sparkles size={20} className="text-yellow-300" />
                 <span className="text-white font-heading font-semibold text-sm md:text-base">Únete a la revolución</span>
               </motion.div>
-              <h2 className="font-heading text-2xl md:text-5xl font-bold text-white mb-3 md:mb-6">¿Listo para josear?</h2>
-              <p className="text-sm md:text-xl text-white/90 mb-6 md:mb-12 max-w-2xl mx-auto">
+              <h2 className="font-heading text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6">¿Listo para josear?</h2>
+              <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
                 Únete a miles de dominicanos transformando la forma en que trabajan.
               </p>
               <Link to="/login">
                 <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileHover={{ scale: 1.08, y: -3 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-6 md:px-12 py-3 md:py-5 bg-white text-primary font-heading text-sm md:text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                  className="px-8 md:px-14 py-4 md:py-6 bg-white text-primary font-heading text-base md:text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all"
                 >
                   Crear Cuenta Gratis
-                  <ArrowRight className="inline-block ml-2" size={20} />
+                  <ArrowRight className="inline-block ml-2" size={24} />
                 </motion.button>
               </Link>
             </AnimatedElement>
