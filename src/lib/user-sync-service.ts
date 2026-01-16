@@ -37,7 +37,9 @@ export async function syncUserToRegisteredUsers(memberData: any) {
       photoUrl: memberData.profile?.photo?.url || '',
       registrationDate: existingUser?.registrationDate || new Date().toISOString(),
       lastLoginDate: new Date().toISOString(),
-      role: 'member'
+      role: existingUser?.role || 'member',
+      verificationStatus: existingUser?.verificationStatus || 'Pendiente',
+      badges: existingUser?.badges || ''
     };
 
     if (existingUser) {

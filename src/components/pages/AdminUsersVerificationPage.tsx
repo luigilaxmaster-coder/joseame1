@@ -2,53 +2,42 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
-import { UserDirectory } from '@/entities';
-import { ArrowLeft, Search, CheckCircle, XCircle, RefreshCw, Activity, Clock, Download, ChevronLeft, ChevronRight } from 'lucide-react';
-import { 
-  syncAllMembersToDirectory, 
-  getSyncStatus, 
-  SyncResult 
-} from '@/lib/sync-members-service';
-import {
-  listDirectoryUsers,
-  getDirectoryStats,
-  toggleVerificationStatus,
-  getActivityStatus,
-  formatLastActivity,
-  DirectoryFilters
-} from '@/lib/user-directory-service';
-import { touchLastSeen } from '@/lib/user-directory-service';
+import { BaseCrudService } from '@/integrations';
+import { RegisteredUsers } from '@/entities';
+import { ArrowLeft, Search, CheckCircle, XCircle, RefreshCw, Activity, Clock, Award, User, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
+import { useSyncUser } from '@/lib/user-sync-hook';
+import { Image } from '@/components/ui/image';
 
-interface DirectoryStats {
+interface UserStats {
   total: number;
-  verified: number;
-  unverified: number;
-  online: number;
-  inactive: number;
-  offline: number;
+  aprobado: number;
+  pendiente: number;
+  rechazado: number;
+  clientes: number;
+  joseadores: number;
+  admins: number;
 }
 
 export default function AdminUsersVerificationPage() {
   const { member } = useMember();
-  const [users, setUsers] = useState<UserDirectory[]>([]);
-  const [stats, setStats] = useState<DirectoryStats>({
+  useSyncUser(); // Sync current admin user
+  
+  const [users, setUsers] = useState<RegisteredUsers[]>([]);
+  const [stats, setStats] = useState<UserStats>({
     total: 0,
-    verified: 0,
-    unverified: 0,
-    online: 0,
-    inactive: 0,
-    offline: 0
+    aprobado: 0,
+    pendiente: 0,
+    rechazado: 0,
+    clientes: 0,
+    joseadores: 0,
+    admins: 0
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterVerified, setFilterVerified] = useState<'all' | 'verified' | 'unverified'>('all');
-  const [filterActivity, setFilterActivity] = useState<'all' | 'online' | 'inactive' | 'offline'>('all');
+  const [filterVerification, setFilterVerification] = useState<'all' | 'Aprobado' | 'Pendiente' | 'Rechazado'>('all');
+  const [filterRole, setFilterRole] = useState<'all' | 'Cliente' | 'Joseador' | 'Admin'>('all');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
-  const [showSyncResult, setShowSyncResult] = useState(false);
-  const [syncStatus, setSyncStatus] = useState({ wixMembersCount: 0, directoryMembersCount: 0, syncNeeded: false });
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,24 +51,58 @@ export default function AdminUsersVerificationPage() {
     try {
       setIsRefreshing(true);
       
-      // Get stats
-      const newStats = await getDirectoryStats();
+      // Get all users from registeredusers collection
+      const { items } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
+      
+      // Calculate stats
+      const newStats: UserStats = {
+        total: items.length,
+        aprobado: items.filter(u => u.verificationStatus === 'Aprobado').length,
+        pendiente: items.filter(u => u.verificationStatus === 'Pendiente').length,
+        rechazado: items.filter(u => u.verificationStatus === 'Rechazado').length,
+        clientes: items.filter(u => u.role === 'Cliente').length,
+        joseadores: items.filter(u => u.role === 'Joseador').length,
+        admins: items.filter(u => u.role === 'Admin').length
+      };
       setStats(newStats);
 
-      // Get filtered users with pagination
-      const filters: DirectoryFilters = {
-        verificationStatus: filterVerified === 'all' ? 'all' : filterVerified === 'verified' ? 'VERIFIED' : 'UNVERIFIED',
-        activityStatus: filterActivity === 'all' ? 'all' : filterActivity,
-        search: searchTerm || undefined
-      };
+      // Apply filters
+      let filtered = [...items];
 
-      const { items, total } = await listDirectoryUsers(
-        filters,
-        { limit: pageSize, offset: (currentPage - 1) * pageSize }
-      );
+      // Verification filter
+      if (filterVerification !== 'all') {
+        filtered = filtered.filter(u => u.verificationStatus === filterVerification);
+      }
 
-      setUsers(items);
-      setTotalUsers(total);
+      // Role filter
+      if (filterRole !== 'all') {
+        filtered = filtered.filter(u => u.role === filterRole);
+      }
+
+      // Search filter
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase();
+        filtered = filtered.filter(u => {
+          const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+          const nickname = (u.nickname || '').toLowerCase();
+          const email = (u.email || '').toLowerCase();
+          return fullName.includes(search) || nickname.includes(search) || email.includes(search);
+        });
+      }
+
+      // Sort by last login (most recent first)
+      filtered.sort((a, b) => {
+        const dateA = a.lastLoginDate ? new Date(a.lastLoginDate).getTime() : 0;
+        const dateB = b.lastLoginDate ? new Date(b.lastLoginDate).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      // Apply pagination
+      setTotalUsers(filtered.length);
+      const start = (currentPage - 1) * pageSize;
+      const paginated = filtered.slice(start, start + pageSize);
+
+      setUsers(paginated);
       setLastRefreshTime(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
@@ -92,12 +115,11 @@ export default function AdminUsersVerificationPage() {
   // Initial load and setup polling
   useEffect(() => {
     loadData();
-    checkSyncStatus();
 
-    // Set up polling - refresh every 5 seconds
+    // Set up polling - refresh every 10 seconds
     pollIntervalRef.current = setInterval(() => {
       loadData();
-    }, 5000);
+    }, 10000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -110,99 +132,116 @@ export default function AdminUsersVerificationPage() {
   useEffect(() => {
     setCurrentPage(1);
     loadData();
-  }, [searchTerm, filterVerified, filterActivity]);
+  }, [searchTerm, filterVerification, filterRole]);
 
   // Reload when page changes
   useEffect(() => {
     loadData();
   }, [currentPage, pageSize]);
 
-  // Check sync status
-  const checkSyncStatus = async () => {
+  // Handle verification status change
+  const handleChangeVerificationStatus = async (userId: string, newStatus: 'Aprobado' | 'Pendiente' | 'Rechazado') => {
     try {
-      const status = await getSyncStatus();
-      setSyncStatus(status);
-    } catch (error) {
-      console.error('Error checking sync status:', error);
-    }
-  };
-
-  // Handle sync
-  const handleSync = async () => {
-    try {
-      setIsSyncing(true);
-      const result = await syncAllMembersToDirectory();
-      setSyncResult(result);
-      setShowSyncResult(true);
-      
-      // Reload data after sync
-      await loadData();
-      await checkSyncStatus();
-    } catch (error) {
-      console.error('Error syncing members:', error);
-      setSyncResult({
-        success: false,
-        message: 'Error during sync',
-        created: 0,
-        updated: 0,
-        skipped: 0,
-        errors: []
+      await BaseCrudService.update('registeredusers', {
+        _id: userId,
+        verificationStatus: newStatus
       });
-      setShowSyncResult(true);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  // Handle verification toggle
-  const handleToggleVerification = async (memberId: string) => {
-    try {
-      await toggleVerificationStatus(memberId);
       await loadData();
     } catch (error) {
-      console.error('Error toggling verification:', error);
+      console.error('Error updating verification status:', error);
     }
   };
 
-  // Touch last seen when member logs in (called from other pages)
-  useEffect(() => {
-    if (member?.loginEmail) {
-      touchLastSeen(member.loginEmail).catch(err => console.error('Error touching lastSeen:', err));
+  // Handle role change
+  const handleChangeRole = async (userId: string, newRole: 'Cliente' | 'Joseador' | 'Admin') => {
+    try {
+      await BaseCrudService.update('registeredusers', {
+        _id: userId,
+        role: newRole
+      });
+      await loadData();
+    } catch (error) {
+      console.error('Error updating role:', error);
     }
-  }, [member?.loginEmail]);
+  };
+
+  // Handle badges update
+  const handleUpdateBadges = async (userId: string, badges: string) => {
+    try {
+      await BaseCrudService.update('registeredusers', {
+        _id: userId,
+        badges
+      });
+      await loadData();
+    } catch (error) {
+      console.error('Error updating badges:', error);
+    }
+  };
 
   const totalPages = Math.ceil(totalUsers / pageSize);
 
-  const getActivityColor = (status: 'online' | 'inactive' | 'offline') => {
+  const formatLastLogin = (date?: Date | string): string => {
+    if (!date) return 'Nunca';
+    
+    const loginDate = typeof date === 'string' ? new Date(date) : date;
+    const now = new Date();
+    const diffMs = now.getTime() - loginDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Hace unos segundos';
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays}d`;
+    return loginDate.toLocaleDateString('es-DO');
+  };
+
+  const getVerificationColor = (status?: string) => {
     switch (status) {
-      case 'online':
+      case 'Aprobado':
         return 'text-accent';
-      case 'inactive':
+      case 'Rechazado':
+        return 'text-destructive';
+      default:
         return 'text-secondary';
-      case 'offline':
+    }
+  };
+
+  const getVerificationBgColor = (status?: string) => {
+    switch (status) {
+      case 'Aprobado':
+        return 'bg-accent/10';
+      case 'Rechazado':
+        return 'bg-destructive/10';
+      default:
+        return 'bg-secondary/10';
+    }
+  };
+
+  const getRoleColor = (role?: string) => {
+    switch (role) {
+      case 'Admin':
+        return 'text-primary';
+      case 'Joseador':
+        return 'text-support';
+      case 'Cliente':
+        return 'text-support2';
+      default:
         return 'text-muted-text';
     }
   };
 
-  const getActivityBgColor = (status: 'online' | 'inactive' | 'offline') => {
-    switch (status) {
-      case 'online':
-        return 'bg-accent/10';
-      case 'inactive':
-        return 'bg-secondary/10';
-      case 'offline':
+  const getRoleBgColor = (role?: string) => {
+    switch (role) {
+      case 'Admin':
+        return 'bg-primary/10';
+      case 'Joseador':
+        return 'bg-support/10';
+      case 'Cliente':
+        return 'bg-support2/10';
+      default:
         return 'bg-muted-text/10';
-    }
-  };
-
-  const getActivityLabel = (status: 'online' | 'inactive' | 'offline') => {
-    switch (status) {
-      case 'online':
-        return 'En línea';
-      case 'inactive':
-        return 'Inactivo';
-      case 'offline':
-        return 'Desconectado';
     }
   };
 
@@ -250,129 +289,18 @@ export default function AdminUsersVerificationPage() {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
-          {/* Sync Status Alert */}
-          {syncStatus.syncNeeded && !showSyncResult && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-secondary/10 border border-secondary rounded-2xl p-6"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-heading font-semibold text-foreground mb-2">
-                    Sincronización de Usuarios Necesaria
-                  </h3>
-                  <p className="font-paragraph text-sm text-muted-text mb-4">
-                    Se detectaron {syncStatus.wixMembersCount - syncStatus.directoryMembersCount} usuario(s) nuevo(s) en Wix que no están en el directorio.
-                    Haz clic en "Sincronizar Ahora" para importar todos los usuarios.
-                  </p>
-                  <div className="flex items-center gap-4 text-xs font-paragraph text-muted-text mb-4">
-                    <span>Usuarios en Wix: <strong className="text-foreground">{syncStatus.wixMembersCount}</strong></span>
-                    <span>En Directorio: <strong className="text-foreground">{syncStatus.directoryMembersCount}</strong></span>
-                  </div>
-                  <motion.button
-                    onClick={handleSync}
-                    disabled={isSyncing}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white font-heading font-semibold rounded-lg hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <motion.div
-                      animate={isSyncing ? { rotate: 360 } : { rotate: 0 }}
-                      transition={{ duration: 1, repeat: isSyncing ? Infinity : 0 }}
-                    >
-                      <Download size={18} />
-                    </motion.div>
-                    {isSyncing ? 'Sincronizando...' : 'Sincronizar Ahora'}
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Sync Result Alert */}
-          {showSyncResult && syncResult && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={`rounded-2xl p-6 border ${
-                syncResult.success
-                  ? 'bg-accent/10 border-accent'
-                  : 'bg-destructive/10 border-destructive'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-heading font-semibold text-foreground mb-2">
-                    {syncResult.success ? '✓ Sincronización Completada' : '✗ Error en la Sincronización'}
-                  </h3>
-                  <p className="font-paragraph text-sm text-muted-text mb-3">
-                    {syncResult.message}
-                  </p>
-                  {(syncResult.created > 0 || syncResult.updated > 0 || syncResult.skipped > 0) && (
-                    <div className="grid grid-cols-3 gap-3 text-xs font-paragraph mb-4">
-                      {syncResult.created > 0 && (
-                        <div className="bg-white/50 rounded-lg p-2">
-                          <p className="text-muted-text">Creados</p>
-                          <p className="font-heading font-semibold text-accent">{syncResult.created}</p>
-                        </div>
-                      )}
-                      {syncResult.updated > 0 && (
-                        <div className="bg-white/50 rounded-lg p-2">
-                          <p className="text-muted-text">Actualizados</p>
-                          <p className="font-heading font-semibold text-secondary">{syncResult.updated}</p>
-                        </div>
-                      )}
-                      {syncResult.skipped > 0 && (
-                        <div className="bg-white/50 rounded-lg p-2">
-                          <p className="text-muted-text">Omitidos</p>
-                          <p className="font-heading font-semibold text-muted-text">{syncResult.skipped}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {syncResult.errors.length > 0 && (
-                    <div className="bg-white/50 rounded-lg p-3 mb-4">
-                      <p className="font-heading text-xs font-semibold text-destructive mb-2">
-                        Errores ({syncResult.errors.length}):
-                      </p>
-                      <ul className="space-y-1 text-xs font-paragraph text-muted-text">
-                        {syncResult.errors.slice(0, 3).map((err, idx) => (
-                          <li key={idx}>• {err.email || err.memberId}: {err.error}</li>
-                        ))}
-                        {syncResult.errors.length > 3 && (
-                          <li>... y {syncResult.errors.length - 3} más</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  <motion.button
-                    onClick={() => setShowSyncResult(false)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="text-xs px-3 py-1 bg-white/50 text-foreground rounded-lg hover:bg-white transition-colors font-paragraph font-semibold"
-                  >
-                    Cerrar
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
           {/* Title */}
           <div>
             <h1 className="font-heading text-4xl font-bold text-foreground mb-2">
               Verificación de Usuarios
             </h1>
             <p className="font-paragraph text-muted-text">
-              Gestiona la verificación de usuarios y monitorea su actividad en tiempo real
+              Gestiona la verificación de usuarios reales de Wix Members
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <Activity size={28} className="text-primary" />
@@ -384,43 +312,49 @@ export default function AdminUsersVerificationPage() {
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <CheckCircle size={28} className="text-accent" />
-                <h3 className="font-heading text-lg font-semibold text-foreground">Verificados</h3>
+                <h3 className="font-heading text-lg font-semibold text-foreground">Aprobados</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-accent">{stats.verified}</p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <XCircle size={28} className="text-destructive" />
-                <h3 className="font-heading text-lg font-semibold text-foreground">Sin Verificar</h3>
-              </div>
-              <p className="font-heading text-4xl font-bold text-destructive">{stats.unverified}</p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                  <div className="w-7 h-7 rounded-full bg-accent" />
-                </motion.div>
-                <h3 className="font-heading text-lg font-semibold text-foreground">En Línea</h3>
-              </div>
-              <p className="font-heading text-4xl font-bold text-accent">{stats.online}</p>
+              <p className="font-heading text-4xl font-bold text-accent">{stats.aprobado}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
                 <Clock size={28} className="text-secondary" />
-                <h3 className="font-heading text-lg font-semibold text-foreground">Inactivos</h3>
+                <h3 className="font-heading text-lg font-semibold text-foreground">Pendientes</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-secondary">{stats.inactive}</p>
+              <p className="font-heading text-4xl font-bold text-secondary">{stats.pendiente}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-7 h-7 rounded-full bg-muted-text/30" />
-                <h3 className="font-heading text-lg font-semibold text-foreground">Desconectados</h3>
+                <XCircle size={28} className="text-destructive" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Rechazados</h3>
               </div>
-              <p className="font-heading text-4xl font-bold text-muted-text">{stats.offline}</p>
+              <p className="font-heading text-4xl font-bold text-destructive">{stats.rechazado}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <User size={28} className="text-support2" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Clientes</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-support2">{stats.clientes}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <Award size={28} className="text-support" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Joseadores</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-support">{stats.joseadores}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <Shield size={28} className="text-primary" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">Admins</h3>
+              </div>
+              <p className="font-heading text-4xl font-bold text-primary">{stats.admins}</p>
             </div>
           </div>
 
@@ -440,12 +374,12 @@ export default function AdminUsersVerificationPage() {
               </div>
             </div>
 
-            {/* Filter Buttons */}
+            {/* Verification Filter */}
             <div className="flex gap-2 flex-wrap">
               <button
-                onClick={() => setFilterVerified('all')}
+                onClick={() => setFilterVerification('all')}
                 className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                  filterVerified === 'all'
+                  filterVerification === 'all'
                     ? 'bg-primary text-white'
                     : 'bg-background text-foreground border border-border hover:bg-border'
                 }`}
@@ -453,79 +387,78 @@ export default function AdminUsersVerificationPage() {
                 Todos
               </button>
               <button
-                onClick={() => setFilterVerified('verified')}
+                onClick={() => setFilterVerification('Aprobado')}
                 className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                  filterVerified === 'verified'
+                  filterVerification === 'Aprobado'
                     ? 'bg-accent text-white'
                     : 'bg-background text-foreground border border-border hover:bg-border'
                 }`}
               >
-                Verificados
+                Aprobados
               </button>
               <button
-                onClick={() => setFilterVerified('unverified')}
+                onClick={() => setFilterVerification('Pendiente')}
                 className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                  filterVerified === 'unverified'
-                    ? 'bg-destructive text-white'
-                    : 'bg-background text-foreground border border-border hover:bg-border'
-                }`}
-              >
-                Sin Verificar
-              </button>
-            </div>
-
-            {/* Activity Filter */}
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => setFilterActivity('all')}
-                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
-                  filterActivity === 'all'
-                    ? 'bg-primary text-white'
-                    : 'bg-background text-foreground border border-border hover:bg-border'
-                }`}
-              >
-                Todos los Estados
-              </button>
-              <button
-                onClick={() => setFilterActivity('online')}
-                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
-                  filterActivity === 'online'
-                    ? 'bg-accent text-white'
-                    : 'bg-background text-foreground border border-border hover:bg-border'
-                }`}
-              >
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                  <div className={`w-2 h-2 rounded-full ${
-                    filterActivity === 'online' ? 'bg-white' : 'bg-accent'
-                  }`} />
-                </motion.div>
-                En Línea
-              </button>
-              <button
-                onClick={() => setFilterActivity('inactive')}
-                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
-                  filterActivity === 'inactive'
+                  filterVerification === 'Pendiente'
                     ? 'bg-secondary text-white'
                     : 'bg-background text-foreground border border-border hover:bg-border'
                 }`}
               >
-                <div className={`w-2 h-2 rounded-full ${
-                  filterActivity === 'inactive' ? 'bg-white' : 'bg-secondary'
-                }`} />
-                Inactivos
+                Pendientes
               </button>
               <button
-                onClick={() => setFilterActivity('offline')}
-                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all flex items-center gap-2 ${
-                  filterActivity === 'offline'
-                    ? 'bg-muted-text text-white'
+                onClick={() => setFilterVerification('Rechazado')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterVerification === 'Rechazado'
+                    ? 'bg-destructive text-white'
                     : 'bg-background text-foreground border border-border hover:bg-border'
                 }`}
               >
-                <div className={`w-2 h-2 rounded-full ${
-                  filterActivity === 'offline' ? 'bg-white' : 'bg-muted-text'
-                }`} />
-                Desconectados
+                Rechazados
+              </button>
+            </div>
+
+            {/* Role Filter */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setFilterRole('all')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterRole === 'all'
+                    ? 'bg-primary text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Todos los Roles
+              </button>
+              <button
+                onClick={() => setFilterRole('Cliente')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterRole === 'Cliente'
+                    ? 'bg-support2 text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Clientes
+              </button>
+              <button
+                onClick={() => setFilterRole('Joseador')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterRole === 'Joseador'
+                    ? 'bg-support text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Joseadores
+              </button>
+              <button
+                onClick={() => setFilterRole('Admin')}
+                className={`px-4 py-2 rounded-xl font-paragraph font-semibold transition-all ${
+                  filterRole === 'Admin'
+                    ? 'bg-primary text-white'
+                    : 'bg-background text-foreground border border-border hover:bg-border'
+                }`}
+              >
+                Administradores
               </button>
             </div>
           </div>
@@ -545,17 +478,18 @@ export default function AdminUsersVerificationPage() {
                 <table className="w-full">
                   <thead className="bg-background border-b border-border">
                     <tr>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Nombre</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Usuario</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Email</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Rol</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Estado</th>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Última Actividad</th>
-                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Verificación</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Badges</th>
+                      <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Último Login</th>
                       <th className="px-6 py-4 text-left font-heading font-semibold text-foreground">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user, index) => {
-                      const activityStatus = getActivityStatus(user.lastSeen);
+                      const displayName = user.nickname || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Sin nombre';
                       return (
                         <motion.tr
                           key={user._id}
@@ -565,54 +499,76 @@ export default function AdminUsersVerificationPage() {
                           className="border-b border-border hover:bg-background/50 transition-colors"
                         >
                           <td className="px-6 py-4">
-                            <p className="font-paragraph font-semibold text-foreground">{user.fullName}</p>
+                            <div className="flex items-center gap-3">
+                              {user.photoUrl ? (
+                                <Image src={user.photoUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <User size={20} className="text-primary" />
+                                </div>
+                              )}
+                              <p className="font-paragraph font-semibold text-foreground">{displayName}</p>
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <p className="font-paragraph text-sm text-muted-text">{user.email || 'N/A'}</p>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-paragraph text-sm font-semibold ${getActivityBgColor(activityStatus)} ${getActivityColor(activityStatus)}`}>
-                              {activityStatus === 'online' && (
-                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                                  <div className="w-2 h-2 rounded-full bg-current" />
-                                </motion.div>
-                              )}
-                              {activityStatus === 'inactive' && <div className="w-2 h-2 rounded-full bg-current" />}
-                              {activityStatus === 'offline' && <div className="w-2 h-2 rounded-full bg-current opacity-50" />}
-                              {getActivityLabel(activityStatus)}
-                            </span>
+                            <select
+                              value={user.role || 'member'}
+                              onChange={(e) => handleChangeRole(user._id, e.target.value as 'Cliente' | 'Joseador' | 'Admin')}
+                              className={`px-3 py-1 rounded-full font-paragraph text-sm font-semibold border-0 ${getRoleBgColor(user.role)} ${getRoleColor(user.role)} focus:outline-none focus:ring-2 focus:ring-primary`}
+                            >
+                              <option value="member">Usuario</option>
+                              <option value="Cliente">Cliente</option>
+                              <option value="Joseador">Joseador</option>
+                              <option value="Admin">Admin</option>
+                            </select>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="font-paragraph text-sm text-muted-text">{formatLastActivity(user.lastSeen)}</p>
+                            <select
+                              value={user.verificationStatus || 'Pendiente'}
+                              onChange={(e) => handleChangeVerificationStatus(user._id, e.target.value as 'Aprobado' | 'Pendiente' | 'Rechazado')}
+                              className={`px-3 py-1 rounded-full font-paragraph text-sm font-semibold border-0 ${getVerificationBgColor(user.verificationStatus)} ${getVerificationColor(user.verificationStatus)} focus:outline-none focus:ring-2 focus:ring-primary`}
+                            >
+                              <option value="Pendiente">Pendiente</option>
+                              <option value="Aprobado">Aprobado</option>
+                              <option value="Rechazado">Rechazado</option>
+                            </select>
+                          </td>
+                          <td className="px-6 py-4">
+                            <input
+                              type="text"
+                              value={user.badges || ''}
+                              onChange={(e) => handleUpdateBadges(user._id, e.target.value)}
+                              placeholder="Agregar badges..."
+                              className="px-3 py-1 border border-border rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full max-w-[150px]"
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-paragraph text-sm text-muted-text">{formatLastLogin(user.lastLoginDate)}</p>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              {user.verificationStatus === 'VERIFIED' ? (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full font-paragraph text-sm font-semibold">
-                                  <CheckCircle size={16} />
-                                  Verificado
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-destructive/10 text-destructive rounded-full font-paragraph text-sm font-semibold">
-                                  <XCircle size={16} />
-                                  Sin Verificar
-                                </span>
-                              )}
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleChangeVerificationStatus(user._id, 'Aprobado')}
+                                className="p-2 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                                title="Aprobar"
+                              >
+                                <CheckCircle size={18} />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleChangeVerificationStatus(user._id, 'Rechazado')}
+                                className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                                title="Rechazar"
+                              >
+                                <XCircle size={18} />
+                              </motion.button>
                             </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handleToggleVerification(user.memberId || '')}
-                              className={`px-4 py-2 rounded-lg font-paragraph font-semibold transition-all ${
-                                user.verificationStatus === 'VERIFIED'
-                                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
-                                  : 'bg-accent/10 text-accent hover:bg-accent/20'
-                              }`}
-                            >
-                              {user.verificationStatus === 'VERIFIED' ? 'Desverificar' : 'Verificar'}
-                            </motion.button>
                           </td>
                         </motion.tr>
                       );
