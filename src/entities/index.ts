@@ -386,6 +386,10 @@ export interface RegisteredUsers {
   _createdDate?: Date;
   _updatedDate?: Date;
   /** @wixFieldType text */
+  verificationStatus?: string;
+  /** @wixFieldType text */
+  badges?: string;
+  /** @wixFieldType text */
   userId?: string;
   /** @wixFieldType text */
   email?: string;

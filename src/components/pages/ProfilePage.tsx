@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
-import { ProfilePhotos, UserRatings } from '@/entities';
+import { ProfilePhotos, UserRatings, RegisteredUsers } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
 
@@ -26,6 +26,8 @@ function ProfilePage() {
   const [uploadError, setUploadError] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string>('');
+  const [isLoadingVerification, setIsLoadingVerification] = useState(true);
 
   // Sync user to registeredusers collection
   useSyncUser();
@@ -64,6 +66,30 @@ function ProfilePage() {
     if (userRatingsData.length > 0) {
       const avg = userRatingsData.reduce((sum, r) => sum + (r.ratingValue || 0), 0) / userRatingsData.length;
       setAverageRating(Math.round(avg * 10) / 10);
+    }
+
+    // Load verification status from registeredusers collection
+    await loadVerificationStatus();
+  };
+
+  const loadVerificationStatus = async () => {
+    if (!member?.loginEmail) return;
+    
+    setIsLoadingVerification(true);
+    try {
+      const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
+      const currentUser = users.find(u => u.email === member.loginEmail);
+      
+      if (currentUser?.verificationStatus) {
+        setVerificationStatus(currentUser.verificationStatus);
+      } else {
+        setVerificationStatus('no_verificado');
+      }
+    } catch (error) {
+      console.error('Error loading verification status:', error);
+      setVerificationStatus('no_verificado');
+    } finally {
+      setIsLoadingVerification(false);
     }
   };
 
@@ -402,6 +428,43 @@ function ProfilePage() {
                 </div>
               </motion.div>
             )}
+
+            {/* Verification Status Card */}
+            <motion.div
+              whileHover={{ y: -6 }}
+              className="flex items-center gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border-2 border-accent/20 shadow-lg hover:shadow-xl transition-all"
+            >
+              <div className={`p-2 md:p-4 rounded-lg md:rounded-xl flex-shrink-0 ${
+                verificationStatus === 'verificado' 
+                  ? 'bg-gradient-to-br from-accent to-support' 
+                  : 'bg-gradient-to-br from-muted-text to-border'
+              }`}>
+                {isLoadingVerification ? (
+                  <Shield size={20} className="md:w-7 md:h-7 text-white animate-pulse" />
+                ) : verificationStatus === 'verificado' ? (
+                  <CheckCircle size={20} className="md:w-7 md:h-7 text-white" />
+                ) : (
+                  <XCircle size={20} className="md:w-7 md:h-7 text-white" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="font-paragraph text-xs md:text-sm text-muted-text font-semibold">Estado de Verificación</p>
+                {isLoadingVerification ? (
+                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className={`font-paragraph font-bold text-sm md:text-lg ${
+                      verificationStatus === 'verificado' ? 'text-accent' : 'text-muted-text'
+                    }`}>
+                      {verificationStatus === 'verificado' ? 'Verificado' : 'No Verificado'}
+                    </p>
+                    {verificationStatus === 'verificado' && (
+                      <CheckCircle size={16} className="text-accent" />
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </div>
 
           {/* Photo Upload Section - Enhanced */}
