@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings, RegisteredUsers } from '@/entities';
@@ -28,6 +28,10 @@ function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<string>('');
   const [isLoadingVerification, setIsLoadingVerification] = useState(true);
+  const [userBadges, setUserBadges] = useState<string[]>([]);
+  const [registeredUserRole, setRegisteredUserRole] = useState<string>('');
+  const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
 
   // Sync user to registeredusers collection
   useSyncUser();
@@ -45,10 +49,10 @@ function ProfilePage() {
   useEffect(() => {
     loadProfileData();
     
-    // Set up interval to refresh verification status every 30 seconds
+    // Set up interval to refresh user data every 10 seconds for real-time updates
     const intervalId = setInterval(() => {
-      loadVerificationStatus();
-    }, 30000);
+      loadUserDataFromAdmin();
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
@@ -75,26 +79,51 @@ function ProfilePage() {
       setAverageRating(Math.round(avg * 10) / 10);
     }
 
-    // Load verification status from registeredusers collection
-    await loadVerificationStatus();
+    // Load user data from registeredusers collection
+    await loadUserDataFromAdmin();
   };
 
-  const loadVerificationStatus = async () => {
+  const loadUserDataFromAdmin = async () => {
     if (!member?.loginEmail) return;
     
-    setIsLoadingVerification(true);
     try {
       const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
       const currentUser = users.find(u => u.email === member.loginEmail);
       
-      if (currentUser?.verificationStatus) {
-        setVerificationStatus(currentUser.verificationStatus);
+      if (currentUser) {
+        // Check if data has changed
+        const hasChanged = 
+          currentUser.verificationStatus !== verificationStatus ||
+          currentUser.badges !== userBadges.join(',') ||
+          currentUser.role !== registeredUserRole;
+
+        if (hasChanged) {
+          // Show notification when data updates
+          setShowUpdateNotification(true);
+          setLastUpdateTime(new Date());
+          setTimeout(() => setShowUpdateNotification(false), 3000);
+        }
+
+        // Update verification status
+        setVerificationStatus(currentUser.verificationStatus || 'no_verificado');
+        
+        // Update badges
+        if (currentUser.badges) {
+          const badgesArray = currentUser.badges.split(',').map(b => b.trim()).filter(b => b);
+          setUserBadges(badgesArray);
+        } else {
+          setUserBadges([]);
+        }
+
+        // Update role
+        setRegisteredUserRole(currentUser.role || '');
       } else {
         setVerificationStatus('no_verificado');
+        setUserBadges([]);
+        setRegisteredUserRole('');
       }
     } catch (error) {
-      console.error('Error loading verification status:', error);
-      setVerificationStatus('no_verificado');
+      console.error('Error loading user data from admin:', error);
     } finally {
       setIsLoadingVerification(false);
     }
@@ -224,6 +253,35 @@ function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-secondary/5">
+      {/* Real-time Update Notification */}
+      <AnimatePresence>
+        {showUpdateNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 right-4 z-[100] max-w-sm"
+          >
+            <div className="bg-gradient-to-r from-accent to-support text-white px-6 py-4 rounded-xl shadow-2xl border-2 border-white/20 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <RefreshCw size={20} className="text-white" />
+                </motion.div>
+                <div>
+                  <p className="font-heading font-bold text-sm">¡Perfil Actualizado!</p>
+                  <p className="font-paragraph text-xs text-white/90">
+                    Tu información ha sido actualizada por el administrador
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-4 md:px-6 py-3 md:py-4">
@@ -308,6 +366,36 @@ function ProfilePage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Badges Display */}
+                  {userBadges.length > 0 && (
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+                      {userBadges.map((badge, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 px-3 py-1 rounded-full shadow-lg border-2 border-white/30"
+                        >
+                          <Award size={14} className="text-white" />
+                          <span className="font-paragraph text-xs font-bold text-white">
+                            {badge}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Role Display */}
+                  {registeredUserRole && (
+                    <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
+                      <User size={14} className="text-white" />
+                      <span className="font-paragraph text-sm font-semibold text-white capitalize">
+                        {registeredUserRole === 'client' ? 'Cliente' : registeredUserRole === 'joseador' ? 'Joseador' : registeredUserRole}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -422,37 +510,75 @@ function ProfilePage() {
             {/* Verification Status Card */}
             <motion.div
               whileHover={{ y: -6 }}
-              className="flex items-center gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border-2 border-accent/20 shadow-lg hover:shadow-xl transition-all"
+              className="flex items-center gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border-2 border-accent/20 shadow-lg hover:shadow-xl transition-all relative overflow-hidden"
             >
-              <div className={`p-2 md:p-4 rounded-lg md:rounded-xl flex-shrink-0 ${
+              {/* Animated background for verified status */}
+              {verificationStatus === 'verificado' && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-accent/5 to-support/5"
+                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              )}
+              
+              <div className={`relative z-10 p-2 md:p-4 rounded-lg md:rounded-xl flex-shrink-0 ${
                 verificationStatus === 'verificado' 
                   ? 'bg-gradient-to-br from-accent to-support' 
+                  : verificationStatus === 'pendiente'
+                  ? 'bg-gradient-to-br from-yellow-400 to-yellow-500'
                   : 'bg-gradient-to-br from-muted-text to-border'
               }`}>
                 {isLoadingVerification ? (
                   <Shield size={20} className="md:w-7 md:h-7 text-white animate-pulse" />
                 ) : verificationStatus === 'verificado' ? (
                   <CheckCircle size={20} className="md:w-7 md:h-7 text-white" />
+                ) : verificationStatus === 'pendiente' ? (
+                  <AlertCircle size={20} className="md:w-7 md:h-7 text-white" />
                 ) : (
                   <XCircle size={20} className="md:w-7 md:h-7 text-white" />
                 )}
               </div>
-              <div className="min-w-0">
-                <p className="font-paragraph text-xs md:text-sm text-muted-text font-semibold">Estado de Verificación</p>
+              <div className="relative z-10 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-paragraph text-xs md:text-sm text-muted-text font-semibold">Estado de Verificación</p>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="text-primary"
+                  >
+                    <RefreshCw size={12} className="md:w-4 md:h-4" />
+                  </motion.div>
+                </div>
                 {isLoadingVerification ? (
                   <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
                 ) : (
                   <div className="flex items-center gap-2">
                     <p className={`font-paragraph font-bold text-sm md:text-lg ${
-                      verificationStatus === 'verificado' ? 'text-accent' : 'text-muted-text'
+                      verificationStatus === 'verificado' 
+                        ? 'text-accent' 
+                        : verificationStatus === 'pendiente'
+                        ? 'text-yellow-600'
+                        : 'text-muted-text'
                     }`}>
-                      {verificationStatus === 'verificado' ? 'Verificado' : 'No Verificado'}
+                      {verificationStatus === 'verificado' 
+                        ? 'Verificado' 
+                        : verificationStatus === 'pendiente'
+                        ? 'Pendiente'
+                        : 'No Verificado'}
                     </p>
                     {verificationStatus === 'verificado' && (
-                      <CheckCircle size={16} className="text-accent" />
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      >
+                        <CheckCircle size={16} className="text-accent" />
+                      </motion.div>
                     )}
                   </div>
                 )}
+                <p className="font-paragraph text-xs text-muted-text mt-1">
+                  Actualizado: {lastUpdateTime.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}
+                </p>
               </div>
             </motion.div>
           </div>
