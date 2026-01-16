@@ -183,3 +183,31 @@ export async function compressImage(
     }
   });
 }
+
+/**
+ * Uploads a file and returns the data URL
+ * This function converts the file to a data URL for storage
+ * @param file - The file to upload
+ * @returns Promise with the data URL string
+ */
+export async function uploadFile(file: File): Promise<string> {
+  // Validate the file
+  if (!isValidImageFile(file)) {
+    throw new Error('Archivo inválido. Por favor, sube una imagen válida (JPG, PNG, GIF, WEBP) menor a 10MB.');
+  }
+
+  try {
+    // Compress the image if it's too large
+    const compressed = await compressImage(file);
+    
+    // Convert compressed blob to File
+    const compressedFile = new File([compressed], file.name, { type: file.type });
+    
+    // Convert to data URL
+    const dataUrl = await createPreviewUrl(compressedFile);
+    
+    return dataUrl;
+  } catch (error) {
+    throw new Error(getUploadErrorMessage(error));
+  }
+}
