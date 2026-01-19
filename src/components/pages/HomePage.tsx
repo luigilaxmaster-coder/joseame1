@@ -51,13 +51,13 @@ export default function HomePage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="absolute top-8 left-8 z-20"
+          className="absolute top-6 left-6 md:top-8 md:left-8 z-20"
         >
           <Image
-            src="https://static.wixstatic.com/media/307f6c_d815151dd9f247fa80ac2dd9fc27578a~mv2.png?originWidth=128&originHeight=128"
+            src="https://static.wixstatic.com/media/307f6c_d815151dd9f247fa80ac2dd9fc27578a~mv2.png"
             alt="Joseame Logo"
-            width={180}
-            className="drop-shadow-2xl"
+            width={200}
+            className="drop-shadow-2xl hover:scale-105 transition-transform duration-300"
           />
         </motion.div>
         {/* Animated shapes */}
@@ -493,7 +493,7 @@ export default function HomePage() {
                 description: 'Los clientes publican trabajos, los joseadores aplican con propuestas',
                 color: 'from-primary to-secondary',
                 icon: Briefcase,
-                image: 'https://static.wixstatic.com/media/307f6c_3e30b6b2fb8943d691152c0c8fcc654d~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_cba910a5aa8447dba31325d566c342bf~mv2.png'
               },
               {
                 number: 2,
@@ -501,7 +501,7 @@ export default function HomePage() {
                 description: 'El dinero se guarda en escrow hasta completar el trabajo',
                 color: 'from-accent to-support',
                 icon: Shield,
-                image: 'https://static.wixstatic.com/media/307f6c_00fb0fab73f1483f984c7c3512fdeda6~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_a83f826a176149d1844ec7b74e4f3df2~mv2.png'
               },
               {
                 number: 3,
@@ -509,7 +509,7 @@ export default function HomePage() {
                 description: 'Una vez aprobado, el pago se libera automáticamente',
                 color: 'from-support to-support2',
                 icon: CheckCircle,
-                image: 'https://static.wixstatic.com/media/307f6c_17a7f3a5d6cf4717885007564214f637~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_778e3d21b78e41e09302d86dc1f9d8c5~mv2.png'
               }
             ].map((step, index) => (
               <motion.div
@@ -581,44 +581,110 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Process Diagram */}
+          {/* Process Diagram - Enhanced */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-20 bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-2xl border-2 border-border"
+            className="mt-20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 rounded-3xl p-10 shadow-2xl border-2 border-primary/20 relative overflow-hidden"
           >
-            <h3 className="font-heading text-2xl font-bold text-center mb-8 text-foreground">
-              Flujo del Proceso
-            </h3>
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {[
-                { text: 'Cliente Publica', icon: Search },
-                { text: 'Joseador Aplica', icon: UserCheck },
-                { text: 'Pago en Escrow', icon: Lock },
-                { text: 'Trabajo Realizado', icon: Settings },
-                { text: 'Confirmación', icon: CheckCircle },
-                { text: 'Pago Liberado', icon: DollarSign }
-              ].map((step, index) => (
-                <div key={index} className="flex items-center">
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-support/10 rounded-full blur-3xl" />
+            
+            <div className="relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mb-10"
+              >
+                <h3 className="font-heading text-3xl md:text-4xl font-bold mb-3 text-foreground">
+                  Flujo del <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">Proceso</span>
+                </h3>
+                <p className="text-muted-text text-lg">De principio a fin, un proceso simple y seguro</p>
+              </motion.div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {[
+                  { text: 'Cliente Publica', icon: Search, desc: 'Describe tu proyecto', color: 'from-blue-500 to-cyan-500' },
+                  { text: 'Joseador Aplica', icon: UserCheck, desc: 'Profesionales ofertan', color: 'from-purple-500 to-pink-500' },
+                  { text: 'Pago en Escrow', icon: Lock, desc: 'Dinero protegido', color: 'from-green-500 to-emerald-500' },
+                  { text: 'Trabajo Realizado', icon: Settings, desc: 'Servicio ejecutado', color: 'from-orange-500 to-red-500' },
+                  { text: 'Confirmación', icon: CheckCircle, desc: 'Cliente aprueba', color: 'from-indigo-500 to-blue-500' },
+                  { text: 'Pago Liberado', icon: DollarSign, desc: 'Fondos transferidos', color: 'from-teal-500 to-cyan-500' }
+                ].map((step, index) => (
                   <motion.div
-                    whileHover={{ scale: 1.15, rotate: 2 }}
-                    className="bg-gradient-to-br from-primary via-secondary to-support text-white px-6 py-3 rounded-full font-semibold shadow-xl border-2 border-white flex items-center gap-2"
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    whileHover={{ y: -5, scale: 1.03 }}
+                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-border group relative overflow-hidden"
                   >
-                    <step.icon className="w-5 h-5" />
-                    {step.text}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                    
+                    <div className="flex items-start gap-4 relative z-10">
+                      <motion.div
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                        className={`w-14 h-14 bg-gradient-to-br ${step.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
+                      >
+                        <step.icon className="w-7 h-7 text-white" />
+                      </motion.div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`w-8 h-8 bg-gradient-to-br ${step.color} text-white rounded-full flex items-center justify-center text-sm font-bold`}>
+                            {index + 1}
+                          </span>
+                          <h4 className="font-heading text-lg font-semibold text-foreground">
+                            {step.text}
+                          </h4>
+                        </div>
+                        <p className="text-sm text-muted-text">{step.desc}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Arrow connector for desktop */}
+                    {index < 5 && (
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-20"
+                      >
+                        <ArrowRight className="w-6 h-6 text-primary" />
+                      </motion.div>
+                    )}
                   </motion.div>
-                  {index < 5 && (
+                ))}
+              </div>
+              
+              {/* Timeline visualization */}
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                whileInView={{ opacity: 1, scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.8 }}
+                className="hidden md:flex items-center justify-center gap-2 mt-8"
+              >
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex items-center">
                     <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <ArrowRight className="w-6 h-6 text-primary mx-2" />
-                    </motion.div>
-                  )}
-                </div>
-              ))}
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: 0.9 + i * 0.1 }}
+                      className="w-4 h-4 bg-gradient-to-br from-primary to-secondary rounded-full shadow-lg"
+                    />
+                    {i < 5 && (
+                      <div className="w-16 h-1 bg-gradient-to-r from-primary to-secondary" />
+                    )}
+                  </div>
+                ))}
+              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -741,7 +807,7 @@ export default function HomePage() {
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <Image
-                    src="https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png"
+                    src="https://static.wixstatic.com/media/307f6c_aaa051211e2e41c1beb96fc5cb0b7cc3~mv2.png?originWidth=768&originHeight=576"
                     alt="Únete ahora"
                     width={800}
                     className="rounded-3xl shadow-2xl"
