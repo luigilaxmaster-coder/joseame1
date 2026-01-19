@@ -91,20 +91,25 @@ function ProfilePage() {
       const currentUser = users.find(u => u.email === member.loginEmail);
       
       if (currentUser) {
-        // Check if data has changed
-        const hasChanged = 
+        // Normalize current badges for comparison
+        const currentBadgesString = userBadges.join(',');
+        const newBadgesString = currentUser.badges || '';
+        
+        // Check if data has changed (only show notification after initial load)
+        const hasChanged = !isLoadingVerification && (
           currentUser.verificationStatus !== verificationStatus ||
-          currentUser.badges !== userBadges.join(',') ||
-          currentUser.role !== registeredUserRole;
+          newBadgesString !== currentBadgesString ||
+          currentUser.role !== registeredUserRole
+        );
 
         if (hasChanged) {
-          // Show notification when data updates
+          // Show notification when data updates from admin
           setShowUpdateNotification(true);
           setLastUpdateTime(new Date());
           setTimeout(() => setShowUpdateNotification(false), 3000);
         }
 
-        // Update verification status
+        // Update verification status - always sync with admin panel
         setVerificationStatus(currentUser.verificationStatus || 'no_verificado');
         
         // Update badges
@@ -118,6 +123,7 @@ function ProfilePage() {
         // Update role
         setRegisteredUserRole(currentUser.role || '');
       } else {
+        // User not found in registeredusers - set defaults
         setVerificationStatus('no_verificado');
         setUserBadges([]);
         setRegisteredUserRole('');
