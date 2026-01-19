@@ -820,7 +820,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Dynamic Flow Diagram Section - Complete JOSEAME Flow */}
+        {/* Dynamic Flow Diagram Section - Circular Carousel */}
         <section className="py-12 md:py-32 bg-gradient-to-br from-white via-secondary/10 to-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-15">
             <div className="absolute top-1/4 left-0 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
@@ -842,202 +842,200 @@ export default function HomePage() {
               </motion.div>
             </AnimatedElement>
 
-            {/* Desktop Flow Diagram */}
+            {/* Desktop Circular Carousel */}
             <div className="hidden lg:block">
-              <div className="relative">
-                {/* Main Flow Path */}
-                <div className="grid grid-cols-5 gap-6 mb-12">
-                  {[
-                    {
-                      icon: Briefcase,
-                      title: 'Cliente Publica',
-                      subtitle: 'Trabajo',
-                      description: 'Define el trabajo, presupuesto y requisitos',
-                      color: 'from-primary to-secondary',
-                      step: '1'
-                    },
-                    {
-                      icon: Search,
-                      title: 'Joseadores',
-                      subtitle: 'Exploran',
-                      description: 'Buscan trabajos relevantes en su área',
-                      color: 'from-secondary to-accent',
-                      step: '2'
-                    },
-                    {
-                      icon: FileText,
-                      title: 'Envían',
-                      subtitle: 'Propuestas',
-                      description: 'Presentan su oferta y experiencia',
-                      color: 'from-accent to-support',
-                      step: '3'
-                    },
-                    {
-                      icon: Handshake,
-                      title: 'Cliente',
-                      subtitle: 'Selecciona',
-                      description: 'Elige al mejor profesional',
-                      color: 'from-support to-primary',
-                      step: '4'
-                    },
-                    {
-                      icon: Rocket,
-                      title: 'Trabajo',
-                      subtitle: 'Comienza',
-                      description: 'Se formaliza el acuerdo',
-                      color: 'from-primary to-accent',
-                      step: '5'
-                    }
-                  ].map((item, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.6 }}
-                      className="relative"
-                    >
-                      <div className="bg-white rounded-3xl p-6 border-2 border-border/50 h-full relative overflow-hidden group hover:border-primary/50 transition-all hover:shadow-xl">
-                        <motion.div
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
-                          transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
-                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
-                        />
-                        
-                        <div className="relative z-10 flex flex-col items-center text-center">
-                          <motion.div
-                            whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-lg`}
-                          >
-                            <item.icon className="text-white" size={32} />
-                          </motion.div>
-                          
-                          <div className="mb-2">
-                            <h3 className="font-heading text-lg font-bold text-foreground">{item.title}</h3>
-                            <h4 className="font-heading text-base font-semibold text-primary">{item.subtitle}</h4>
-                          </div>
-                          
-                          <p className="text-xs text-muted-text leading-relaxed">{item.description}</p>
-                          
-                          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
-                            {item.step}
-                          </div>
-                        </div>
-                      </div>
-
-                      {index < 4 && (
-                        <motion.div
-                          initial={{ opacity: 0, scaleX: 0 }}
-                          whileInView={{ opacity: 1, scaleX: 1 }}
-                          transition={{ delay: index * 0.1 + 0.3, duration: 0.6 }}
-                          className="absolute -right-3 top-1/2 transform -translate-y-1/2 z-20"
-                        >
-                          <ArrowRight className="text-primary" size={24} />
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Second Row - Execution Phase */}
-                <div className="grid grid-cols-4 gap-6 mt-8">
-                  {[
-                    {
-                      icon: Wallet,
-                      title: 'Pago Seguro',
-                      subtitle: 'Escrow',
-                      description: 'Fondos protegidos hasta completar',
-                      color: 'from-secondary to-accent',
-                      step: '6'
-                    },
-                    {
-                      icon: Target,
-                      title: 'Joseador',
-                      subtitle: 'Ejecuta',
-                      description: 'Realiza el trabajo con calidad',
-                      color: 'from-accent to-support',
-                      step: '7'
-                    },
-                    {
-                      icon: Shield,
-                      title: 'Cliente',
-                      subtitle: 'Verifica',
-                      description: 'Revisa y aprueba el resultado',
-                      color: 'from-support to-primary',
-                      step: '8'
-                    },
-                    {
-                      icon: DollarSign,
-                      title: 'Pago',
-                      subtitle: 'Liberado',
-                      description: 'Joseador recibe su compensación',
-                      color: 'from-primary to-secondary',
-                      step: '9'
-                    }
-                  ].map((item, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                      className="relative"
-                    >
-                      <div className="bg-white rounded-3xl p-6 border-2 border-border/50 h-full relative overflow-hidden group hover:border-accent/50 transition-all hover:shadow-xl">
-                        <motion.div
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
-                          transition={{ duration: 3, repeat: Infinity, delay: 0.5 + index * 0.3 }}
-                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
-                        />
-                        
-                        <div className="relative z-10 flex flex-col items-center text-center">
-                          <motion.div
-                            whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-lg`}
-                          >
-                            <item.icon className="text-white" size={32} />
-                          </motion.div>
-                          
-                          <div className="mb-2">
-                            <h3 className="font-heading text-lg font-bold text-foreground">{item.title}</h3>
-                            <h4 className="font-heading text-base font-semibold text-accent">{item.subtitle}</h4>
-                          </div>
-                          
-                          <p className="text-xs text-muted-text leading-relaxed">{item.description}</p>
-                          
-                          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-accent to-support flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
-                            {item.step}
-                          </div>
-                        </div>
-                      </div>
-
-                      {index < 3 && (
-                        <motion.div
-                          initial={{ opacity: 0, scaleX: 0 }}
-                          whileInView={{ opacity: 1, scaleX: 1 }}
-                          transition={{ delay: 0.5 + index * 0.1 + 0.3, duration: 0.6 }}
-                          className="absolute -right-3 top-1/2 transform -translate-y-1/2 z-20"
-                        >
-                          <ArrowRight className="text-accent" size={24} />
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Connecting Line from Step 5 to Step 6 */}
+              <div className="relative flex items-center justify-center min-h-[800px]">
+                {/* Central Hub */}
                 <motion.div
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  whileInView={{ opacity: 1, scaleY: 1 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
-                  className="absolute left-[90%] top-[45%] w-1 h-16 bg-gradient-to-b from-primary to-accent"
-                  style={{ transformOrigin: 'top' }}
-                />
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="absolute z-30"
+                >
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center shadow-2xl">
+                    <div className="w-40 h-40 rounded-full bg-white flex flex-col items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Heart className="text-primary mb-2" size={40} />
+                      </motion.div>
+                      <span className="font-heading text-lg font-bold text-foreground text-center">JOSEAME</span>
+                      <span className="font-heading text-xs text-muted-text">Flujo</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Circular Path */}
+                <svg className="absolute w-[700px] h-[700px]" viewBox="0 0 700 700">
+                  <motion.circle
+                    cx="350"
+                    cy="350"
+                    r="280"
+                    fill="none"
+                    stroke="url(#gradient)"
+                    strokeWidth="3"
+                    strokeDasharray="8 8"
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    transition={{ duration: 2, ease: "easeInOut" }}
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#0E9FA8" />
+                      <stop offset="33%" stopColor="#3AB689" />
+                      <stop offset="66%" stopColor="#71D261" />
+                      <stop offset="100%" stopColor="#55C376" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                {/* Circular Items */}
+                {[
+                  {
+                    icon: Briefcase,
+                    title: 'Cliente Publica',
+                    description: 'Define trabajo y presupuesto',
+                    color: 'from-primary to-secondary',
+                    step: '1',
+                    angle: 0
+                  },
+                  {
+                    icon: Search,
+                    title: 'Joseadores Exploran',
+                    description: 'Buscan oportunidades',
+                    color: 'from-secondary to-accent',
+                    step: '2',
+                    angle: 40
+                  },
+                  {
+                    icon: FileText,
+                    title: 'Envían Propuestas',
+                    description: 'Presentan su oferta',
+                    color: 'from-accent to-support',
+                    step: '3',
+                    angle: 80
+                  },
+                  {
+                    icon: Handshake,
+                    title: 'Cliente Selecciona',
+                    description: 'Elige al profesional',
+                    color: 'from-support to-primary',
+                    step: '4',
+                    angle: 120
+                  },
+                  {
+                    icon: Rocket,
+                    title: 'Trabajo Comienza',
+                    description: 'Se formaliza acuerdo',
+                    color: 'from-primary to-accent',
+                    step: '5',
+                    angle: 160
+                  },
+                  {
+                    icon: Wallet,
+                    title: 'Pago Seguro',
+                    description: 'Fondos protegidos',
+                    color: 'from-secondary to-accent',
+                    step: '6',
+                    angle: 200
+                  },
+                  {
+                    icon: Target,
+                    title: 'Joseador Ejecuta',
+                    description: 'Realiza el trabajo',
+                    color: 'from-accent to-support',
+                    step: '7',
+                    angle: 240
+                  },
+                  {
+                    icon: Shield,
+                    title: 'Cliente Verifica',
+                    description: 'Revisa y aprueba',
+                    color: 'from-support to-primary',
+                    step: '8',
+                    angle: 280
+                  },
+                  {
+                    icon: DollarSign,
+                    title: 'Pago Liberado',
+                    description: 'Joseador recibe pago',
+                    color: 'from-primary to-secondary',
+                    step: '9',
+                    angle: 320
+                  }
+                ].map((item, index) => {
+                  const radius = 280;
+                  const angleRad = (item.angle * Math.PI) / 180;
+                  const x = Math.cos(angleRad) * radius;
+                  const y = Math.sin(angleRad) * radius;
+
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 + index * 0.1, duration: 0.6, type: 'spring' }}
+                      className="absolute"
+                      style={{
+                        left: `calc(50% + ${x}px)`,
+                        top: `calc(50% + ${y}px)`,
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.15, rotate: 5, transition: { type: 'spring', stiffness: 300 } }}
+                        className="relative"
+                      >
+                        <div className="bg-white rounded-2xl p-6 border-2 border-border/50 shadow-xl hover:shadow-2xl transition-all w-44 relative overflow-hidden group hover:border-primary/50">
+                          <motion.div
+                            animate={{ opacity: [0.2, 0.5, 0.2] }}
+                            transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
+                            className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-30 transition-opacity`}
+                          />
+                          
+                          <div className="relative z-10 flex flex-col items-center text-center">
+                            <motion.div
+                              animate={{ rotate: [0, 360] }}
+                              transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: index * 0.5 }}
+                              className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 shadow-lg`}
+                            >
+                              <item.icon className="text-white" size={28} />
+                            </motion.div>
+                            
+                            <h3 className="font-heading text-sm font-bold text-foreground mb-1">{item.title}</h3>
+                            <p className="text-xs text-muted-text leading-tight">{item.description}</p>
+                            
+                            <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
+                              {item.step}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Connecting Line to Center */}
+                        <motion.div
+                          initial={{ scaleX: 0 }}
+                          whileInView={{ scaleX: 1 }}
+                          transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                          className="absolute top-1/2 left-1/2 w-1 bg-gradient-to-r from-primary/30 to-transparent"
+                          style={{
+                            height: '2px',
+                            width: `${radius - 100}px`,
+                            transform: `rotate(${item.angle + 180}deg)`,
+                            transformOrigin: 'left center'
+                          }}
+                        />
+                      </motion.div>
+                    </motion.div>
+                  );
+                })}
 
                 {/* Success Badge */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
-                  className="text-center mt-12"
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.5, duration: 0.6 }}
+                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
                 >
                   <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-8 py-4 border-2 border-accent/30 shadow-lg">
                     <motion.div
