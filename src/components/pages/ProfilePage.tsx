@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw, Clock } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
-import { ProfilePhotos, UserRatings, RegisteredUsers } from '@/entities';
+import { ProfilePhotos, UserRatings, RegisteredUsers, UserVerification } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
 
@@ -87,17 +87,28 @@ function ProfilePage() {
     if (!member?.loginEmail) return;
     
     try {
+      // Get current user from registeredusers
       const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
       const currentUser = users.find(u => u.email === member.loginEmail);
       
-      if (currentUser) {
+      if (currentUser && currentUser.userId) {
+        // Query UserVerification collection (single source of truth)
+        const { items: verificationItems } = await BaseCrudService.getAll<UserVerification>('userverification');
+        const userVerification = verificationItems.find(v => v.joseadorId === currentUser.userId);
+
+        // Determine verification status from UserVerification collection
+        let verificationStatusValue = 'Pendiente';
+        if (userVerification) {
+          verificationStatusValue = userVerification.isVerified ? 'Aprobado' : 'Pendiente';
+        }
+
         // Normalize current badges for comparison
         const currentBadgesString = userBadges.join(',');
         const newBadgesString = currentUser.badges || '';
         
         // Check if data has changed (only show notification after initial load)
         const hasChanged = !isLoadingVerification && (
-          currentUser.verificationStatus !== verificationStatus ||
+          verificationStatusValue !== verificationStatus ||
           newBadgesString !== currentBadgesString ||
           currentUser.role !== registeredUserRole
         );
@@ -109,8 +120,8 @@ function ProfilePage() {
           setTimeout(() => setShowUpdateNotification(false), 3000);
         }
 
-        // Update verification status - always sync with admin panel
-        setVerificationStatus(currentUser.verificationStatus || 'no_verificado');
+        // Update verification status from UserVerification collection
+        setVerificationStatus(verificationStatusValue);
         
         // Update badges
         if (currentUser.badges) {
@@ -124,7 +135,7 @@ function ProfilePage() {
         setRegisteredUserRole(currentUser.role || '');
       } else {
         // User not found in registeredusers - set defaults
-        setVerificationStatus('no_verificado');
+        setVerificationStatus('Pendiente');
         setUserBadges([]);
         setRegisteredUserRole('');
       }
@@ -519,7 +530,7 @@ function ProfilePage() {
               className="flex items-center gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border-2 border-accent/20 shadow-lg hover:shadow-xl transition-all relative overflow-hidden"
             >
               {/* Animated background for verified status */}
-              {verificationStatus === 'verificado' && (
+              {verificationStatus === 'Aprobado' && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-accent/5 to-support/5"
                   animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -528,18 +539,18 @@ function ProfilePage() {
               )}
               
               <div className={`relative z-10 p-2 md:p-4 rounded-lg md:rounded-xl flex-shrink-0 ${
-                verificationStatus === 'verificado' 
+                verificationStatus === 'Aprobado' 
                   ? 'bg-gradient-to-br from-accent to-support' 
-                  : verificationStatus === 'pendiente'
+                  : verificationStatus === 'Pendiente'
                   ? 'bg-gradient-to-br from-yellow-400 to-yellow-500'
-                  : 'bg-gradient-to-br from-muted-text to-border'
+                  : 'bg-gradient-to-br from-destructive to-red-600'
               }`}>
                 {isLoadingVerification ? (
                   <Shield size={20} className="md:w-7 md:h-7 text-white animate-pulse" />
-                ) : verificationStatus === 'verificado' ? (
+                ) : verificationStatus === 'Aprobado' ? (
                   <CheckCircle size={20} className="md:w-7 md:h-7 text-white" />
-                ) : verificationStatus === 'pendiente' ? (
-                  <AlertCircle size={20} className="md:w-7 md:h-7 text-white" />
+                ) : verificationStatus === 'Pendiente' ? (
+                  <Clock size={20} className="md:w-7 md:h-7 text-white" />
                 ) : (
                   <XCircle size={20} className="md:w-7 md:h-7 text-white" />
                 )}
@@ -560,19 +571,19 @@ function ProfilePage() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <p className={`font-paragraph font-bold text-sm md:text-lg ${
-                      verificationStatus === 'verificado' 
+                      verificationStatus === 'Aprobado' 
                         ? 'text-accent' 
-                        : verificationStatus === 'pendiente'
+                        : verificationStatus === 'Pendiente'
                         ? 'text-yellow-600'
-                        : 'text-muted-text'
+                        : 'text-destructive'
                     }`}>
-                      {verificationStatus === 'verificado' 
+                      {verificationStatus === 'Aprobado' 
                         ? 'Verificado' 
-                        : verificationStatus === 'pendiente'
+                        : verificationStatus === 'Pendiente'
                         ? 'Pendiente'
-                        : 'No Verificado'}
+                        : 'Rechazado'}
                     </p>
-                    {verificationStatus === 'verificado' && (
+                    {verificationStatus === 'Aprobado' && (
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 1, repeat: Infinity }}

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
-import { RegisteredUsers, JoseadoresProfiles, UserDirectory } from '@/entities';
+import { RegisteredUsers, JoseadoresProfiles, UserDirectory, UserVerification } from '@/entities';
 import { ArrowLeft, Search, CheckCircle, XCircle, RefreshCw, Activity, Clock, Award, User, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useSyncUser } from '@/lib/user-sync-hook';
 import { Image } from '@/components/ui/image';
@@ -175,15 +175,40 @@ export default function AdminUsersVerificationPage() {
     try {
       // Find the user to get their email and role
       const user = users.find(u => u._id === userId);
-      if (!user) return;
+      if (!user || !user.userId) return;
 
-      // Update in registeredusers
+      // 1. Update or create in UserVerification collection (single source of truth)
+      const { items: verificationItems } = await BaseCrudService.getAll<UserVerification>('userverification');
+      const existingVerification = verificationItems.find(v => v.joseadorId === user.userId);
+
+      if (existingVerification) {
+        // Update existing verification record
+        await BaseCrudService.update('userverification', {
+          _id: existingVerification._id,
+          isVerified: newStatus === 'Aprobado',
+          verificationDate: newStatus === 'Aprobado' ? new Date().toISOString() : existingVerification.verificationDate,
+          verifiedByAdmin: member?.loginEmail || 'admin'
+        });
+      } else {
+        // Create new verification record
+        await BaseCrudService.create('userverification', {
+          _id: crypto.randomUUID(),
+          joseadorId: user.userId,
+          joseadorEmail: user.email,
+          joseadorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.nickname || 'Sin nombre',
+          isVerified: newStatus === 'Aprobado',
+          verificationDate: newStatus === 'Aprobado' ? new Date().toISOString() : undefined,
+          verifiedByAdmin: member?.loginEmail || 'admin'
+        });
+      }
+
+      // 2. Update in registeredusers (for backward compatibility and admin panel display)
       await BaseCrudService.update('registeredusers', {
         _id: userId,
         verificationStatus: newStatus
       });
 
-      // Sync to related profiles
+      // 3. Sync to related profiles
       await syncVerificationToProfiles(user, newStatus);
 
       // Show success toast
