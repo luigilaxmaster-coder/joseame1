@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Wallet, TrendingUp, ShoppingCart, DollarSign, Calendar, Zap, Award, Target, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import DashboardWithBottomTabs from '@/components/DashboardWithBottomTabs';
+import { Button } from '@/components/ui/button';
 
 function WalletContent() {
+  const navigate = useNavigate();
   const [balance] = useState(0);
   const [freeQuotaBalance] = useState(5);
   const [piquetesBalance] = useState(5);
@@ -20,10 +22,20 @@ function WalletContent() {
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-30">
         <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-4">
-          <h1 className="font-heading text-2xl font-bold text-foreground">
-            Mi Wallet
-          </h1>
-          <p className="font-paragraph text-muted-text text-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="h-9 w-9 rounded-full hover:bg-accent/10"
+            >
+              <ArrowLeft className="h-5 w-5 text-foreground" />
+            </Button>
+            <h1 className="font-heading text-2xl font-bold text-foreground">
+              Mi Wallet
+            </h1>
+          </div>
+          <p className="font-paragraph text-muted-text text-sm ml-12">
             Gestiona tus fondos y piquetes
           </p>
         </div>
