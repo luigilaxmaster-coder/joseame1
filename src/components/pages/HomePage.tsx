@@ -169,17 +169,17 @@ export default function HomePage() {
   ];
 
   const clientSteps = [
-    { id: 'client-step-1', step: '1', text: 'Define tu proyecto con claridad: describe lo que necesitas y establece tu presupuesto ideal.' },
-    { id: 'client-step-2', step: '2', text: 'Recibe propuestas de profesionales verificados y compara perfiles, experiencia y valoraciones.' },
-    { id: 'client-step-3', step: '3', text: 'Selecciona al candidato perfecto y acuerda los términos directamente en la plataforma.' },
-    { id: 'client-step-4', step: '4', text: 'Paga con total seguridad. Tu dinero se libera solo cuando el trabajo esté completado a tu satisfacción.' }
+    { id: 'client-step-1', step: '1', icon: FileText, text: 'Publica tu trabajo', subtitle: 'Describe tu proyecto con detalles claros y establece tu presupuesto.' },
+    { id: 'client-step-2', step: '2', icon: Users, text: 'Recibe aplicaciones', subtitle: 'Profesionales calificados envían propuestas. Revisa perfiles y experiencia.' },
+    { id: 'client-step-3', step: '3', icon: Handshake, text: 'Elige al mejor', subtitle: 'Selecciona el profesional ideal y formaliza el acuerdo en la plataforma.' },
+    { id: 'client-step-4', step: '4', icon: DollarSign, text: 'Pago seguro', subtitle: 'Tu dinero se libera solo cuando el trabajo esté completado.' }
   ];
 
   const joseadorSteps = [
-    { id: 'joseador-step-1', step: '1', text: 'Construye tu perfil profesional destacando tus mejores habilidades, experiencia y certificaciones.' },
-    { id: 'joseador-step-2', step: '2', text: 'Descubre oportunidades personalizadas: trabajos filtrados por tu especialidad, ubicación y preferencias.' },
-    { id: 'joseador-step-3', step: '3', text: 'Envía propuestas convincentes que resalten tu valor y diferenciación en el mercado.' },
-    { id: 'joseador-step-4', step: '4', text: 'Ejecuta el proyecto con profesionalismo y recibe tu pago de forma rápida y segura en tu billetera digital.' }
+    { id: 'joseador-step-1', step: '1', icon: Star, text: 'Crea tu perfil', subtitle: 'Destaca tus habilidades, experiencia y verifica tu identidad.' },
+    { id: 'joseador-step-2', step: '2', icon: Search, text: 'Explora trabajos', subtitle: 'Feed personalizado filtrado por categoría y ubicación.' },
+    { id: 'joseador-step-3', step: '3', icon: Target, text: 'Envía propuestas', subtitle: 'Aplica a los trabajos que te interesen con propuestas atractivas.' },
+    { id: 'joseador-step-4', step: '4', icon: Wallet, text: 'Recibe tu pago', subtitle: 'Completa el trabajo y recibe tu pago directo en tu wallet.' }
   ];
   
   const popularCategories = [
@@ -698,14 +698,14 @@ export default function HomePage() {
             <AnimatedElement className="text-center mb-8 md:mb-24">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 mb-4">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-heading font-semibold text-primary">Tu Camino al Éxito</span>
+                <span className="text-sm font-heading font-semibold text-primary">Simple, Transparente y Directo</span>
               </div>
               <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-3 md:mb-6">
-                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Conecta, Colabora y Crece</span>
+                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Tu flujo de trabajo intuitivo</span>
               </h2>
               <p className="text-sm md:text-xl text-muted-text max-w-4xl mx-auto leading-relaxed">
-                Un proceso <span className="font-bold text-primary">inteligente y fluido</span> diseñado para que encuentres el talento perfecto o las mejores oportunidades. 
-                <span className="block mt-2 font-semibold text-foreground">Cada paso está pensado para darte seguridad, claridad y resultados.</span>
+                Diseñamos un proceso <span className="font-bold text-primary">claro y eficiente</span> que te da control total y confianza absoluta en cada paso. 
+                <span className="block mt-2 font-semibold text-foreground">Conecta con el talento o las oportunidades que necesitas de forma rápida y segura.</span>
               </p>
             </AnimatedElement>
 
@@ -730,12 +730,18 @@ export default function HomePage() {
                     <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
                       <motion.div
                         whileHover={{ x: 6, scale: 1.02 }}
-                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-primary/5 transition-all border border-transparent hover:border-primary/20"
+                        className="flex items-start gap-3 md:gap-6 p-4 md:p-6 rounded-2xl hover:bg-primary/5 transition-all border border-transparent hover:border-primary/20 bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-lg"
                       >
-                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-lg">
-                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <item.icon className="text-white" size={24} />
                         </div>
-                        <p className="pt-1.5 md:pt-3 text-sm md:text-lg font-heading font-bold text-foreground">{item.text}</p>
+                        <div className="flex-1 pt-0.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-heading text-xs md:text-sm font-bold text-primary/70">Paso {item.step}</span>
+                          </div>
+                          <h4 className="font-heading text-base md:text-xl font-bold text-foreground mb-1">{item.text}</h4>
+                          <p className="text-xs md:text-base text-muted-text leading-relaxed">{item.subtitle}</p>
+                        </div>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -762,12 +768,18 @@ export default function HomePage() {
                     <AnimatedElement key={item.id} delay={joseadorSteps.indexOf(item) * 150}>
                       <motion.div
                         whileHover={{ x: 6, scale: 1.02 }}
-                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-accent/5 transition-all border border-transparent hover:border-accent/20"
+                        className="flex items-start gap-3 md:gap-6 p-4 md:p-6 rounded-2xl hover:bg-accent/5 transition-all border border-transparent hover:border-accent/20 bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-lg"
                       >
-                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
-                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <item.icon className="text-white" size={24} />
                         </div>
-                        <p className="font-paragraph text-sm md:text-lg pt-1.5 md:pt-3 font-bold text-foreground">{item.text}</p>
+                        <div className="flex-1 pt-0.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-heading text-xs md:text-sm font-bold text-secondary/70">Paso {item.step}</span>
+                          </div>
+                          <h4 className="font-heading text-base md:text-xl font-bold text-foreground mb-1">{item.text}</h4>
+                          <p className="text-xs md:text-base text-muted-text leading-relaxed">{item.subtitle}</p>
+                        </div>
                       </motion.div>
                     </AnimatedElement>
                   ))}
@@ -795,7 +807,10 @@ export default function HomePage() {
                     Encuentra el <span className="gradient-text">talento</span> que necesitas
                   </h2>
                 </div>
-                <p className="text-base md:text-lg text-muted-text mt-2 md:mt-3">Desde tareas rápidas hasta proyectos complejos.</p>
+                <p className="text-base md:text-lg text-muted-text mt-2 md:mt-3 max-w-2xl">
+                  Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
+                  Conecta con profesionales en múltiples categorías.
+                </p>
               </motion.div>
             </AnimatedElement>
           </div>
