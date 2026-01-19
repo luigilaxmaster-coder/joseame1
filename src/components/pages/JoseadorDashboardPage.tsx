@@ -30,12 +30,12 @@ function JoseadorDashboardContent() {
   useEffect(() => {
     setUserRole('joseador');
     loadJobs();
-    loadJoseameBalance();
+    loadPiqueteBalance();
     
     // Set up auto-refresh every 5 seconds for live updates
     const refreshInterval = setInterval(() => {
       loadJobs();
-      loadJoseameBalance();
+      loadPiqueteBalance();
     }, 5000);
 
     return () => clearInterval(refreshInterval);
@@ -61,7 +61,7 @@ function JoseadorDashboardContent() {
     setJobs(openJobs);
   };
 
-  const loadJoseameBalance = async () => {
+  const loadPiqueteBalance = async () => {
     if (!member?.loginEmail) return;
     const balance = await getPiqueteBalance(member.loginEmail);
     setPiquetesBalance(balance);
@@ -273,7 +273,7 @@ function JoseadorDashboardContent() {
                   <p className="font-paragraph text-white/60 text-xs md:text-sm mt-1 md:mt-2">Fondos listos para retirar</p>
                 </motion.div>
 
-                {/* Joseames Card */}
+                {/* Piquetes Card */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/20"
@@ -283,7 +283,7 @@ function JoseadorDashboardContent() {
                       <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
                         <Zap size={16} />
                       </div>
-                      <p className="font-paragraph text-white/80 text-xs md:text-sm">Joseames Disponibles</p>
+                      <p className="font-paragraph text-white/80 text-xs md:text-sm">Piquetes Disponibles</p>
                     </div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
@@ -294,14 +294,14 @@ function JoseadorDashboardContent() {
                     </motion.div>
                   </div>
                   <p className="font-paragraph text-white/60 text-xs md:text-sm mb-2 md:mb-4">Créditos para aplicar a trabajos</p>
-                  <Link to="/joseador/buy-joseames">
+                  <Link to="/joseador/buy-piquetes">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="w-full px-3 md:px-4 py-2 md:py-3 bg-white text-secondary rounded-lg md:rounded-xl font-paragraph text-xs md:text-base font-semibold hover:bg-white/90 transition-all flex items-center justify-center gap-1 md:gap-2"
                     >
                       <ShoppingCart size={14} />
-                      Comprar Joseames
+                      Comprar Piquetes
                     </motion.button>
                   </Link>
                 </motion.div>

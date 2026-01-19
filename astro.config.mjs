@@ -8,7 +8,6 @@ import react from "@astrojs/react";
 import sourceAttrsPlugin from "@wix/babel-plugin-jsx-source-attrs";
 import dynamicDataPlugin from "@wix/babel-plugin-jsx-dynamic-data";
 import customErrorOverlayPlugin from "./vite-error-overlay-plugin.js";
-import postcssPseudoToData from "@wix/postcss-pseudo-to-data";
 
 const isBuild = process.env.NODE_ENV == "production";
 
@@ -23,8 +22,16 @@ export default defineConfig({
           if (command === "dev") {
             injectScript(
               "page",
-              `import loadFramewire from "framewire.js";
-              loadFramewire(true);`
+              `const version = new URLSearchParams(location.search).get('framewire');
+              if (version){
+                const localUrl = 'http://localhost:3202/framewire/index.mjs';
+                const cdnUrl = \`https://static.parastorage.com/services/framewire/\${version}/index.mjs\`;
+                const url = version === 'local' ? localUrl : cdnUrl;
+                const framewireModule = await import(url);
+                globalThis.framewire = framewireModule;
+                framewireModule.init({}, import.meta.hot);
+                console.log('Framewire initialized');
+              }`
             );
           }
         },
@@ -33,22 +40,17 @@ export default defineConfig({
     tailwind(),
     wix({
       htmlEmbeds: isBuild,
-      auth: true,
+      auth: true
     }),
-    ...(isBuild ? [monitoring()] : []),
+    isBuild ? monitoring() : undefined,
     react({ babel: { plugins: [sourceAttrsPlugin, dynamicDataPlugin] } }),
   ],
   vite: {
-    plugins: [customErrorOverlayPlugin()],
-    css: !isBuild ? {
-      postcss: {
-        plugins: [
-          postcssPseudoToData(),
-        ],
-      },
-    } : undefined,
+    plugins: [
+      customErrorOverlayPlugin(),
+    ],
   },
-  ...(isBuild && { adapter: cloudProviderFetchAdapter({}) }),
+  adapter: isBuild ? cloudProviderFetchAdapter({}) : undefined,
   devToolbar: {
     enabled: false,
   },
@@ -59,7 +61,4 @@ export default defineConfig({
     allowedHosts: true,
     host: true,
   },
-  security: {
-    checkOrigin: false
-  }
 });

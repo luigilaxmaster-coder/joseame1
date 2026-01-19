@@ -1,898 +1,972 @@
-import { Link } from 'react-router-dom';
+// HPI 3.0 - Dynamic, Intuitive & Colorful Design
+import React, { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
+import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, Star, Rocket, Target, Search, FileText, Handshake, Wallet, DollarSign, Heart } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useSyncUser } from '@/lib/user-sync-hook';
 import CursorGlow from '@/components/CursorGlow';
-import { 
-  Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, 
-  Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle, Globe, Lock, Smartphone, 
-  Headphones, BarChart3, FileCheck, UserCheck, Wallet, Search, Settings 
-} from 'lucide-react';
 
-export default function HomePage() {
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+type AnimatedElementProps = {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  threshold?: number;
+};
+
+const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, delay = 0, threshold = 0.1 }) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    element.classList.add('is-visible');
+                }, delay);
+                observer.unobserve(element);
+            }
+        }, { threshold });
+
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [delay, threshold]);
+
+    return <div ref={ref} className={cn('animate-reveal', className)}>{children}</div>;
+};
+
+const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ['-20%', '20%']);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-white to-background relative overflow-hidden">
-      <CursorGlow />
-      
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-accent/50 to-support/50 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [90, 0, 90],
-            opacity: [0.25, 0.45, 0.25],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-primary/50 to-secondary/50 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            rotate: [0, -90, 0],
-            opacity: [0.15, 0.35, 0.15],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-br from-support2/40 to-accent/40 rounded-full blur-3xl"
-        />
-      </div>
+    <div ref={ref} className={cn("overflow-clip", className)}>
+      <motion.div style={{ y }} className="h-[140%] w-full">
+        <Image src={src} alt={alt} className="w-full h-full object-cover" width={1600} />
+      </motion.div>
+    </div>
+  );
+};
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-secondary to-support text-white py-32 px-6 overflow-hidden min-h-screen flex items-center">
-        {/* Animated shapes */}
-        <motion.div
-          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 right-20 w-32 h-32 bg-white/20 rounded-3xl backdrop-blur-sm"
-        />
-        <motion.div
-          animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-20 left-20 w-40 h-40 bg-accent/30 rounded-full backdrop-blur-sm"
-        />
-        <motion.div
-          animate={{ y: [0, -15, 0], rotate: [0, 10, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 right-1/4 w-24 h-24 bg-light-green/25 rounded-2xl backdrop-blur-sm"
-        />
-        <motion.div
-          animate={{ y: [0, 15, 0], rotate: [0, -10, 0], scale: [1, 1.15, 1] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-1/3 left-1/3 w-28 h-28 bg-yellow-300/20 rounded-full backdrop-blur-sm"
-        />
+// Enhanced Floating Orbs with More Colors and Movement
+const FloatingOrbs = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <motion.div
+        animate={{ 
+          y: [0, -60, 0], 
+          x: [0, 50, 0], 
+          scale: [1, 1.3, 1],
+          rotate: [0, 180, 360]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 to-secondary/30 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, 60, 0], 
+          x: [0, -50, 0], 
+          scale: [1, 1.4, 1],
+          rotate: [360, 180, 0]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 to-support/30 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, 40, 0], 
+          x: [0, 60, 0], 
+          scale: [1, 1.2, 1],
+          rotate: [0, -90, 0]
+        }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/30 to-accent/20 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, -35, 0], 
+          x: [0, -35, 0], 
+          scale: [1, 1.15, 1],
+          rotate: [0, 90, 0]
+        }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-br from-support/25 to-primary/20 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, 50, 0], 
+          x: [0, 30, 0], 
+          scale: [1, 1.25, 1],
+          rotate: [0, -180, 0]
+        }}
+        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute bottom-1/3 left-1/2 w-64 h-64 bg-gradient-to-br from-accent/25 to-primary/20 rounded-full blur-3xl"
+      />
+    </div>
+  );
+};
+
+// Animated Stats Component - No fake numbers
+const AnimatedStat = ({ icon: Icon, label, delay = 0 }: { icon: any; label: string; delay?: number }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.6 }}
+      className="flex flex-col items-center gap-2 p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20"
+    >
+      <Icon className="text-accent" size={32} />
+      <div className="text-sm md:text-base text-white/80 text-center font-heading font-semibold">{label}</div>
+    </motion.div>
+  );
+};
+
+export default function HomePage() {
+  // Sync user to registeredusers collection when they visit home page
+  useSyncUser();
+
+  const features = [
+    {
+      id: 'feature-fast-easy',
+      icon: Zap,
+      title: 'Rápido y Fácil',
+      description: 'Publica trabajos o aplica a oportunidades en minutos con nuestra interfaz intuitiva.',
+      color: 'from-primary to-secondary',
+      bgColor: 'bg-primary/10'
+    },
+    {
+      id: 'feature-secure',
+      icon: Shield,
+      title: 'Seguro y Confiable',
+      description: 'Con sistema de pagos protegido y perfiles verificados, tu tranquilidad es nuestra prioridad.',
+      color: 'from-secondary to-accent',
+      bgColor: 'bg-secondary/10'
+    },
+    {
+      id: 'feature-community',
+      icon: Users,
+      title: 'Comunidad Local',
+      description: 'Conecta con el talento y los clientes de tu propia comunidad en República Dominicana.',
+      color: 'from-accent to-support',
+      bgColor: 'bg-accent/10'
+    },
+    {
+      id: 'feature-services',
+      icon: Briefcase,
+      title: 'Múltiples Servicios',
+      description: 'Desde reparaciones del hogar y tecnología hasta consultoría profesional y creativa.',
+      color: 'from-support to-primary',
+      bgColor: 'bg-support/10'
+    }
+  ];
+
+  const clientSteps = [
+    { id: 'client-step-1', step: '1', text: 'Publica tu trabajo con detalles claros y tu presupuesto.' },
+    { id: 'client-step-2', step: '2', text: 'Recibe aplicaciones de Joseadores calificados y revisa sus perfiles.' },
+    { id: 'client-step-3', step: '3', text: 'Elige al mejor profesional y formaliza el acuerdo en la plataforma.' },
+    { id: 'client-step-4', step: '4', text: 'Realiza el pago de forma segura. Los fondos se liberan al completar el trabajo.' }
+  ];
+
+  const joseadorSteps = [
+    { id: 'joseador-step-1', step: '1', text: 'Crea tu perfil profesional, destaca tus habilidades y verifica tu identidad.' },
+    { id: 'joseador-step-2', step: '2', text: 'Explora un feed de trabajos relevantes para ti, filtrados por categoría y ubicación.' },
+    { id: 'joseador-step-3', step: '3', text: 'Envía propuestas atractivas para los trabajos que te interesen.' },
+    { id: 'joseador-step-4', step: '4', text: 'Completa el trabajo con excelencia y recibe tu pago directamente en tu wallet.' }
+  ];
+  
+  const popularCategories = [
+    { id: 'cat-home-repairs', name: "Reparaciones del Hogar", image: "https://static.wixstatic.com/media/307f6c_61f95d8473ac41ca814dfe229da11d7c~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-graphic-design', name: "Diseño Gráfico y Creativo", image: "https://static.wixstatic.com/media/307f6c_8ccdf3d4e86f4f5f8a61a88014e52c49~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-web-dev', name: "Desarrollo Web y App", image: "https://static.wixstatic.com/media/307f6c_f778337da6854a3dba5db8beb618ee53~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-cleaning', name: "Servicios de Limpieza", image: "https://static.wixstatic.com/media/307f6c_8c037a2899024e9aa708cadcc6975cb6~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-business', name: "Consultoría de Negocios", image: "https://static.wixstatic.com/media/307f6c_e2795e63b1c2467b88994052f4fa0535~mv2.png?originWidth=320&originHeight=448" },
+    { id: 'cat-tutoring', name: "Clases y Tutorías", image: "https://static.wixstatic.com/media/307f6c_ca9a52e42a0c41b4b7a7518af1bc2036~mv2.png?originWidth=320&originHeight=448" },
+  ];
+
+  return (
+    <>
+      <CursorGlow />
+      <style>{`
+        .btn-gradient {
+          background-image: linear-gradient(90deg, #0E9FA8, #3AB689, #71D261);
+          background-size: 200% auto;
+          transition: background-position 0.5s ease, transform 0.3s ease;
+        }
+        .btn-gradient:hover {
+          background-position: right center;
+          transform: translateY(-2px);
+        }
+        .animate-reveal {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .animate-reveal.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .how-it-works-card {
+          clip-path: polygon(0 0, 100% 0, 100% 95%, 90% 100%, 0 100%);
+        }
+        .category-card-mask {
+          clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+        }
+        .gradient-text {
+          background: linear-gradient(135deg, #0E9FA8 0%, #3AB689 30%, #71D261 60%, #55C376 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradient-shift 3s ease infinite;
+          background-size: 200% auto;
+        }
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .card-hover {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 25px 50px rgba(14, 159, 168, 0.2), 0 10px 20px rgba(113, 210, 97, 0.15);
+          background: linear-gradient(135deg, rgba(14, 159, 168, 0.08) 0%, rgba(58, 182, 137, 0.08) 30%, rgba(113, 210, 97, 0.08) 100%);
+        }
+        .white-section-hover {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .white-section-hover:hover {
+          background: linear-gradient(135deg, rgba(14, 159, 168, 0.05) 0%, rgba(58, 182, 137, 0.05) 30%, rgba(113, 210, 97, 0.05) 100%);
+        }
+        .pulse-glow {
+          animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+          0%, 100% { 
+            box-shadow: 0 0 25px rgba(113, 210, 97, 0.5), 0 0 50px rgba(14, 159, 168, 0.3); 
+          }
+          50% { 
+            box-shadow: 0 0 45px rgba(113, 210, 97, 0.9), 0 0 80px rgba(14, 159, 168, 0.6); 
+          }
+        }
+        .shimmer {
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 2.5s infinite;
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .floating-icon {
+          animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+      `}</style>
+      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
         
-        {/* Floating sparkles */}
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.3, 1, 0.3],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: 3 + i * 0.3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.2,
-            }}
-            className="absolute"
-            style={{
-              left: `${5 + i * 8}%`,
-              top: `${15 + (i % 4) * 20}%`,
-            }}
-          >
-            <Sparkles className="w-6 h-6 text-yellow-300" />
-          </motion.div>
-        ))}
-        
-        <div className="max-w-[100rem] mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+        {/* Hero Section - Ultra Dynamic */}
+        <section className="relative h-screen md:min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20">
+          <FloatingOrbs />
+          <div className="absolute inset-0 z-0">
+            <ParallaxImage 
+              src="https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896"
+              alt="Un profesional dominicano sonriendo en un entorno de trabajo moderno y luminoso"
+              className="h-full"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-secondary/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-support/20"></div>
+            <div className="absolute inset-0 bg-black/25"></div>
+          </div>
+          
+          <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="relative z-20"
             >
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
               >
-                <Star className="w-5 h-5 text-yellow-300" fill="currentColor" />
-                <span className="text-sm font-semibold">Plataforma #1 en Servicios</span>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles size={18} className="text-yellow-300" />
+                </motion.div>
+                <span className="text-white font-heading font-semibold text-sm md:text-base">Bienvenido a la revolución del trabajo</span>
               </motion.div>
-              
-              <h1 className="font-heading text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Conectamos <span className="text-accent drop-shadow-lg">Talento</span> con <span className="text-light-green drop-shadow-lg">Oportunidades</span>
-              </h1>
-              <p className="font-paragraph text-xl md:text-2xl mb-8 text-white/95 drop-shadow-md">
-                La plataforma que revoluciona el mercado de servicios profesionales con tecnología de punta
+
+              <motion.h1 
+                className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight"
+                animate={{ 
+                  textShadow: [
+                    "0 0 20px rgba(113, 210, 97, 0.5)",
+                    "0 0 40px rgba(113, 210, 97, 0.8)",
+                    "0 0 20px rgba(113, 210, 97, 0.5)"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <span className="inline-block">JOSEAME</span>
+              </motion.h1>
+              <p className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold">
+                Trabajo cerca, rápido y fácil.
+              </p>
+              <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed">
+                Conectamos clientes con profesionales. Publica un trabajo o encuentra tu próximo joseo en minutos.
               </p>
               
-              <div className="flex flex-wrap gap-4">
-                <Link to="/role-selection">
+              {/* Stats Row - Real indicators */}
+              <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-4xl mx-auto mb-8 md:mb-12">
+                <AnimatedStat label="Creciendo Rápido" icon={TrendingUp} delay={0.3} />
+                <AnimatedStat label="Oportunidades Reales" icon={Briefcase} delay={0.4} />
+                <AnimatedStat label="Calidad Garantizada" icon={Star} delay={0.5} />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
+                <Link to="/login">
                   <motion.button
-                    whileHover={{ scale: 1.08, rotate: 1, boxShadow: "0 25px 50px rgba(0,0,0,0.4)" }}
-                    whileTap={{ scale: 0.92 }}
-                    className="bg-gradient-to-r from-white via-gray-50 to-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-3 relative overflow-hidden group border-2 border-white/50"
+                    whileHover={{ scale: 1.08, y: -3 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-8 md:px-10 py-4 md:py-5 text-base md:text-lg btn-gradient text-white font-heading font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all w-full sm:w-auto relative overflow-hidden group"
                   >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20"
-                      initial={{ x: '-100%' }}
-                      whileHover={{ x: '100%' }}
-                      transition={{ duration: 0.6, ease: "easeInOut" }}
-                    />
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Rocket className="w-6 h-6 relative z-10" />
-                    </motion.div>
                     <span className="relative z-10">Comenzar Ahora</span>
+                    <ArrowRight className="inline-block ml-2 relative z-10" size={20} />
                     <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <ArrowRight className="w-6 h-6 relative z-10" />
-                    </motion.div>
+                      className="absolute inset-0 bg-white/20"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.5 }}
+                    />
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
-                    whileHover={{ scale: 1.08, rotate: -1, boxShadow: "0 25px 50px rgba(255,255,255,0.3)" }}
-                    whileTap={{ scale: 0.92 }}
-                    className="bg-white/25 backdrop-blur-md text-white px-10 py-5 rounded-full font-semibold text-xl hover:bg-white/35 transition-all border-2 border-white/50 shadow-xl relative overflow-hidden group"
+                    whileHover={{ scale: 1.08, y: -3 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-8 md:px-10 py-4 md:py-5 text-base md:text-lg bg-white/10 backdrop-blur-sm text-white font-heading font-semibold rounded-2xl border-2 border-white/30 hover:bg-white/20 transition-all w-full sm:w-auto"
                   >
-                    <motion.div
-                      className="absolute inset-0 bg-white/10"
-                      initial={{ scale: 0, opacity: 0 }}
-                      whileHover={{ scale: 1.5, opacity: 1 }}
-                      transition={{ duration: 0.4 }}
-                    />
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="inline-block"
-                    >
-                      <Heart className="w-6 h-6 inline mr-2 relative z-10" />
-                    </motion.div>
-                    <span className="relative z-10">Conocer Más</span>
+                    Conocer Más
                   </motion.button>
                 </Link>
               </div>
-
-              {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="grid grid-cols-3 gap-6 mt-12"
-              >
-                <motion.div 
-                  whileHover={{ scale: 1.15, rotate: 3, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-accent/30 to-support/30"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="text-3xl font-bold text-accent drop-shadow-lg relative z-10"
-                  >
-                    10K+
-                  </motion.div>
-                  <div className="text-sm text-white/90 relative z-10">Profesionales</div>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ scale: 1.15, rotate: -3, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-light-green/30 to-support/30"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                    className="text-3xl font-bold text-light-green drop-shadow-lg relative z-10"
-                  >
-                    50K+
-                  </motion.div>
-                  <div className="text-sm text-white/90 relative z-10">Trabajos</div>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ scale: 1.15, rotate: 3, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-yellow-300/30 to-orange-400/30"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-                    className="text-3xl font-bold text-yellow-300 drop-shadow-lg relative z-10"
-                  >
-                    4.9★
-                  </motion.div>
-                  <div className="text-sm text-white/90 relative z-10">Calificación</div>
-                </motion.div>
-              </motion.div>
             </motion.div>
+          </div>
+        </section>
 
-            {/* Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative"
-            >
+        {/* App Flow Diagram Section - More Colorful */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-accent/10 to-primary/10 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-accent via-support to-secondary rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[30rem] h-[30rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                Cómo Funciona JOSEAME
+              </h2>
+              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
+                Un flujo simple y directo que conecta clientes con profesionales en minutos
+              </p>
+            </AnimatedElement>
+
+            {/* Desktop Flow Diagram with Curved Connectors */}
+            <div className="hidden lg:block">
               <div className="relative">
-                <motion.div
-                  animate={{ y: [0, -15, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative z-10"
-                >
-                  <Image
-                    src="https://static.wixstatic.com/media/307f6c_4984a4e53de44f7eb45af54009e985b9~mv2.png?originWidth=576&originHeight=384"
-                    alt="Profesionales trabajando"
-                    width={600}
-                    className="rounded-3xl shadow-2xl"
-                  />
-                </motion.div>
-                
-                {/* Floating cards */}
-                <motion.div
-                  animate={{ y: [0, -10, 0], rotate: [-2, 2, -2] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-6 -left-6 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 shadow-2xl border-2 border-accent/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center shadow-lg">
-                      <CheckCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-foreground">Trabajo Completado</div>
-                      <div className="text-sm text-accent font-semibold">+$2,500</div>
-                    </div>
-                  </div>
-                </motion.div>
+                {/* Grid Layout for Steps */}
+                <div className="grid grid-cols-4 gap-8 mb-16">
+                  {[
+                    { 
+                      icon: Search, 
+                      label: 'Publica o Busca', 
+                      description: 'Crea un trabajo o explora oportunidades',
+                      color: 'from-primary to-secondary', 
+                      step: '1',
+                      bgGradient: 'from-primary/5 to-secondary/5'
+                    },
+                    { 
+                      icon: FileText, 
+                      label: 'Recibe Propuestas', 
+                      description: 'Analiza perfiles y presupuestos',
+                      color: 'from-secondary to-accent', 
+                      step: '2',
+                      bgGradient: 'from-secondary/5 to-accent/5'
+                    },
+                    { 
+                      icon: Handshake, 
+                      label: 'Acuerda Términos', 
+                      description: 'Negocia y formaliza el acuerdo',
+                      color: 'from-accent to-support', 
+                      step: '3',
+                      bgGradient: 'from-accent/5 to-support/5'
+                    },
+                    { 
+                      icon: Wallet, 
+                      label: 'Pago Seguro', 
+                      description: 'Transacción protegida y garantizada',
+                      color: 'from-support to-primary', 
+                      step: '4',
+                      bgGradient: 'from-support/5 to-primary/5'
+                    }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.15, duration: 0.6 }}
+                      className="relative"
+                    >
+                      {/* Card */}
+                      <div className={`bg-gradient-to-br ${item.bgGradient} rounded-3xl p-8 border-2 border-border/50 h-full relative overflow-hidden group hover:border-primary/50 transition-all duration-300 hover:shadow-2xl`}>
+                        {/* Animated Background Glow */}
+                        <motion.div
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
+                        />
+                        
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        {/* Content */}
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                          {/* Step Badge */}
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            whileInView={{ scale: 1 }}
+                            transition={{ delay: index * 0.15 + 0.1, type: 'spring', stiffness: 200 }}
+                            whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-lg`}
+                          >
+                            <span className="font-heading text-2xl font-bold text-white">{item.step}</span>
+                          </motion.div>
 
+                          {/* Icon with Animation */}
+                          <motion.div
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                            className="mb-4 floating-icon"
+                          >
+                            <item.icon className="text-foreground" size={48} strokeWidth={1.5} />
+                          </motion.div>
+
+                          {/* Text */}
+                          <h3 className="font-heading text-xl font-bold text-foreground mb-2">{item.label}</h3>
+                          <p className="text-sm text-muted-text leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Connector Arrow */}
+                      {index < 3 && (
+                        <motion.div
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          whileInView={{ opacity: 1, scaleX: 1 }}
+                          transition={{ delay: index * 0.15 + 0.3, duration: 0.8 }}
+                          className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-20"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+                            <ArrowRight className="text-primary" size={24} />
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Central Message */}
                 <motion.div
-                  animate={{ y: [0, 10, 0], rotate: [2, -2, 2] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-6 -right-6 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 shadow-2xl border-2 border-primary/30"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6, duration: 0.6 }}
+                  className="text-center"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-foreground">Nuevo Proyecto</div>
-                      <div className="text-sm text-primary font-semibold">5 aplicaciones</div>
-                    </div>
+                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full px-8 py-4 border-2 border-primary/30 shadow-lg">
+                    <motion.div
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-3 h-3 rounded-full bg-accent shadow-lg"
+                    ></motion.div>
+                    <span className="font-heading font-semibold text-foreground">Proceso 100% transparente y seguro</span>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Shield className="text-primary" size={20} />
+                    </motion.div>
                   </div>
                 </motion.div>
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* Features Section */}
-      <section className="py-24 px-6 relative">
-        <div className="max-w-[100rem] mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="inline-block mb-4"
-            >
-              <Target className="w-16 h-16 text-primary mx-auto" />
-            </motion.div>
-            <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              ¿Por qué <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">elegirnos</span>?
-            </h2>
-            <p className="text-xl text-muted-text max-w-2xl mx-auto">
-              Descubre las ventajas que nos hacen la mejor opción del mercado
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Users,
-                title: 'Red de Profesionales',
-                description: 'Accede a una amplia red de profesionales verificados listos para trabajar',
-                color: 'from-primary to-secondary',
-                delay: 0.1,
-              },
-              {
-                icon: Shield,
-                title: 'Pago Seguro',
-                description: 'Sistema de escrow que protege tu dinero hasta que el trabajo esté completado',
-                color: 'from-accent to-support',
-                delay: 0.2,
-              },
-              {
-                icon: Zap,
-                title: 'Rápido y Fácil',
-                description: 'Publica trabajos o aplica a ofertas en minutos con nuestra plataforma intuitiva',
-                color: 'from-support to-support2',
-                delay: 0.3,
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: feature.delay }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-gradient-to-br from-white via-white to-gray-50 p-8 rounded-3xl border-2 border-border shadow-xl hover:shadow-2xl transition-all group relative overflow-hidden"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                
-                <motion.div
-                  whileHover={{ rotate: 360, scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
-                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl relative`}
-                >
-                  <feature.icon className="w-8 h-8 text-white" />
-                </motion.div>
-
-                <h3 className="font-heading text-2xl font-semibold mb-4 text-foreground">
-                  {feature.title}
-                </h3>
-                <p className="font-paragraph text-muted-text leading-relaxed">
-                  {feature.description}
-                </p>
-
-                {/* Decorative element */}
-                <div className={`absolute -bottom-2 -right-2 w-32 h-32 bg-gradient-to-br ${feature.color} rounded-full opacity-20 blur-2xl`} />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Additional Features Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid md:grid-cols-4 gap-6 mt-16"
-          >
-            {[
-              { icon: Award, text: 'Profesionales Verificados', color: 'text-accent', bg: 'from-accent/20 to-support/20' },
-              { icon: Clock, text: 'Respuesta en 24h', color: 'text-primary', bg: 'from-primary/20 to-secondary/20' },
-              { icon: TrendingUp, text: 'Crecimiento Garantizado', color: 'text-support', bg: 'from-support/20 to-support2/20' },
-              { icon: Briefcase, text: 'Miles de Proyectos', color: 'text-secondary', bg: 'from-secondary/20 to-primary/20' }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.08, rotate: 2 }}
-                className={`bg-gradient-to-br ${item.bg} p-6 rounded-2xl border-2 border-border text-center shadow-lg hover:shadow-xl transition-all relative overflow-hidden`}
-              >
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                >
-                  <item.icon className={`w-10 h-10 ${item.color} mx-auto mb-3`} />
-                </motion.div>
-                <p className="font-semibold text-foreground">{item.text}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* New Enhanced Features Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-20"
-          >
-            <h3 className="font-heading text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
-              Características <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-support to-primary">Premium</span>
-            </h3>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Mobile Flow Diagram - Compact */}
+            <div className="lg:hidden space-y-4">
               {[
-                { icon: Globe, title: 'Alcance Global', desc: 'Conecta con profesionales en todo el mundo', color: 'from-blue-500 to-cyan-500' },
-                { icon: Lock, title: 'Seguridad Total', desc: 'Encriptación de extremo a extremo', color: 'from-purple-500 to-pink-500' },
-                { icon: Smartphone, title: 'App Móvil', desc: 'Gestiona todo desde tu teléfono', color: 'from-green-500 to-emerald-500' },
-                { icon: Headphones, title: 'Soporte 24/7', desc: 'Asistencia en tiempo real', color: 'from-orange-500 to-red-500' },
-                { icon: BarChart3, title: 'Análisis Avanzado', desc: 'Métricas y reportes detallados', color: 'from-indigo-500 to-blue-500' },
-                { icon: FileCheck, title: 'Contratos Digitales', desc: 'Firma electrónica integrada', color: 'from-teal-500 to-cyan-500' },
-                { icon: UserCheck, title: 'Verificación ID', desc: 'Identidad confirmada', color: 'from-pink-500 to-rose-500' },
-                { icon: Wallet, title: 'Múltiples Pagos', desc: 'Acepta diversos métodos', color: 'from-amber-500 to-yellow-500' },
-              ].map((feature, index) => (
+                { 
+                  icon: Search, 
+                  label: 'Publica o Busca', 
+                  description: 'Crea un trabajo o explora',
+                  color: 'from-primary to-secondary', 
+                  step: '1'
+                },
+                { 
+                  icon: FileText, 
+                  label: 'Recibe Propuestas', 
+                  description: 'Analiza perfiles',
+                  color: 'from-secondary to-accent', 
+                  step: '2'
+                },
+                { 
+                  icon: Handshake, 
+                  label: 'Acuerda Términos', 
+                  description: 'Formaliza el acuerdo',
+                  color: 'from-accent to-support', 
+                  step: '3'
+                },
+                { 
+                  icon: Wallet, 
+                  label: 'Pago Seguro', 
+                  description: 'Transacción protegida',
+                  color: 'from-support to-primary', 
+                  step: '4'
+                }
+              ].map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  whileHover={{ y: -8, scale: 1.05 }}
-                  className="bg-white p-6 rounded-2xl border-2 border-border shadow-lg hover:shadow-2xl transition-all group relative overflow-hidden"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="relative"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                  
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                    className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}
-                  >
-                    <feature.icon className="w-7 h-7 text-white" />
-                  </motion.div>
-                  
-                  <h4 className="font-heading text-lg font-semibold mb-2 text-foreground">
-                    {feature.title}
-                  </h4>
-                  <p className="text-sm text-muted-text">
-                    {feature.desc}
-                  </p>
+                  {/* Connector Line */}
+                  {index < 3 && (
+                    <div className="absolute left-8 top-20 w-1 h-6 bg-gradient-to-b from-primary via-secondary to-accent"></div>
+                  )}
+
+                  {/* Card */}
+                  <div className={`bg-gradient-to-br from-white to-background rounded-2xl p-4 border-2 border-border/50 relative overflow-hidden group hover:border-primary/50 transition-all hover:shadow-lg`}>
+                    <div className="flex items-start gap-3">
+                      {/* Icon Container */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        transition={{ delay: index * 0.1 + 0.1, type: 'spring' }}
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg relative`}
+                      >
+                        <item.icon className="text-white" size={28} />
+                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
+                          {item.step}
+                        </div>
+                      </motion.div>
+
+                      {/* Text */}
+                      <div className="flex-1 pt-0.5">
+                        <h3 className="font-heading text-base font-bold text-foreground">{item.label}</h3>
+                        <p className="text-xs text-muted-text">{item.description}</p>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
-          </motion.div>
 
-          {/* Interactive Stats Section - REMOVED */}
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-24 px-6 bg-gradient-to-br from-white via-background to-white relative overflow-hidden">
-        {/* Decorative background */}
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/30 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-support/25 rounded-full blur-3xl" />
-        </div>
-
-        {/* Floating icons */}
-        {[DollarSign, MessageCircle, Rocket, Heart].map((Icon, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 10, 0],
-              opacity: [0.2, 0.4, 0.2],
-            }}
-            transition={{
-              duration: 4 + i,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
-            }}
-            className="absolute"
-            style={{
-              left: `${15 + i * 20}%`,
-              top: `${10 + (i % 2) * 70}%`,
-            }}
-          >
-            <Icon className="w-12 h-12 text-primary/30" />
-          </motion.div>
-        ))}
-
-        <div className="max-w-[100rem] mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-20"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="inline-block mb-4"
-            >
-              <Zap className="w-16 h-16 text-secondary mx-auto" />
-            </motion.div>
-            <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              Cómo <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-support to-accent">Funciona</span>
-            </h2>
-            <p className="text-xl text-muted-text max-w-2xl mx-auto">
-              Tres simples pasos para conectar talento con oportunidades
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connection Lines */}
-            <div className="hidden md:block absolute top-1/3 left-0 right-0 h-2 bg-gradient-to-r from-primary via-accent to-support opacity-30 rounded-full" />
-
-            {[
-              {
-                number: 1,
-                title: 'Publica o Aplica',
-                description: 'Los clientes publican trabajos, los joseadores aplican con propuestas',
-                color: 'from-primary to-secondary',
-                icon: Briefcase,
-                image: 'https://static.wixstatic.com/media/307f6c_cba910a5aa8447dba31325d566c342bf~mv2.png'
-              },
-              {
-                number: 2,
-                title: 'Pago Protegido',
-                description: 'El dinero se guarda en escrow hasta completar el trabajo',
-                color: 'from-accent to-support',
-                icon: Shield,
-                image: 'https://static.wixstatic.com/media/307f6c_a83f826a176149d1844ec7b74e4f3df2~mv2.png'
-              },
-              {
-                number: 3,
-                title: 'Trabajo Completado',
-                description: 'Una vez aprobado, el pago se libera automáticamente',
-                color: 'from-support to-support2',
-                icon: CheckCircle,
-                image: 'https://static.wixstatic.com/media/307f6c_778e3d21b78e41e09302d86dc1f9d8c5~mv2.png'
-              }
-            ].map((step, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="relative"
-              >
-                <motion.div
-                  whileHover={{ y: -10 }}
-                  className="text-center relative z-10"
-                >
-                  {/* Image */}
+            {/* Feature Highlights - More Dynamic */}
+            <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {[
+                { 
+                  title: 'Para Clientes', 
+                  icon: Briefcase, 
+                  description: 'Publica trabajos y elige profesionales.',
+                  color: 'from-primary to-secondary',
+                  bgColor: 'bg-primary/10'
+                },
+                { 
+                  title: 'Para Joseadores', 
+                  icon: Users, 
+                  description: 'Accede a oportunidades y gana dinero.',
+                  color: 'from-secondary to-accent',
+                  bgColor: 'bg-secondary/10'
+                },
+                { 
+                  title: 'Seguridad', 
+                  icon: Shield, 
+                  description: 'Pagos protegidos y confiables.',
+                  color: 'from-accent to-support',
+                  bgColor: 'bg-accent/10'
+                }
+              ].map((item, index) => (
+                <AnimatedElement key={index} delay={index * 100}>
                   <motion.div
-                    whileHover={{ scale: 1.05, rotate: 2 }}
-                    className="mb-6 relative"
+                    whileHover={{ y: -8, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
+                    className={`card-hover white-section-hover ${item.bgColor} rounded-2xl p-4 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
                   >
-                    <div className="relative inline-block">
-                      <Image
-                        src={step.image}
-                        alt={step.title}
-                        width={300}
-                        className="rounded-3xl shadow-2xl mx-auto border-4 border-white"
-                      />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-30 rounded-3xl`} />
+                    <motion.div
+                      animate={{ opacity: [0.3, 0.7, 0.3] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+                    />
+                    <div className="relative z-10">
+                      <motion.div 
+                        whileHover={{ rotate: [0, -15, 15, -15, 0], scale: 1.1, transition: { duration: 0.5 } }}
+                        className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 md:mb-6 shadow-lg`}
+                      >
+                        <item.icon className="text-white" size={28} />
+                      </motion.div>
+                      <h3 className="font-heading text-lg md:text-xl font-bold text-foreground mb-2 md:mb-3">{item.title}</h3>
+                      <p className="text-sm md:text-base text-muted-text leading-relaxed">{item.description}</p>
                     </div>
                   </motion.div>
-
-                  {/* Number Badge */}
-                  <motion.div
-                    whileHover={{ scale: 1.2, rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className={`w-20 h-20 bg-gradient-to-br ${step.color} text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-2xl relative border-4 border-white`}
-                  >
-                    <span className="relative z-10">{step.number}</span>
-                    <div className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-full blur-xl opacity-60`} />
-                  </motion.div>
-
-                  {/* Icon */}
-                  <motion.div
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="mb-4"
-                  >
-                    <step.icon className={`w-12 h-12 mx-auto bg-gradient-to-br ${step.color} bg-clip-text text-transparent`} strokeWidth={2} />
-                  </motion.div>
-
-                  <h3 className="font-heading text-2xl font-semibold mb-4 text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="font-paragraph text-muted-text leading-relaxed">
-                    {step.description}
-                  </p>
-                </motion.div>
-
-                {/* Decorative arrow */}
-                {index < 2 && (
-                  <motion.div
-                    animate={{ x: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="hidden md:block absolute top-1/3 -right-6 z-20"
-                  >
-                    <ArrowRight className="w-8 h-8 text-primary" />
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
+                </AnimatedElement>
+              ))}
+            </div>
           </div>
+        </section>
 
-          {/* Process Diagram - Enhanced */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-20 bg-gradient-to-br from-primary/5 via-white to-secondary/5 rounded-3xl p-10 shadow-2xl border-2 border-primary/20 relative overflow-hidden"
-          >
-            {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-support/10 rounded-full blur-3xl" />
-            
-            <div className="relative z-10">
+        {/* Features Section - More Vibrant */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-secondary/10 via-white to-accent/10">
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-16">
+              <div className="lg:sticky top-32 h-fit">
+                <AnimatedElement>
+                  <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                      La plataforma del <span className="gradient-text">joseador moderno</span>.
+                    </h2>
+                    <p className="text-base md:text-lg text-muted-text max-w-md">
+                      Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
+                    </p>
+                  </motion.div>
+                </AnimatedElement>
+              </div>
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
+                {features.map((feature) => (
+                  <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
+                    <motion.div
+                      whileHover={{ y: -8, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
+                      className={`card-hover white-section-hover ${feature.bgColor} rounded-2xl p-5 md:p-8 h-full border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
+                    >
+                      <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      <div className="relative z-10">
+                        <motion.div
+                          whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
+                          className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
+                        >
+                          <feature.icon className="text-white" size={28} />
+                        </motion.div>
+                        <h3 className="font-heading text-lg md:text-2xl font-semibold text-foreground mb-2 md:mb-3">
+                          {feature.title}
+                        </h3>
+                        <p className="text-sm md:text-base text-muted-text">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </AnimatedElement>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section - More Colorful */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-primary/10 to-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-15">
+            <div className="absolute top-1/2 left-1/4 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-[32rem] h-[32rem] bg-gradient-to-br from-accent via-support to-primary rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-8 md:mb-24">
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                Simple, Transparente y Directo.
+              </h2>
+              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
+                Diseñamos un flujo de trabajo que te da control y confianza en cada paso.
+              </p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 md:gap-16">
+              {/* Para Clientes */}
+              <div className="flex flex-col gap-4 md:gap-8">
+                <AnimatedElement className="lg:sticky top-32">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
+                    <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-[1]"></div>
+                    <motion.h3 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
+                    >
+                      Para Clientes
+                    </motion.h3>
+                  </div>
+                </AnimatedElement>
+                <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
+                  {clientSteps.map((item) => (
+                    <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
+                      <motion.div
+                        whileHover={{ x: 6, scale: 1.02 }}
+                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-primary/5 transition-all border border-transparent hover:border-primary/20"
+                      >
+                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
+                        </div>
+                        <p className="pt-1.5 md:pt-3 text-sm md:text-lg font-heading font-bold text-foreground">{item.text}</p>
+                      </motion.div>
+                    </AnimatedElement>
+                  ))}
+                </div>
+              </div>
+
+              {/* Para Joseadores */}
+              <div className="flex flex-col gap-4 md:gap-8">
+                <AnimatedElement className="lg:sticky top-32">
+                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
+                    <Image src="https://static.wixstatic.com/media/307f6c_2411ca2d1f6b42fa9707362c9d239248~mv2.png?originWidth=576&originHeight=384" alt="Joseador trabajando en su laptop en un café" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-accent/80 to-transparent"></div>
+                    <motion.h3 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
+                    >
+                      Para Joseadores
+                    </motion.h3>
+                  </div>
+                </AnimatedElement>
+                <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
+                  {joseadorSteps.map((item) => (
+                    <AnimatedElement key={item.id} delay={joseadorSteps.indexOf(item) * 150}>
+                      <motion.div
+                        whileHover={{ x: 6, scale: 1.02 }}
+                        className="flex items-start gap-3 md:gap-6 p-3 md:p-5 rounded-xl hover:bg-accent/5 transition-all border border-transparent hover:border-accent/20"
+                      >
+                        <div className="w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <span className="font-heading text-xl md:text-2xl font-bold text-white">{item.step}</span>
+                        </div>
+                        <p className="font-paragraph text-sm md:text-lg pt-1.5 md:pt-3 font-bold text-foreground">{item.text}</p>
+                      </motion.div>
+                    </AnimatedElement>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Popular Categories Section - More Vibrant */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-accent/10 to-support/10 w-full relative overflow-hidden">
+          <div className="absolute inset-0 opacity-15">
+            <div className="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-1/3 w-[35rem] h-[35rem] bg-gradient-to-br from-accent via-support to-secondary rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="mb-8 md:mb-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-center mb-10"
+                transition={{ duration: 0.8 }}
               >
-                <h3 className="font-heading text-3xl md:text-4xl font-bold mb-3 text-foreground">
-                  Flujo del <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">Proceso</span>
-                </h3>
-                <p className="text-muted-text text-lg">De principio a fin, un proceso simple y seguro</p>
+                <div className="flex items-center gap-4 mb-3">
+                  <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
+                    Encuentra el <span className="gradient-text">talento</span> que necesitas
+                  </h2>
+                </div>
+                <p className="text-base md:text-lg text-muted-text mt-2 md:mt-3">Desde tareas rápidas hasta proyectos complejos.</p>
               </motion.div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {[
-                  { text: 'Cliente Publica', icon: Search, desc: 'Describe tu proyecto', color: 'from-blue-500 to-cyan-500' },
-                  { text: 'Joseador Aplica', icon: UserCheck, desc: 'Profesionales ofertan', color: 'from-purple-500 to-pink-500' },
-                  { text: 'Pago en Escrow', icon: Lock, desc: 'Dinero protegido', color: 'from-green-500 to-emerald-500' },
-                  { text: 'Trabajo Realizado', icon: Settings, desc: 'Servicio ejecutado', color: 'from-orange-500 to-red-500' },
-                  { text: 'Confirmación', icon: CheckCircle, desc: 'Cliente aprueba', color: 'from-indigo-500 to-blue-500' },
-                  { text: 'Pago Liberado', icon: DollarSign, desc: 'Fondos transferidos', color: 'from-teal-500 to-cyan-500' }
-                ].map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    whileHover={{ y: -5, scale: 1.03 }}
-                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-border group relative overflow-hidden"
+            </AnimatedElement>
+          </div>
+          <div className="w-full relative">
+            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto">
+              {popularCategories.map((category) => (
+                <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[250px] sm:w-[280px] md:w-[350px]">
+                  <motion.div 
+                    whileHover={{ y: -6, scale: 1.02 }} 
+                    className="group card-hover"
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                    
-                    <div className="flex items-start gap-4 relative z-10">
-                      <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.6 }}
-                        className={`w-14 h-14 bg-gradient-to-br ${step.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
+                    <div className="relative h-[320px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-xl category-card-mask border-2 border-border/30 hover:border-primary/40 transition-all">
+                      <Image src={category.image} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={350} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                      <motion.h3
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="absolute bottom-4 md:bottom-6 left-4 md:left-8 right-4 md:right-8 font-heading text-xl md:text-2xl font-bold text-white drop-shadow-lg"
                       >
-                        <step.icon className="w-7 h-7 text-white" />
-                      </motion.div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`w-8 h-8 bg-gradient-to-br ${step.color} text-white rounded-full flex items-center justify-center text-sm font-bold`}>
-                            {index + 1}
-                          </span>
-                          <h4 className="font-heading text-lg font-semibold text-foreground">
-                            {step.text}
-                          </h4>
-                        </div>
-                        <p className="text-sm text-muted-text">{step.desc}</p>
-                      </div>
+                        {category.name}
+                      </motion.h3>
                     </div>
-                    
-                    {/* Arrow connector for desktop */}
-                    {index < 5 && (
-                      <motion.div
-                        animate={{ x: [0, 5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-20"
-                      >
-                        <ArrowRight className="w-6 h-6 text-primary" />
-                      </motion.div>
-                    )}
                   </motion.div>
-                ))}
-              </div>
-              
-              {/* Timeline visualization */}
-              <motion.div
-                initial={{ opacity: 0, scaleX: 0 }}
-                whileInView={{ opacity: 1, scaleX: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="hidden md:flex items-center justify-center gap-2 mt-8"
-              >
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="flex items-center">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: 0.9 + i * 0.1 }}
-                      className="w-4 h-4 bg-gradient-to-br from-primary to-secondary rounded-full shadow-lg"
-                    />
-                    {i < 5 && (
-                      <div className="w-16 h-1 bg-gradient-to-r from-primary to-secondary" />
-                    )}
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary via-secondary to-support text-white relative overflow-hidden">
-        {/* Animated background elements */}
-        <motion.div
-          animate={{
-            scale: [1, 1.5, 1],
-            rotate: [0, 180, 360],
-            opacity: [0.15, 0.3, 0.15],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.5, 1, 1.5],
-            rotate: [360, 180, 0],
-            opacity: [0.3, 0.15, 0.3],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-0 left-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.4, 1],
-            rotate: [0, -180, 0],
-            opacity: [0.2, 0.35, 0.2],
-          }}
-          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-light-green/25 rounded-full blur-3xl"
-        />
-
-        <div className="max-w-[100rem] mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Decorative stars */}
-            <div className="flex justify-center gap-2 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 3, delay: i * 0.2, repeat: Infinity, ease: "linear" }}
-                >
-                  <Star className="w-8 h-8 text-yellow-300" fill="currentColor" />
-                </motion.div>
+                </AnimatedElement>
               ))}
             </div>
+            <div className="absolute top-0 right-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden"></div>
+          </div>
+        </section>
 
-            <h2 className="font-heading text-4xl md:text-6xl font-bold mb-6">
-              ¿Listo para <span className="text-accent drop-shadow-2xl">empezar</span>?
-            </h2>
-            <p className="font-paragraph text-xl md:text-2xl mb-10 text-white/95 max-w-3xl mx-auto drop-shadow-lg">
-              Únete a la plataforma que está transformando el mercado de servicios y descubre un mundo de oportunidades
-            </p>
+        {/* Benefits Section - More Dynamic */}
+        <section className="py-12 md:py-32 bg-gradient-to-br from-white via-secondary/10 to-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-15">
+            <div className="absolute top-1/4 left-0 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-0 w-[32rem] h-[32rem] bg-gradient-to-br from-accent via-support to-primary rounded-full blur-3xl"></div>
+          </div>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            <AnimatedElement className="text-center mb-8 md:mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                  ¿Por qué elegir <span className="gradient-text">JOSEAME</span>?
+                </h2>
+                <p className="text-base md:text-lg text-muted-text max-w-3xl mx-auto">
+                  Somos tu aliado en el crecimiento profesional.
+                </p>
+              </motion.div>
+            </AnimatedElement>
 
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <Link to="/role-selection">
-                <motion.button
-                  whileHover={{ scale: 1.08, boxShadow: "0 25px 50px rgba(0,0,0,0.4)", rotate: 1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-white via-gray-50 to-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:from-gray-50 hover:to-white transition-all shadow-2xl flex items-center gap-2 border-2 border-white/50"
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+              {[
+                {
+                  icon: Rocket,
+                  title: 'Crecimiento Rápido',
+                  description: 'Acceso a oportunidades reales.',
+                  color: 'from-primary to-secondary',
+                  bgColor: 'bg-primary/10'
+                },
+                {
+                  icon: Target,
+                  title: 'Precisión en Búsqueda',
+                  description: 'Filtros inteligentes y precisos.',
+                  color: 'from-secondary to-accent',
+                  bgColor: 'bg-secondary/10'
+                },
+                {
+                  icon: DollarSign,
+                  title: 'Pagos Justos',
+                  description: 'Trabajos bien pagados y verificados.',
+                  color: 'from-accent to-support',
+                  bgColor: 'bg-accent/10'
+                },
+                {
+                  icon: Shield,
+                  title: 'Protección Total',
+                  description: 'Pagos seguros y garantizados.',
+                  color: 'from-support to-primary',
+                  bgColor: 'bg-support/10'
+                },
+                {
+                  icon: Users,
+                  title: 'Comunidad Fuerte',
+                  description: 'Conecta y crece con otros.',
+                  color: 'from-primary to-accent',
+                  bgColor: 'bg-primary/10'
+                },
+                {
+                  icon: Heart,
+                  title: 'Soporte Dedicado',
+                  description: 'Equipo listo para ayudarte.',
+                  color: 'from-accent to-secondary',
+                  bgColor: 'bg-accent/10'
+                }
+              ].map((benefit, index) => (
+                <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
+                  <motion.div
+                    whileHover={{ y: -8, scale: 1.03 }}
+                    className={`card-hover white-section-hover ${benefit.bgColor} rounded-2xl p-5 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
+                  >
+                    <motion.div
+                      whileHover={{ rotate: [0, -20, 20, -20, 0], scale: 1.1, transition: { duration: 0.5 } }}
+                      className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
+                    >
+                      <benefit.icon className="text-white" size={28} />
+                    </motion.div>
+                    <h3 className="font-heading text-lg md:text-xl font-semibold text-foreground mb-2 md:mb-3">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-sm md:text-base text-muted-text">
+                      {benefit.description}
+                    </p>
+                  </motion.div>
+                </AnimatedElement>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section - Ultra Dynamic */}
+        <section className="py-12 md:py-32 px-4 md:px-12">
+          <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
+            <FloatingOrbs />
+            <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
+            <AnimatedElement className="relative z-10">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 >
-                  <Rocket className="w-6 h-6" />
-                  Crear Cuenta Gratis
-                  <ArrowRight className="w-6 h-6" />
+                  <Sparkles size={20} className="text-yellow-300" />
+                </motion.div>
+                <span className="text-white font-heading font-semibold text-sm md:text-base">Únete a la revolución</span>
+              </motion.div>
+              <motion.h2 
+                className="font-heading text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6"
+                animate={{ 
+                  textShadow: [
+                    "0 0 20px rgba(255, 255, 255, 0.5)",
+                    "0 0 40px rgba(255, 255, 255, 0.8)",
+                    "0 0 20px rgba(255, 255, 255, 0.5)"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                ¿Listo para josear?
+              </motion.h2>
+              <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
+                Únete a dominicanos transformando la forma en que trabajan.
+              </p>
+              <Link to="/login">
+                <motion.button
+                  whileHover={{ scale: 1.1, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 md:px-14 py-4 md:py-6 bg-white text-primary font-heading text-base md:text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all relative overflow-hidden group"
+                >
+                  <span className="relative z-10">Crear Cuenta Gratis</span>
+                  <ArrowRight className="inline-block ml-2 relative z-10" size={24} />
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.5 }}
+                  />
                 </motion.button>
               </Link>
-            </div>
-
-            {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap justify-center items-center gap-8 text-white/90"
-            >
-              <motion.div 
-                whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-              >
-                <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Sin tarjeta de crédito</span>
-              </motion.div>
-              <motion.div 
-                whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-              >
-                <Clock className="w-5 h-5 text-accent" />
-                <span>Configuración en 2 minutos</span>
-              </motion.div>
-              <motion.div 
-                whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-              >
-                <Headphones className="w-5 h-5 text-accent" />
-                <span>Soporte 24/7</span>
-              </motion.div>
-            </motion.div>
-
-            {/* Animated illustration */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-16 relative"
-            >
-              <div className="relative inline-block">
-                <motion.div
-                  animate={{ y: [0, -20, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Image
-                    src="https://static.wixstatic.com/media/307f6c_aaa051211e2e41c1beb96fc5cb0b7cc3~mv2.png?originWidth=768&originHeight=576"
-                    alt="Únete ahora"
-                    width={800}
-                    className="rounded-3xl shadow-2xl"
-                  />
-                </motion.div>
-
-                {/* Floating badges */}
-                <motion.div
-                  animate={{ y: [0, -15, 0], rotate: [-3, 3, -3] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-8 -left-8 bg-gradient-to-br from-white to-gray-50 text-foreground rounded-2xl p-4 shadow-2xl border-2 border-primary/30"
-                >
-                  <div className="flex items-center gap-2">
-                    <Users className="w-6 h-6 text-primary" />
-                    <div className="text-left">
-                      <div className="font-bold">10,000+</div>
-                      <div className="text-sm text-muted-text">Usuarios Activos</div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  animate={{ y: [0, 15, 0], rotate: [3, -3, 3] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-8 -right-8 bg-gradient-to-br from-white to-gray-50 text-foreground rounded-2xl p-4 shadow-2xl border-2 border-accent/30"
-                >
-                  <div className="flex items-center gap-2">
-                    <Award className="w-6 h-6 text-accent" />
-                    <div className="text-left">
-                      <div className="font-bold">4.9/5</div>
-                      <div className="text-sm text-muted-text">Calificación</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-    </div>
+            </AnimatedElement>
+          </div>
+        </section>
+      </div>
+    </>
   );
 }

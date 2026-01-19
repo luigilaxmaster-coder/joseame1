@@ -16,7 +16,7 @@ import JoseadorDashboardPage from '@/components/pages/JoseadorDashboardPage';
 import PublishJobPage from '@/components/pages/PublishJobPage';
 import JobDetailsPage from '@/components/pages/JobDetailsPage';
 import WalletPage from '@/components/pages/WalletPage';
-import BuyJoseamePage from '@/components/pages/BuyPiquetesPage';
+import BuyPiquetesPage from '@/components/pages/BuyPiquetesPage';
 import ProfilePage from '@/components/pages/ProfilePage';
 import ClientMyJobsPage from '@/components/pages/ClientMyJobsPage';
 import JoseadorMyJobsPage from '@/components/pages/JoseadorMyJobsPage';
@@ -28,7 +28,6 @@ import CheckoutPage from '@/components/pages/CheckoutPage';
 import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
 import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
 import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
-import SignInRequiredPage from '@/components/pages/SignInRequiredPage';
 
 // Layout component that includes ScrollToTop
 function Layout() {
@@ -75,10 +74,6 @@ const router = createBrowserRouter([
       {
         path: "about",
         element: <AboutPage />,
-      },
-      {
-        path: "sign-in-required",
-        element: <SignInRequiredPage />,
       },
       {
         path: "role-selection",
@@ -171,10 +166,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "joseador/buy-joseames",
+        path: "joseador/buy-piquetes",
         element: (
           <MemberProtectedRoute>
-            <BuyJoseamePage />
+            <BuyPiquetesPage />
           </MemberProtectedRoute>
         ),
       },

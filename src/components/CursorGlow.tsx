@@ -1,93 +1,157 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-export default function CursorGlow() {
+/**
+ * CursorGlow - Interactive cursor glow effect
+ * Creates a smooth, color-shifting glow that follows the cursor
+ * Only activates over white/light backgrounds
+ * Respects user's motion preferences
+ */
+export const CursorGlow: React.FC = () => {
   const glowRef = useRef<HTMLDivElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const currentPos = useRef({ x: 0, y: 0 });
-  const [intensity, setIntensity] = useState(0.2);
-  const colorIndexRef = useRef(0);
-
-  // Gradient colors from the page theme
-  const gradientColors = [
-    { r: 14, g: 159, b: 168 },    // primary #0E9FA8
-    { r: 58, g: 182, b: 137 },    // secondary #3AB689
-    { r: 85, g: 195, b: 118 },    // support #55C376
-    { r: 37, g: 170, b: 152 },    // support2 #25AA98
-    { r: 113, g: 210, b: 97 },    // accent #71D261
-    { r: 183, g: 229, b: 206 },   // light-green #B7E5CE
-  ];
+  const [isActive, setIsActive] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number>();
 
   useEffect(() => {
+    // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    let animationFrameId: number;
+    if (prefersReducedMotion) {
+      return;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY };
-      
-      const element = document.elementFromPoint(e.clientX, e.clientY);
-      if (element) {
-        const bgColor = window.getComputedStyle(element).backgroundColor;
-        const isLight = bgColor.includes('255') || bgColor.includes('rgb(246');
-        setIntensity(isLight ? 0.3 : 0.2);
-      }
-    };
-
-    const animate = () => {
-      currentPos.current.x += (mousePos.current.x - currentPos.current.x) * 0.15;
-      currentPos.current.y += (mousePos.current.y - currentPos.current.y) * 0.15;
-
-      // Smoothly transition between gradient colors
-      colorIndexRef.current = (colorIndexRef.current + 0.01) % gradientColors.length;
-      
-      const currentIndex = Math.floor(colorIndexRef.current);
-      const nextIndex = (currentIndex + 1) % gradientColors.length;
-      const blend = colorIndexRef.current - currentIndex;
-
-      const color1 = gradientColors[currentIndex];
-      const color2 = gradientColors[nextIndex];
-      const color3 = gradientColors[(nextIndex + 1) % gradientColors.length];
-
-      // Interpolate between colors
-      const r1 = color1.r + (color2.r - color1.r) * blend;
-      const g1 = color1.g + (color2.g - color1.g) * blend;
-      const b1 = color1.b + (color2.b - color1.b) * blend;
-
-      const r2 = color2.r + (color3.r - color2.r) * blend;
-      const g2 = color2.g + (color3.g - color2.g) * blend;
-      const b2 = color2.b + (color3.b - color2.b) * blend;
-
-      if (glowRef.current) {
-        glowRef.current.style.transform = `translate(${currentPos.current.x}px, ${currentPos.current.y}px)`;
-        glowRef.current.style.background = `radial-gradient(circle, 
-          rgba(${r1}, ${g1}, ${b1}, ${intensity}) 0%, 
-          rgba(${r2}, ${g2}, ${b2}, ${intensity * 0.7}) 40%, 
-          rgba(${r1 * 0.8}, ${g1 * 0.8}, ${b1 * 0.8}, ${intensity * 0.4}) 60%, 
-          transparent 80%)`;
+      // Cancel previous animation frame
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
       }
 
-      animationFrameId = requestAnimationFrame(animate);
+      // Use requestAnimationFrame for smooth animation
+      rafRef.current = requestAnimationFrame(() => {
+        setPosition({ x: e.clientX, y: e.clientY });
+
+        // Check if cursor is over a light/white background
+        const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+        if (elementUnderCursor) {
+          const bgColor = window.getComputedStyle(elementUnderCursor).backgroundColor;
+          const isLightBackground = checkIfLightBackground(bgColor, elementUnderCursor);
+          setIsActive(isLightBackground);
+        }
+      });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    animate();
+    const handleMouseLeave = () => {
+      setIsActive(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
-  }, [intensity]);
+  }, []);
+
+  // Calculate gradient color based on cursor position
+  const getGradientColor = (x: number, y: number) => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // Normalize position (0-1)
+    const normalizedX = x / windowWidth;
+    const normalizedY = y / windowHeight;
+    
+    // Create a combined factor for color interpolation
+    const factor = (normalizedX + normalizedY) / 2;
+    
+    // Define gradient colors from tailwind config
+    const colors = [
+      { r: 14, g: 159, b: 168 },   // primary #0E9FA8
+      { r: 58, g: 182, b: 137 },   // secondary #3AB689
+      { r: 113, g: 210, b: 97 },   // accent #71D261
+      { r: 85, g: 195, b: 118 }    // support #55C376
+    ];
+    
+    // Interpolate between colors based on position
+    let colorIndex = factor * (colors.length - 1);
+    let lowerIndex = Math.floor(colorIndex);
+    let upperIndex = Math.ceil(colorIndex);
+    let blend = colorIndex - lowerIndex;
+    
+    lowerIndex = Math.max(0, Math.min(colors.length - 1, lowerIndex));
+    upperIndex = Math.max(0, Math.min(colors.length - 1, upperIndex));
+    
+    const lowerColor = colors[lowerIndex];
+    const upperColor = colors[upperIndex];
+    
+    const r = Math.round(lowerColor.r + (upperColor.r - lowerColor.r) * blend);
+    const g = Math.round(lowerColor.g + (upperColor.g - lowerColor.g) * blend);
+    const b = Math.round(lowerColor.b + (upperColor.b - lowerColor.b) * blend);
+    
+    return `rgba(${r}, ${g}, ${b}, 0.85)`;
+  };
+
+  // Check if background is light/white
+  const checkIfLightBackground = (bgColor: string, element: Element): boolean => {
+    // Parse RGB values from background color
+    const rgbMatch = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]);
+      const g = parseInt(rgbMatch[2]);
+      const b = parseInt(rgbMatch[3]);
+      
+      // Calculate relative luminance
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      
+      // Consider it light if luminance > 0.5 (more permissive threshold)
+      if (luminance > 0.5) {
+        return true;
+      }
+    }
+    
+    // Check for transparent backgrounds by traversing up the DOM
+    if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+      const parent = element.parentElement;
+      if (parent && parent !== document.body) {
+        const parentBg = window.getComputedStyle(parent).backgroundColor;
+        return checkIfLightBackground(parentBg, parent);
+      }
+      // Default to white background if we reach body
+      return true;
+    }
+    
+    return false;
+  };
+
+  const currentColor = getGradientColor(position.x, position.y);
 
   return (
     <div
       ref={glowRef}
-      className="pointer-events-none fixed top-0 left-0 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 z-50 transition-opacity duration-300"
+      className="cursor-glow-effect"
       style={{
-        filter: 'blur(70px)',
-        willChange: 'transform',
-        opacity: intensity > 0.25 ? 1 : 0.85,
+        position: 'fixed',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: '350px',
+        height: '350px',
+        borderRadius: '50%',
+        background: `radial-gradient(circle, ${currentColor} 0%, transparent 70%)`,
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'none',
+        zIndex: 9999,
+        opacity: isActive ? 1 : 0,
+        transition: 'opacity 0.2s ease-out',
+        filter: 'blur(60px)',
+        mixBlendMode: 'multiply',
+        willChange: 'transform, opacity'
       }}
     />
   );
-}
+};
+
+export default CursorGlow;
