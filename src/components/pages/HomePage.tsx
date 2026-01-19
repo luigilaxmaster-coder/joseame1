@@ -753,14 +753,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Dynamic Flow Diagram Section - Circular Carousel */}
+        {/* Dynamic Flow Diagram Section - Simplified Grid */}
         <section className="py-12 md:py-32 bg-gradient-to-br from-white via-secondary/10 to-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-15">
             <div className="absolute top-1/4 left-0 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
             <div className="absolute bottom-1/4 right-0 w-[32rem] h-[32rem] bg-gradient-to-br from-accent via-support to-primary rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-8 md:mb-20">
+            <AnimatedElement className="text-center mb-8 md:mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -775,217 +775,142 @@ export default function HomePage() {
               </motion.div>
             </AnimatedElement>
 
-            {/* Desktop Circular Carousel */}
+            {/* Desktop Grid Layout */}
             <div className="hidden lg:block">
-              <div className="relative flex items-center justify-center min-h-[800px]">
-                {/* Central Hub */}
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="absolute z-30"
-                >
-                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center shadow-2xl">
-                    <div className="w-40 h-40 rounded-full bg-white flex flex-col items-center justify-center">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Heart className="text-primary mb-2" size={40} />
-                      </motion.div>
-                      <span className="font-heading text-lg font-bold text-foreground text-center">JOSEAME</span>
-                      <span className="font-heading text-xs text-muted-text">Flujo</span>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Circular Path */}
-                <svg className="absolute w-[700px] h-[700px]" viewBox="0 0 700 700">
-                  <motion.circle
-                    cx="350"
-                    cy="350"
-                    r="280"
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="3"
-                    strokeDasharray="8 8"
-                    initial={{ pathLength: 0 }}
-                    whileInView={{ pathLength: 1 }}
-                    transition={{ duration: 2, ease: "easeInOut" }}
-                  />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0E9FA8" />
-                      <stop offset="33%" stopColor="#3AB689" />
-                      <stop offset="66%" stopColor="#71D261" />
-                      <stop offset="100%" stopColor="#55C376" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-
-                {/* Circular Items */}
+              <div className="grid grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {[
                   {
                     icon: Briefcase,
                     title: 'Cliente Publica',
-                    description: 'Define trabajo y presupuesto',
+                    description: 'Define trabajo y presupuesto con detalles claros',
                     color: 'from-primary to-secondary',
-                    step: '1',
-                    angle: 0
+                    step: '1'
                   },
                   {
                     icon: Search,
                     title: 'Joseadores Exploran',
-                    description: 'Buscan oportunidades',
+                    description: 'Buscan oportunidades relevantes a su perfil',
                     color: 'from-secondary to-accent',
-                    step: '2',
-                    angle: 40
+                    step: '2'
                   },
                   {
                     icon: FileText,
                     title: 'Envían Propuestas',
-                    description: 'Presentan su oferta',
+                    description: 'Presentan su oferta y experiencia',
                     color: 'from-accent to-support',
-                    step: '3',
-                    angle: 80
+                    step: '3'
                   },
                   {
                     icon: Handshake,
                     title: 'Cliente Selecciona',
-                    description: 'Elige al profesional',
+                    description: 'Elige al mejor profesional para el trabajo',
                     color: 'from-support to-primary',
-                    step: '4',
-                    angle: 120
+                    step: '4'
                   },
                   {
                     icon: Rocket,
                     title: 'Trabajo Comienza',
-                    description: 'Se formaliza acuerdo',
+                    description: 'Se formaliza el acuerdo en la plataforma',
                     color: 'from-primary to-accent',
-                    step: '5',
-                    angle: 160
+                    step: '5'
                   },
                   {
                     icon: Wallet,
                     title: 'Pago Seguro',
-                    description: 'Fondos protegidos',
+                    description: 'Fondos protegidos hasta completar trabajo',
                     color: 'from-secondary to-accent',
-                    step: '6',
-                    angle: 200
+                    step: '6'
                   },
                   {
                     icon: Target,
                     title: 'Joseador Ejecuta',
-                    description: 'Realiza el trabajo',
+                    description: 'Realiza el trabajo con excelencia',
                     color: 'from-accent to-support',
-                    step: '7',
-                    angle: 240
+                    step: '7'
                   },
                   {
                     icon: Shield,
                     title: 'Cliente Verifica',
-                    description: 'Revisa y aprueba',
+                    description: 'Revisa y aprueba el trabajo completado',
                     color: 'from-support to-primary',
-                    step: '8',
-                    angle: 280
+                    step: '8'
                   },
                   {
                     icon: DollarSign,
                     title: 'Pago Liberado',
-                    description: 'Joseador recibe pago',
+                    description: 'Joseador recibe su compensación',
                     color: 'from-primary to-secondary',
-                    step: '9',
-                    angle: 320
+                    step: '9'
                   }
-                ].map((item, index) => {
-                  const radius = 280;
-                  const angleRad = (item.angle * Math.PI) / 180;
-                  const x = Math.cos(angleRad) * radius;
-                  const y = Math.sin(angleRad) * radius;
-
-                  return (
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
                     <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 + index * 0.1, duration: 0.6, type: 'spring' }}
-                      className="absolute"
-                      style={{
-                        left: `calc(50% + ${x}px)`,
-                        top: `calc(50% + ${y}px)`,
-                        transform: 'translate(-50%, -50%)'
-                      }}
+                      whileHover={{ y: -8, scale: 1.03 }}
+                      className="bg-white rounded-2xl p-6 border-2 border-border/50 shadow-lg hover:shadow-2xl transition-all h-full relative overflow-hidden group hover:border-primary/50"
                     >
+                      {/* Background gradient on hover */}
                       <motion.div
-                        whileHover={{ scale: 1.15, rotate: 5, transition: { type: 'spring', stiffness: 300 } }}
-                        className="relative"
-                      >
-                        <div className="bg-white rounded-2xl p-6 border-2 border-border/50 shadow-xl hover:shadow-2xl transition-all w-44 relative overflow-hidden group hover:border-primary/50">
-                          <motion.div
-                            animate={{ opacity: [0.2, 0.5, 0.2] }}
-                            transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
-                            className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-30 transition-opacity`}
-                          />
-                          
-                          <div className="relative z-10 flex flex-col items-center text-center">
-                            <motion.div
-                              animate={{ rotate: [0, 360] }}
-                              transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: index * 0.5 }}
-                              className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 shadow-lg`}
-                            >
-                              <item.icon className="text-white" size={28} />
-                            </motion.div>
-                            
-                            <h3 className="font-heading text-sm font-bold text-foreground mb-1">{item.title}</h3>
-                            <p className="text-xs text-muted-text leading-tight">{item.description}</p>
-                            
-                            <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
-                              {item.step}
-                            </div>
-                          </div>
+                        className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                      />
+                      
+                      {/* Large step number background */}
+                      <div className="absolute top-2 right-2 text-7xl font-heading font-bold text-primary/5 group-hover:text-primary/10 transition-colors">
+                        {item.step}
+                      </div>
+
+                      <div className="relative z-10 flex flex-col items-center text-center">
+                        {/* Icon */}
+                        <motion.div
+                          whileHover={{ rotate: 360, scale: 1.1 }}
+                          transition={{ duration: 0.6 }}
+                          className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-xl`}
+                        >
+                          <item.icon className="text-white" size={36} strokeWidth={2} />
+                        </motion.div>
+
+                        {/* Step badge */}
+                        <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${item.color} text-white font-heading font-bold text-lg mb-3 shadow-lg`}>
+                          {item.step}
                         </div>
 
-                        {/* Connecting Line to Center */}
-                        <motion.div
-                          initial={{ scaleX: 0 }}
-                          whileInView={{ scaleX: 1 }}
-                          transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
-                          className="absolute top-1/2 left-1/2 w-1 bg-gradient-to-r from-primary/30 to-transparent"
-                          style={{
-                            height: '2px',
-                            width: `${radius - 100}px`,
-                            transform: `rotate(${item.angle + 180}deg)`,
-                            transformOrigin: 'left center'
-                          }}
-                        />
-                      </motion.div>
+                        {/* Text */}
+                        <h3 className="font-heading text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                        <p className="text-sm text-muted-text leading-relaxed">{item.description}</p>
+                      </div>
                     </motion.div>
-                  );
-                })}
-
-                {/* Success Badge */}
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.5, duration: 0.6 }}
-                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
-                >
-                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-8 py-4 border-2 border-accent/30 shadow-lg">
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1], rotate: [0, 180, 360] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      <Star className="text-accent fill-accent" size={24} />
-                    </motion.div>
-                    <span className="font-heading font-semibold text-foreground text-lg">¡Trabajo Completado con Éxito!</span>
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="w-3 h-3 rounded-full bg-accent shadow-lg"
-                    />
-                  </div>
-                </motion.div>
+                  </motion.div>
+                ))}
               </div>
+
+              {/* Success Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.6 }}
+                viewport={{ once: true }}
+                className="text-center mt-12"
+              >
+                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-8 py-4 border-2 border-accent/30 shadow-lg">
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    <Star className="text-accent fill-accent" size={24} />
+                  </motion.div>
+                  <span className="font-heading font-semibold text-foreground text-lg">¡Trabajo Completado con Éxito!</span>
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-3 h-3 rounded-full bg-accent shadow-lg"
+                  />
+                </div>
+              </motion.div>
             </div>
 
             {/* Mobile Flow Diagram */}
@@ -996,7 +921,7 @@ export default function HomePage() {
                 { icon: FileText, title: 'Envían Propuestas', description: 'Presentan oferta y experiencia', color: 'from-accent to-support', step: '3' },
                 { icon: Handshake, title: 'Cliente Selecciona', description: 'Elige al mejor profesional', color: 'from-support to-primary', step: '4' },
                 { icon: Rocket, title: 'Trabajo Comienza', description: 'Se formaliza el acuerdo', color: 'from-primary to-accent', step: '5' },
-                { icon: Wallet, title: 'Pago Seguro (Escrow)', description: 'Fondos protegidos', color: 'from-secondary to-accent', step: '6' },
+                { icon: Wallet, title: 'Pago Seguro', description: 'Fondos protegidos', color: 'from-secondary to-accent', step: '6' },
                 { icon: Target, title: 'Joseador Ejecuta', description: 'Realiza el trabajo', color: 'from-accent to-support', step: '7' },
                 { icon: Shield, title: 'Cliente Verifica', description: 'Revisa y aprueba', color: 'from-support to-primary', step: '8' },
                 { icon: DollarSign, title: 'Pago Liberado', description: 'Joseador recibe compensación', color: 'from-primary to-secondary', step: '9' }
@@ -1006,39 +931,53 @@ export default function HomePage() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.08, duration: 0.5 }}
+                  viewport={{ once: true }}
                   className="relative"
                 >
+                  {/* Connecting line */}
                   {index < 8 && (
-                    <div className="absolute left-7 top-16 w-1 h-6 bg-gradient-to-b from-primary via-accent to-support"></div>
+                    <div className="absolute left-7 top-full w-1 h-4 bg-gradient-to-b from-primary via-accent to-support z-0"></div>
                   )}
 
                   <div className="bg-white rounded-2xl p-4 border-2 border-border/50 relative overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg">
-                    <div className="flex items-start gap-3">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        transition={{ delay: index * 0.08 + 0.1, type: 'spring' }}
-                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg relative`}
-                      >
-                        <item.icon className="text-white" size={28} />
+                    {/* Background number */}
+                    <div className="absolute top-2 right-2 text-6xl font-heading font-bold text-primary/5">
+                      {item.step}
+                    </div>
+
+                    <div className="flex items-start gap-3 relative z-10">
+                      {/* Icon with badge */}
+                      <div className="relative flex-shrink-0">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          whileInView={{ scale: 1 }}
+                          transition={{ delay: index * 0.08 + 0.1, type: 'spring' }}
+                          viewport={{ once: true }}
+                          className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
+                        >
+                          <item.icon className="text-white" size={28} />
+                        </motion.div>
                         <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
                           {item.step}
                         </div>
-                      </motion.div>
+                      </div>
 
-                      <div className="flex-1 pt-0.5">
-                        <h3 className="font-heading text-base font-bold text-foreground">{item.title}</h3>
-                        <p className="text-xs text-muted-text">{item.description}</p>
+                      {/* Text */}
+                      <div className="flex-1 pt-1">
+                        <h3 className="font-heading text-base font-bold text-foreground mb-1">{item.title}</h3>
+                        <p className="text-xs text-muted-text leading-relaxed">{item.description}</p>
                       </div>
                     </div>
                   </div>
                 </motion.div>
               ))}
 
+              {/* Success badge mobile */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
+                viewport={{ once: true }}
                 className="text-center mt-8"
               >
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-6 py-3 border-2 border-accent/30 shadow-lg">
