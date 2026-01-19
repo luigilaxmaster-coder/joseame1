@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
-import { RegisteredUsers } from '@/entities';
+import { RegisteredUsers, JoseadoresProfiles, UserDirectory } from '@/entities';
 import { ArrowLeft, Search, CheckCircle, XCircle, RefreshCw, Activity, Clock, Award, User, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useSyncUser } from '@/lib/user-sync-hook';
 import { Image } from '@/components/ui/image';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserStats {
   total: number;
@@ -20,6 +21,7 @@ interface UserStats {
 
 export default function AdminUsersVerificationPage() {
   const { member } = useMember();
+  const { toast } = useToast();
   useSyncUser(); // Sync current admin user
   
   const [users, setUsers] = useState<RegisteredUsers[]>([]);
@@ -139,42 +141,186 @@ export default function AdminUsersVerificationPage() {
     loadData();
   }, [currentPage, pageSize]);
 
+  // Sync verification status to related profiles
+  const syncVerificationToProfiles = async (user: RegisteredUsers, newStatus: 'Aprobado' | 'Pendiente' | 'Rechazado') => {
+    try {
+      // Sync to UserDirectory
+      const { items: directoryItems } = await BaseCrudService.getAll<UserDirectory>('userdirectory');
+      const directoryUser = directoryItems.find(u => u.email?.toLowerCase() === user.email?.toLowerCase());
+      if (directoryUser) {
+        await BaseCrudService.update('userdirectory', {
+          _id: directoryUser._id,
+          verificationStatus: newStatus
+        });
+      }
+
+      // Sync to JoseadoresProfiles if user is a Joseador
+      if (user.role === 'Joseador') {
+        const { items: joseadorItems } = await BaseCrudService.getAll<JoseadoresProfiles>('joseadores');
+        const joseadorProfile = joseadorItems.find(j => j.email?.toLowerCase() === user.email?.toLowerCase());
+        if (joseadorProfile) {
+          await BaseCrudService.update('joseadores', {
+            _id: joseadorProfile._id,
+            verificationStatus: newStatus
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing verification status to profiles:', error);
+    }
+  };
+
   // Handle verification status change
   const handleChangeVerificationStatus = async (userId: string, newStatus: 'Aprobado' | 'Pendiente' | 'Rechazado') => {
     try {
+      // Find the user to get their email and role
+      const user = users.find(u => u._id === userId);
+      if (!user) return;
+
+      // Update in registeredusers
       await BaseCrudService.update('registeredusers', {
         _id: userId,
         verificationStatus: newStatus
       });
+
+      // Sync to related profiles
+      await syncVerificationToProfiles(user, newStatus);
+
+      // Show success toast
+      toast({
+        title: 'Estado actualizado',
+        description: `El estado de verificación se actualizó a ${newStatus} y se sincronizó con todos los perfiles.`,
+      });
+
       await loadData();
     } catch (error) {
       console.error('Error updating verification status:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo actualizar el estado de verificación.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Sync role to related profiles
+  const syncRoleToProfiles = async (user: RegisteredUsers, newRole: 'Cliente' | 'Joseador' | 'Admin') => {
+    try {
+      // Sync to UserDirectory
+      const { items: directoryItems } = await BaseCrudService.getAll<UserDirectory>('userdirectory');
+      const directoryUser = directoryItems.find(u => u.email?.toLowerCase() === user.email?.toLowerCase());
+      if (directoryUser) {
+        // UserDirectory doesn't have a role field, but we keep it in sync for consistency
+        await BaseCrudService.update('userdirectory', {
+          _id: directoryUser._id,
+          fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.nickname || 'Sin nombre'
+        });
+      }
+
+      // If changing to Joseador, create profile if it doesn't exist
+      if (newRole === 'Joseador') {
+        const { items: joseadorItems } = await BaseCrudService.getAll<JoseadoresProfiles>('joseadores');
+        const joseadorProfile = joseadorItems.find(j => j.email?.toLowerCase() === user.email?.toLowerCase());
+        
+        if (!joseadorProfile) {
+          // Create new Joseador profile
+          await BaseCrudService.create('joseadores', {
+            _id: crypto.randomUUID(),
+            userId: user.userId,
+            email: user.email,
+            fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.nickname || 'Sin nombre',
+            verificationStatus: user.verificationStatus || 'Pendiente',
+            badges: user.badges || ''
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing role to profiles:', error);
     }
   };
 
   // Handle role change
   const handleChangeRole = async (userId: string, newRole: 'Cliente' | 'Joseador' | 'Admin') => {
     try {
+      // Find the user to get their email
+      const user = users.find(u => u._id === userId);
+      if (!user) return;
+
+      // Update in registeredusers
       await BaseCrudService.update('registeredusers', {
         _id: userId,
         role: newRole
       });
+
+      // Sync to related profiles
+      await syncRoleToProfiles(user, newRole);
+
+      // Show success toast
+      toast({
+        title: 'Rol actualizado',
+        description: `El rol se actualizó a ${newRole} y se sincronizó con todos los perfiles.`,
+      });
+
       await loadData();
     } catch (error) {
       console.error('Error updating role:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo actualizar el rol.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Sync badges to related profiles
+  const syncBadgesToProfiles = async (user: RegisteredUsers, badges: string) => {
+    try {
+      // Sync to JoseadoresProfiles if user is a Joseador
+      if (user.role === 'Joseador') {
+        const { items: joseadorItems } = await BaseCrudService.getAll<JoseadoresProfiles>('joseadores');
+        const joseadorProfile = joseadorItems.find(j => j.email?.toLowerCase() === user.email?.toLowerCase());
+        if (joseadorProfile) {
+          await BaseCrudService.update('joseadores', {
+            _id: joseadorProfile._id,
+            badges
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing badges to profiles:', error);
     }
   };
 
   // Handle badges update
   const handleUpdateBadges = async (userId: string, badges: string) => {
     try {
+      // Find the user to get their email and role
+      const user = users.find(u => u._id === userId);
+      if (!user) return;
+
+      // Update in registeredusers
       await BaseCrudService.update('registeredusers', {
         _id: userId,
         badges
       });
+
+      // Sync to related profiles
+      await syncBadgesToProfiles(user, badges);
+
+      // Show success toast
+      toast({
+        title: 'Badges actualizados',
+        description: 'Los badges se actualizaron y sincronizaron con todos los perfiles.',
+      });
+
       await loadData();
     } catch (error) {
       console.error('Error updating badges:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron actualizar los badges.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -295,7 +441,7 @@ export default function AdminUsersVerificationPage() {
               Verificación de Usuarios
             </h1>
             <p className="font-paragraph text-muted-text">
-              Gestiona la verificación de usuarios reales de Wix Members
+              Gestiona la verificación de usuarios reales de Wix Members. Los cambios se sincronizan automáticamente con todos los perfiles relacionados.
             </p>
           </div>
 
