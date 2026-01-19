@@ -54,9 +54,9 @@ export default function HomePage() {
           className="absolute top-6 left-6 md:top-8 md:left-8 z-20"
         >
           <Image
-            src="https://static.wixstatic.com/media/307f6c_d815151dd9f247fa80ac2dd9fc27578a~mv2.png"
+            src="https://static.wixstatic.com/media/307f6c_90c18dbeed4b48df8fe49e1c1cff9637~mv2.png"
             alt="Joseame Logo"
-            width={200}
+            width={220}
             className="drop-shadow-2xl hover:scale-105 transition-transform duration-300"
           />
         </motion.div>
