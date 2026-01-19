@@ -57,7 +57,8 @@ export default function HomePage() {
             src="https://static.wixstatic.com/media/307f6c_90c18dbeed4b48df8fe49e1c1cff9637~mv2.png"
             alt="Joseame Logo"
             width={220}
-            className="drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+            className="drop-shadow-2xl hover:scale-105 transition-transform duration-300 mix-blend-screen"
+            style={{ filter: 'brightness(1.2) contrast(1.1)' }}
           />
         </motion.div>
         {/* Animated shapes */}
