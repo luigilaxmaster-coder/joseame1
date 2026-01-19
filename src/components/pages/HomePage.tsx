@@ -795,27 +795,28 @@ export default function HomePage() {
             <div className="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-1/3 w-[35rem] h-[35rem] bg-gradient-to-br from-accent via-support to-secondary rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
-            <AnimatedElement className="mb-8 md:mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <div className="flex items-center gap-4 mb-3">
-                  <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
+          <div className="w-full relative">
+            {/* Text Overlay on Top Left of Carousel */}
+            <div className="absolute top-8 md:top-16 left-4 md:left-12 z-20 max-w-xl">
+              <AnimatedElement>
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="bg-white/95 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-primary/20"
+                >
+                  <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
                     Encuentra el <span className="gradient-text">talento</span> que necesitas
                   </h2>
-                </div>
-                <p className="text-base md:text-lg text-muted-text mt-2 md:mt-3 max-w-2xl">
-                  Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
-                  Conecta con profesionales en múltiples categorías.
-                </p>
-              </motion.div>
-            </AnimatedElement>
-          </div>
-          <div className="w-full relative">
-            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto">
+                  <p className="text-sm md:text-base lg:text-lg text-muted-text leading-relaxed">
+                    Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
+                    Conecta con profesionales en múltiples categorías.
+                  </p>
+                </motion.div>
+              </AnimatedElement>
+            </div>
+            
+            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto pt-[280px] md:pt-[320px]">
               {popularCategories.map((category) => (
                 <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[250px] sm:w-[280px] md:w-[350px]">
                   <motion.div 
