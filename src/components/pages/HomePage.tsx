@@ -46,6 +46,20 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary via-secondary to-support text-white py-32 px-6 overflow-hidden">
+        {/* Logo at the top */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="absolute top-8 left-8 z-20"
+        >
+          <Image
+            src="https://static.wixstatic.com/media/307f6c_d815151dd9f247fa80ac2dd9fc27578a~mv2.png?originWidth=128&originHeight=128"
+            alt="Joseame Logo"
+            width={180}
+            className="drop-shadow-2xl"
+          />
+        </motion.div>
         {/* Animated shapes */}
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
@@ -198,7 +212,7 @@ export default function HomePage() {
                   className="relative z-10"
                 >
                   <Image
-                    src="https://static.wixstatic.com/media/307f6c_d8d597cca41c496ba6802412abf9b4bd~mv2.png?originWidth=576&originHeight=576"
+                    src="https://static.wixstatic.com/media/307f6c_4984a4e53de44f7eb45af54009e985b9~mv2.png?originWidth=576&originHeight=384"
                     alt="Profesionales trabajando"
                     width={600}
                     className="rounded-3xl shadow-2xl"
@@ -407,69 +421,7 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Interactive Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-20 bg-gradient-to-br from-primary via-secondary to-support rounded-3xl p-12 text-white relative overflow-hidden"
-          >
-            <div className="absolute inset-0 opacity-20">
-              {[...Array(20)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  animate={{
-                    y: [0, -30, 0],
-                    opacity: [0.2, 0.5, 0.2],
-                  }}
-                  transition={{
-                    duration: 3 + i * 0.2,
-                    repeat: Infinity,
-                    delay: i * 0.1,
-                  }}
-                  className="absolute"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                  }}
-                >
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="relative z-10">
-              <h3 className="font-heading text-3xl md:text-4xl font-bold text-center mb-12">
-                Números que Hablan por Sí Solos
-              </h3>
-              
-              <div className="grid md:grid-cols-4 gap-8">
-                {[
-                  { icon: Users, value: '10,000+', label: 'Usuarios Activos', color: 'from-yellow-400 to-orange-400' },
-                  { icon: Briefcase, value: '50,000+', label: 'Proyectos Completados', color: 'from-green-400 to-emerald-400' },
-                  { icon: DollarSign, value: '$5M+', label: 'Pagos Procesados', color: 'from-blue-400 to-cyan-400' },
-                  { icon: Star, value: '4.9/5', label: 'Calificación Promedio', color: 'from-pink-400 to-rose-400' },
-                ].map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="text-center"
-                  >
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl`}
-                    >
-                      <stat.icon className="w-10 h-10 text-white" />
-                    </motion.div>
-                    <div className="text-4xl font-bold mb-2">{stat.value}</div>
-                    <div className="text-white/90">{stat.label}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          {/* Interactive Stats Section - REMOVED */}
         </div>
       </section>
 
@@ -541,7 +493,7 @@ export default function HomePage() {
                 description: 'Los clientes publican trabajos, los joseadores aplican con propuestas',
                 color: 'from-primary to-secondary',
                 icon: Briefcase,
-                image: 'https://static.wixstatic.com/media/307f6c_37521c5185254913b248882fffce1e7a~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_3e30b6b2fb8943d691152c0c8fcc654d~mv2.png?originWidth=256&originHeight=256'
               },
               {
                 number: 2,
@@ -549,7 +501,7 @@ export default function HomePage() {
                 description: 'El dinero se guarda en escrow hasta completar el trabajo',
                 color: 'from-accent to-support',
                 icon: Shield,
-                image: 'https://static.wixstatic.com/media/307f6c_0ce332453a7c4e19b8ec8af4bd9056ec~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_00fb0fab73f1483f984c7c3512fdeda6~mv2.png?originWidth=256&originHeight=256'
               },
               {
                 number: 3,
@@ -557,7 +509,7 @@ export default function HomePage() {
                 description: 'Una vez aprobado, el pago se libera automáticamente',
                 color: 'from-support to-support2',
                 icon: CheckCircle,
-                image: 'https://static.wixstatic.com/media/307f6c_1909c2a05a0044f79f4864458f81ea5b~mv2.png?originWidth=256&originHeight=256'
+                image: 'https://static.wixstatic.com/media/307f6c_17a7f3a5d6cf4717885007564214f637~mv2.png?originWidth=256&originHeight=256'
               }
             ].map((step, index) => (
               <motion.div
@@ -789,7 +741,7 @@ export default function HomePage() {
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <Image
-                    src="https://static.wixstatic.com/media/307f6c_6d4e31cc7fea474da4a16928c79bd894~mv2.png?originWidth=768&originHeight=576"
+                    src="https://static.wixstatic.com/media/12d367_71ebdd7141d041e4be3d91d80d4578dd~mv2.png"
                     alt="Únete ahora"
                     width={800}
                     className="rounded-3xl shadow-2xl"
