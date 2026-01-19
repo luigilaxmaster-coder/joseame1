@@ -697,10 +697,10 @@ export default function HomePage() {
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-8 md:mb-24">
               <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                Simple, Transparente y Directo.
+                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Simple, Transparente y Directo.</span>
               </h2>
-              <p className="text-sm md:text-lg text-muted-text max-w-3xl mx-auto">
-                Diseñamos un flujo de trabajo que te da control y confianza en cada paso.
+              <p className="text-sm md:text-xl text-muted-text max-w-4xl mx-auto leading-relaxed">
+                Diseñamos un flujo de trabajo intuitivo que te da <span className="font-semibold text-foreground">control total</span> y <span className="font-semibold text-foreground">confianza absoluta</span> en cada paso del proceso.
               </p>
             </AnimatedElement>
 
