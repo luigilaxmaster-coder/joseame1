@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import CursorGlow from '@/components/CursorGlow';
-import { Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle } from 'lucide-react';
+import { Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle, Layers, Code, Palette, Globe, Cpu, Database, Smartphone, Headphones, BarChart3, FileCheck, UserCheck, Wallet, Search, Settings, Lock } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -110,29 +110,41 @@ export default function HomePage() {
                 Conectamos <span className="text-accent drop-shadow-lg">Talento</span> con <span className="text-light-green drop-shadow-lg">Oportunidades</span>
               </h1>
               <p className="font-paragraph text-xl md:text-2xl mb-8 text-white/95 drop-shadow-md">
-                La plataforma que revoluciona el mercado de servicios profesionales con tecnología de punta 🚀
+                La plataforma que revoluciona el mercado de servicios profesionales con tecnología de punta
               </p>
               
               <div className="flex flex-wrap gap-4">
                 <Link to="/role-selection">
                   <motion.button
-                    whileHover={{ scale: 1.05, rotate: 1 }}
+                    whileHover={{ scale: 1.05, rotate: 1, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-white to-gray-100 text-primary px-8 py-4 rounded-full font-semibold text-lg hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-2"
+                    className="bg-gradient-to-r from-white to-gray-100 text-primary px-8 py-4 rounded-full font-semibold text-lg hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-2 relative overflow-hidden group"
                   >
-                    <Rocket className="w-5 h-5" />
-                    Comenzar Ahora
-                    <ArrowRight className="w-5 h-5" />
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10"
+                      initial={{ x: '-100%' }}
+                      whileHover={{ x: '100%' }}
+                      transition={{ duration: 0.5 }}
+                    />
+                    <Rocket className="w-5 h-5 relative z-10" />
+                    <span className="relative z-10">Comenzar Ahora</span>
+                    <ArrowRight className="w-5 h-5 relative z-10" />
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
-                    whileHover={{ scale: 1.05, rotate: -1 }}
+                    whileHover={{ scale: 1.05, rotate: -1, boxShadow: "0 20px 40px rgba(255,255,255,0.2)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white/25 backdrop-blur-md text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/35 transition-all border-2 border-white/40 shadow-xl"
+                    className="bg-white/25 backdrop-blur-md text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/35 transition-all border-2 border-white/40 shadow-xl relative overflow-hidden group"
                   >
-                    <Heart className="w-5 h-5 inline mr-2" />
-                    Conocer Más
+                    <motion.div
+                      className="absolute inset-0 bg-white/10"
+                      initial={{ scale: 0, opacity: 0 }}
+                      whileHover={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <Heart className="w-5 h-5 inline mr-2 relative z-10" />
+                    <span className="relative z-10">Conocer Más</span>
                   </motion.button>
                 </Link>
               </div>
@@ -200,7 +212,7 @@ export default function HomePage() {
                       <CheckCircle className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-foreground">Trabajo Completado ✅</div>
+                      <div className="font-bold text-foreground">Trabajo Completado</div>
                       <div className="text-sm text-accent font-semibold">+$2,500</div>
                     </div>
                   </div>
@@ -216,7 +228,7 @@ export default function HomePage() {
                       <TrendingUp className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-foreground">Nuevo Proyecto 🔥</div>
+                      <div className="font-bold text-foreground">Nuevo Proyecto</div>
                       <div className="text-sm text-primary font-semibold">5 aplicaciones</div>
                     </div>
                   </div>
@@ -260,7 +272,6 @@ export default function HomePage() {
                 description: 'Accede a una amplia red de profesionales verificados listos para trabajar',
                 color: 'from-primary to-secondary',
                 delay: 0.1,
-                emoji: '👥'
               },
               {
                 icon: Shield,
@@ -268,7 +279,6 @@ export default function HomePage() {
                 description: 'Sistema de escrow que protege tu dinero hasta que el trabajo esté completado',
                 color: 'from-accent to-support',
                 delay: 0.2,
-                emoji: '🔒'
               },
               {
                 icon: Zap,
@@ -276,7 +286,6 @@ export default function HomePage() {
                 description: 'Publica trabajos o aplica a ofertas en minutos con nuestra plataforma intuitiva',
                 color: 'from-support to-support2',
                 delay: 0.3,
-                emoji: '⚡'
               }
             ].map((feature, index) => (
               <motion.div
@@ -296,13 +305,6 @@ export default function HomePage() {
                   className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl relative`}
                 >
                   <feature.icon className="w-8 h-8 text-white" />
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -top-2 -right-2 text-2xl"
-                  >
-                    {feature.emoji}
-                  </motion.div>
                 </motion.div>
 
                 <h3 className="font-heading text-2xl font-semibold mb-4 text-foreground">
@@ -327,10 +329,10 @@ export default function HomePage() {
             className="grid md:grid-cols-4 gap-6 mt-16"
           >
             {[
-              { icon: Award, text: 'Profesionales Verificados', color: 'text-accent', bg: 'from-accent/20 to-support/20', emoji: '🏆' },
-              { icon: Clock, text: 'Respuesta en 24h', color: 'text-primary', bg: 'from-primary/20 to-secondary/20', emoji: '⏰' },
-              { icon: TrendingUp, text: 'Crecimiento Garantizado', color: 'text-support', bg: 'from-support/20 to-support2/20', emoji: '📈' },
-              { icon: Briefcase, text: 'Miles de Proyectos', color: 'text-secondary', bg: 'from-secondary/20 to-primary/20', emoji: '💼' }
+              { icon: Award, text: 'Profesionales Verificados', color: 'text-accent', bg: 'from-accent/20 to-support/20' },
+              { icon: Clock, text: 'Respuesta en 24h', color: 'text-primary', bg: 'from-primary/20 to-secondary/20' },
+              { icon: TrendingUp, text: 'Crecimiento Garantizado', color: 'text-support', bg: 'from-support/20 to-support2/20' },
+              { icon: Briefcase, text: 'Miles de Proyectos', color: 'text-secondary', bg: 'from-secondary/20 to-primary/20' }
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -344,9 +346,125 @@ export default function HomePage() {
                   <item.icon className={`w-10 h-10 ${item.color} mx-auto mb-3`} />
                 </motion.div>
                 <p className="font-semibold text-foreground">{item.text}</p>
-                <div className="text-3xl mt-2">{item.emoji}</div>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* New Enhanced Features Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-20"
+          >
+            <h3 className="font-heading text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
+              Características <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-support to-primary">Premium</span>
+            </h3>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Globe, title: 'Alcance Global', desc: 'Conecta con profesionales en todo el mundo', color: 'from-blue-500 to-cyan-500' },
+                { icon: Lock, title: 'Seguridad Total', desc: 'Encriptación de extremo a extremo', color: 'from-purple-500 to-pink-500' },
+                { icon: Smartphone, title: 'App Móvil', desc: 'Gestiona todo desde tu teléfono', color: 'from-green-500 to-emerald-500' },
+                { icon: Headphones, title: 'Soporte 24/7', desc: 'Asistencia en tiempo real', color: 'from-orange-500 to-red-500' },
+                { icon: BarChart3, title: 'Análisis Avanzado', desc: 'Métricas y reportes detallados', color: 'from-indigo-500 to-blue-500' },
+                { icon: FileCheck, title: 'Contratos Digitales', desc: 'Firma electrónica integrada', color: 'from-teal-500 to-cyan-500' },
+                { icon: UserCheck, title: 'Verificación ID', desc: 'Identidad confirmada', color: 'from-pink-500 to-rose-500' },
+                { icon: Wallet, title: 'Múltiples Pagos', desc: 'Acepta diversos métodos', color: 'from-amber-500 to-yellow-500' },
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  whileHover={{ y: -8, scale: 1.05 }}
+                  className="bg-white p-6 rounded-2xl border-2 border-border shadow-lg hover:shadow-2xl transition-all group relative overflow-hidden"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                  
+                  <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                    className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}
+                  >
+                    <feature.icon className="w-7 h-7 text-white" />
+                  </motion.div>
+                  
+                  <h4 className="font-heading text-lg font-semibold mb-2 text-foreground">
+                    {feature.title}
+                  </h4>
+                  <p className="text-sm text-muted-text">
+                    {feature.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Interactive Stats Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="mt-20 bg-gradient-to-br from-primary via-secondary to-support rounded-3xl p-12 text-white relative overflow-hidden"
+          >
+            <div className="absolute inset-0 opacity-20">
+              {[...Array(20)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    y: [0, -30, 0],
+                    opacity: [0.2, 0.5, 0.2],
+                  }}
+                  transition={{
+                    duration: 3 + i * 0.2,
+                    repeat: Infinity,
+                    delay: i * 0.1,
+                  }}
+                  className="absolute"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                  }}
+                >
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="relative z-10">
+              <h3 className="font-heading text-3xl md:text-4xl font-bold text-center mb-12">
+                Números que Hablan por Sí Solos
+              </h3>
+              
+              <div className="grid md:grid-cols-4 gap-8">
+                {[
+                  { icon: Users, value: '10,000+', label: 'Usuarios Activos', color: 'from-yellow-400 to-orange-400' },
+                  { icon: Briefcase, value: '50,000+', label: 'Proyectos Completados', color: 'from-green-400 to-emerald-400' },
+                  { icon: DollarSign, value: '$5M+', label: 'Pagos Procesados', color: 'from-blue-400 to-cyan-400' },
+                  { icon: Star, value: '4.9/5', label: 'Calificación Promedio', color: 'from-pink-400 to-rose-400' },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="text-center"
+                  >
+                    <motion.div
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl`}
+                    >
+                      <stat.icon className="w-10 h-10 text-white" />
+                    </motion.div>
+                    <div className="text-4xl font-bold mb-2">{stat.value}</div>
+                    <div className="text-white/90">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -401,10 +519,10 @@ export default function HomePage() {
               <Zap className="w-16 h-16 text-secondary mx-auto" />
             </motion.div>
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              Cómo <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-support to-accent">Funciona</span> ⚙️
+              Cómo <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-support to-accent">Funciona</span>
             </h2>
             <p className="text-xl text-muted-text max-w-2xl mx-auto">
-              Tres simples pasos para conectar talento con oportunidades 🚀
+              Tres simples pasos para conectar talento con oportunidades
             </p>
           </motion.div>
 
@@ -516,16 +634,24 @@ export default function HomePage() {
             className="mt-20 bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-2xl border-2 border-border"
           >
             <h3 className="font-heading text-2xl font-bold text-center mb-8 text-foreground">
-              Flujo del Proceso 🔄
+              Flujo del Proceso
             </h3>
             <div className="flex flex-wrap justify-center items-center gap-4">
-              {['Cliente Publica 📝', 'Joseador Aplica 🙋', 'Pago en Escrow 💰', 'Trabajo Realizado 🔨', 'Confirmación ✅', 'Pago Liberado 💸'].map((step, index) => (
+              {[
+                { text: 'Cliente Publica', icon: Search },
+                { text: 'Joseador Aplica', icon: UserCheck },
+                { text: 'Pago en Escrow', icon: Lock },
+                { text: 'Trabajo Realizado', icon: Settings },
+                { text: 'Confirmación', icon: CheckCircle },
+                { text: 'Pago Liberado', icon: DollarSign }
+              ].map((step, index) => (
                 <div key={index} className="flex items-center">
                   <motion.div
                     whileHover={{ scale: 1.15, rotate: 2 }}
-                    className="bg-gradient-to-br from-primary via-secondary to-support text-white px-6 py-3 rounded-full font-semibold shadow-xl border-2 border-white"
+                    className="bg-gradient-to-br from-primary via-secondary to-support text-white px-6 py-3 rounded-full font-semibold shadow-xl border-2 border-white flex items-center gap-2"
                   >
-                    {step}
+                    <step.icon className="w-5 h-5" />
+                    {step.text}
                   </motion.div>
                   {index < 5 && (
                     <motion.div
@@ -594,10 +720,10 @@ export default function HomePage() {
             </div>
 
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-6">
-              ¿Listo para <span className="text-accent drop-shadow-2xl">empezar</span>? 🎉
+              ¿Listo para <span className="text-accent drop-shadow-2xl">empezar</span>?
             </h2>
             <p className="font-paragraph text-xl md:text-2xl mb-10 text-white/95 max-w-3xl mx-auto drop-shadow-lg">
-              Únete a la plataforma que está transformando el mercado de servicios y descubre un mundo de oportunidades 🌍✨
+              Únete a la plataforma que está transformando el mercado de servicios y descubre un mundo de oportunidades
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -608,7 +734,7 @@ export default function HomePage() {
                   className="bg-gradient-to-r from-white via-gray-50 to-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:from-gray-50 hover:to-white transition-all shadow-2xl flex items-center gap-2 border-2 border-white/50"
                 >
                   <Rocket className="w-6 h-6" />
-                  Crear Cuenta Gratis 🎁
+                  Crear Cuenta Gratis
                   <ArrowRight className="w-6 h-6" />
                 </motion.button>
               </Link>
@@ -627,21 +753,21 @@ export default function HomePage() {
                 className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
               >
                 <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Sin tarjeta de crédito 💳</span>
+                <span>Sin tarjeta de crédito</span>
               </motion.div>
               <motion.div 
                 whileHover={{ scale: 1.1 }}
                 className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
               >
-                <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Configuración en 2 minutos ⚡</span>
+                <Clock className="w-5 h-5 text-accent" />
+                <span>Configuración en 2 minutos</span>
               </motion.div>
               <motion.div 
                 whileHover={{ scale: 1.1 }}
                 className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
               >
-                <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Soporte 24/7 🤝</span>
+                <Headphones className="w-5 h-5 text-accent" />
+                <span>Soporte 24/7</span>
               </motion.div>
             </motion.div>
 
@@ -675,7 +801,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <Users className="w-6 h-6 text-primary" />
                     <div className="text-left">
-                      <div className="font-bold">10,000+ 👥</div>
+                      <div className="font-bold">10,000+</div>
                       <div className="text-sm text-muted-text">Usuarios Activos</div>
                     </div>
                   </div>
@@ -689,7 +815,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <Award className="w-6 h-6 text-accent" />
                     <div className="text-left">
-                      <div className="font-bold">4.9/5 ⭐</div>
+                      <div className="font-bold">4.9/5</div>
                       <div className="text-sm text-muted-text">Calificación</div>
                     </div>
                   </div>
