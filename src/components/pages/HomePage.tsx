@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import CursorGlow from '@/components/CursorGlow';
 import { 
@@ -9,6 +9,10 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-white to-background relative overflow-hidden">
       <CursorGlow />
@@ -45,22 +49,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-secondary to-support text-white py-32 px-6 overflow-hidden">
-        {/* Logo at the top */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="absolute top-6 left-6 md:top-8 md:left-8 z-20"
-        >
-          <Image
-            src="https://static.wixstatic.com/media/307f6c_90c18dbeed4b48df8fe49e1c1cff9637~mv2.png"
-            alt="Joseame Logo"
-            width={220}
-            className="drop-shadow-2xl hover:scale-105 transition-transform duration-300 mix-blend-screen"
-            style={{ filter: 'brightness(1.2) contrast(1.1)' }}
-          />
-        </motion.div>
+      <section className="relative bg-gradient-to-br from-primary via-secondary to-support text-white py-32 px-6 overflow-hidden min-h-screen flex items-center">
         {/* Animated shapes */}
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
@@ -84,24 +73,25 @@ export default function HomePage() {
         />
         
         {/* Floating sparkles */}
-        {[...Array(8)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
+            initial={{ opacity: 0, scale: 0 }}
             animate={{
               y: [0, -30, 0],
               opacity: [0.3, 1, 0.3],
               scale: [0.8, 1.2, 0.8],
             }}
             transition={{
-              duration: 3 + i * 0.5,
+              duration: 3 + i * 0.3,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: i * 0.3,
+              delay: i * 0.2,
             }}
             className="absolute"
             style={{
-              left: `${10 + i * 12}%`,
-              top: `${20 + (i % 3) * 20}%`,
+              left: `${5 + i * 8}%`,
+              top: `${15 + (i % 4) * 20}%`,
             }}
           >
             <Sparkles className="w-6 h-6 text-yellow-300" />
@@ -135,34 +125,50 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-4">
                 <Link to="/role-selection">
                   <motion.button
-                    whileHover={{ scale: 1.05, rotate: 1, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-white to-gray-100 text-primary px-8 py-4 rounded-full font-semibold text-lg hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-2 relative overflow-hidden group"
+                    whileHover={{ scale: 1.08, rotate: 1, boxShadow: "0 25px 50px rgba(0,0,0,0.4)" }}
+                    whileTap={{ scale: 0.92 }}
+                    className="bg-gradient-to-r from-white via-gray-50 to-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-3 relative overflow-hidden group border-2 border-white/50"
                   >
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10"
+                      className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20"
                       initial={{ x: '-100%' }}
                       whileHover={{ x: '100%' }}
-                      transition={{ duration: 0.5 }}
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
                     />
-                    <Rocket className="w-5 h-5 relative z-10" />
+                    <motion.div
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Rocket className="w-6 h-6 relative z-10" />
+                    </motion.div>
                     <span className="relative z-10">Comenzar Ahora</span>
-                    <ArrowRight className="w-5 h-5 relative z-10" />
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <ArrowRight className="w-6 h-6 relative z-10" />
+                    </motion.div>
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
-                    whileHover={{ scale: 1.05, rotate: -1, boxShadow: "0 20px 40px rgba(255,255,255,0.2)" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white/25 backdrop-blur-md text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/35 transition-all border-2 border-white/40 shadow-xl relative overflow-hidden group"
+                    whileHover={{ scale: 1.08, rotate: -1, boxShadow: "0 25px 50px rgba(255,255,255,0.3)" }}
+                    whileTap={{ scale: 0.92 }}
+                    className="bg-white/25 backdrop-blur-md text-white px-10 py-5 rounded-full font-semibold text-xl hover:bg-white/35 transition-all border-2 border-white/50 shadow-xl relative overflow-hidden group"
                   >
                     <motion.div
                       className="absolute inset-0 bg-white/10"
                       initial={{ scale: 0, opacity: 0 }}
-                      whileHover={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.5, opacity: 1 }}
+                      transition={{ duration: 0.4 }}
                     />
-                    <Heart className="w-5 h-5 inline mr-2 relative z-10" />
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="inline-block"
+                    >
+                      <Heart className="w-6 h-6 inline mr-2 relative z-10" />
+                    </motion.div>
                     <span className="relative z-10">Conocer Más</span>
                   </motion.button>
                 </Link>
@@ -176,25 +182,64 @@ export default function HomePage() {
                 className="grid grid-cols-3 gap-6 mt-12"
               >
                 <motion.div 
-                  whileHover={{ scale: 1.1, rotate: 2 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                  whileHover={{ scale: 1.15, rotate: 3, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
                 >
-                  <div className="text-3xl font-bold text-accent drop-shadow-lg">10K+</div>
-                  <div className="text-sm text-white/90">Profesionales</div>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-accent/30 to-support/30"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="text-3xl font-bold text-accent drop-shadow-lg relative z-10"
+                  >
+                    10K+
+                  </motion.div>
+                  <div className="text-sm text-white/90 relative z-10">Profesionales</div>
                 </motion.div>
                 <motion.div 
-                  whileHover={{ scale: 1.1, rotate: -2 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                  whileHover={{ scale: 1.15, rotate: -3, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
                 >
-                  <div className="text-3xl font-bold text-light-green drop-shadow-lg">50K+</div>
-                  <div className="text-sm text-white/90">Trabajos</div>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-light-green/30 to-support/30"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+                    className="text-3xl font-bold text-light-green drop-shadow-lg relative z-10"
+                  >
+                    50K+
+                  </motion.div>
+                  <div className="text-sm text-white/90 relative z-10">Trabajos</div>
                 </motion.div>
                 <motion.div 
-                  whileHover={{ scale: 1.1, rotate: 2 }}
-                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                  whileHover={{ scale: 1.15, rotate: 3, y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 relative overflow-hidden group cursor-pointer"
                 >
-                  <div className="text-3xl font-bold text-yellow-300 drop-shadow-lg">4.9★</div>
-                  <div className="text-sm text-white/90">Calificación</div>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-yellow-300/30 to-orange-400/30"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+                    className="text-3xl font-bold text-yellow-300 drop-shadow-lg relative z-10"
+                  >
+                    4.9★
+                  </motion.div>
+                  <div className="text-sm text-white/90 relative z-10">Calificación</div>
                 </motion.div>
               </motion.div>
             </motion.div>
