@@ -2,7 +2,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import CursorGlow from '@/components/CursorGlow';
-import { Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle, Layers, Code, Palette, Globe, Cpu, Database, Smartphone, Headphones, BarChart3, FileCheck, UserCheck, Wallet, Search, Settings, Lock } from 'lucide-react';
+import { 
+  Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, 
+  Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle, Globe, Lock, Smartphone, 
+  Headphones, BarChart3, FileCheck, UserCheck, Wallet, Search, Settings 
+} from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -257,7 +261,7 @@ export default function HomePage() {
               <Target className="w-16 h-16 text-primary mx-auto" />
             </motion.div>
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              ¿Por qué <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">elegirnos</span>? 🌟
+              ¿Por qué <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">elegirnos</span>?
             </h2>
             <p className="text-xl text-muted-text max-w-2xl mx-auto">
               Descubre las ventajas que nos hacen la mejor opción del mercado
