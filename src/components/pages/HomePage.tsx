@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import CursorGlow from '@/components/CursorGlow';
-import { Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock } from 'lucide-react';
+import { Briefcase, Shield, Zap, Users, TrendingUp, Award, CheckCircle, ArrowRight, Star, Clock, Sparkles, Rocket, Heart, Target, DollarSign, MessageCircle } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -15,19 +15,28 @@ export default function HomePage() {
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
-            opacity: [0.1, 0.2, 0.1],
+            opacity: [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-accent/30 to-support/30 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-accent/50 to-support/50 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [90, 0, 90],
-            opacity: [0.15, 0.25, 0.15],
+            opacity: [0.25, 0.45, 0.25],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-primary/30 to-secondary/30 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-primary/50 to-secondary/50 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            rotate: [0, -90, 0],
+            opacity: [0.15, 0.35, 0.15],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-br from-support2/40 to-accent/40 rounded-full blur-3xl"
         />
       </div>
 
@@ -37,13 +46,48 @@ export default function HomePage() {
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-3xl backdrop-blur-sm"
+          className="absolute top-20 right-20 w-32 h-32 bg-white/20 rounded-3xl backdrop-blur-sm"
         />
         <motion.div
           animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-20 left-20 w-40 h-40 bg-accent/20 rounded-full backdrop-blur-sm"
+          className="absolute bottom-20 left-20 w-40 h-40 bg-accent/30 rounded-full backdrop-blur-sm"
         />
+        <motion.div
+          animate={{ y: [0, -15, 0], rotate: [0, 10, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 right-1/4 w-24 h-24 bg-light-green/25 rounded-2xl backdrop-blur-sm"
+        />
+        <motion.div
+          animate={{ y: [0, 15, 0], rotate: [0, -10, 0], scale: [1, 1.15, 1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-1/3 left-1/3 w-28 h-28 bg-yellow-300/20 rounded-full backdrop-blur-sm"
+        />
+        
+        {/* Floating sparkles */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.3, 1, 0.3],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.3,
+            }}
+            className="absolute"
+            style={{
+              left: `${10 + i * 12}%`,
+              top: `${20 + (i % 3) * 20}%`,
+            }}
+          >
+            <Sparkles className="w-6 h-6 text-yellow-300" />
+          </motion.div>
+        ))}
         
         <div className="max-w-[100rem] mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -63,29 +107,31 @@ export default function HomePage() {
               </motion.div>
               
               <h1 className="font-heading text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Conectamos <span className="text-accent">Talento</span> con <span className="text-light-green">Oportunidades</span>
+                Conectamos <span className="text-accent drop-shadow-lg">Talento</span> con <span className="text-light-green drop-shadow-lg">Oportunidades</span>
               </h1>
-              <p className="font-paragraph text-xl md:text-2xl mb-8 text-white/90">
-                La plataforma que revoluciona el mercado de servicios profesionales con tecnología de punta
+              <p className="font-paragraph text-xl md:text-2xl mb-8 text-white/95 drop-shadow-md">
+                La plataforma que revoluciona el mercado de servicios profesionales con tecnología de punta 🚀
               </p>
               
               <div className="flex flex-wrap gap-4">
                 <Link to="/role-selection">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, rotate: 1 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white text-primary px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl flex items-center gap-2"
+                    className="bg-gradient-to-r from-white to-gray-100 text-primary px-8 py-4 rounded-full font-semibold text-lg hover:from-gray-100 hover:to-white transition-all shadow-2xl flex items-center gap-2"
                   >
+                    <Rocket className="w-5 h-5" />
                     Comenzar Ahora
                     <ArrowRight className="w-5 h-5" />
                   </motion.button>
                 </Link>
                 <Link to="/about">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, rotate: -1 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/30 transition-all border-2 border-white/30"
+                    className="bg-white/25 backdrop-blur-md text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/35 transition-all border-2 border-white/40 shadow-xl"
                   >
+                    <Heart className="w-5 h-5 inline mr-2" />
                     Conocer Más
                   </motion.button>
                 </Link>
@@ -98,18 +144,27 @@ export default function HomePage() {
                 transition={{ delay: 0.6 }}
                 className="grid grid-cols-3 gap-6 mt-12"
               >
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-accent">10K+</div>
-                  <div className="text-sm text-white/80">Profesionales</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-light-green">50K+</div>
-                  <div className="text-sm text-white/80">Trabajos</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-300">4.9★</div>
-                  <div className="text-sm text-white/80">Calificación</div>
-                </div>
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: 2 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                >
+                  <div className="text-3xl font-bold text-accent drop-shadow-lg">10K+</div>
+                  <div className="text-sm text-white/90">Profesionales</div>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: -2 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                >
+                  <div className="text-3xl font-bold text-light-green drop-shadow-lg">50K+</div>
+                  <div className="text-sm text-white/90">Trabajos</div>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: 2 }}
+                  className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
+                >
+                  <div className="text-3xl font-bold text-yellow-300 drop-shadow-lg">4.9★</div>
+                  <div className="text-sm text-white/90">Calificación</div>
+                </motion.div>
               </motion.div>
             </motion.div>
 
@@ -138,15 +193,15 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, -10, 0], rotate: [-2, 2, -2] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-6 -left-6 bg-white rounded-2xl p-4 shadow-2xl"
+                  className="absolute -top-6 -left-6 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 shadow-2xl border-2 border-accent/30"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center shadow-lg">
                       <CheckCircle className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-foreground">Trabajo Completado</div>
-                      <div className="text-sm text-muted-text">+$2,500</div>
+                      <div className="font-bold text-foreground">Trabajo Completado ✅</div>
+                      <div className="text-sm text-accent font-semibold">+$2,500</div>
                     </div>
                   </div>
                 </motion.div>
@@ -154,15 +209,15 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, 10, 0], rotate: [2, -2, 2] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-2xl"
+                  className="absolute -bottom-6 -right-6 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 shadow-2xl border-2 border-primary/30"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg">
                       <TrendingUp className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-foreground">Nuevo Proyecto</div>
-                      <div className="text-sm text-muted-text">5 aplicaciones</div>
+                      <div className="font-bold text-foreground">Nuevo Proyecto 🔥</div>
+                      <div className="text-sm text-primary font-semibold">5 aplicaciones</div>
                     </div>
                   </div>
                 </motion.div>
@@ -182,8 +237,15 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="inline-block mb-4"
+            >
+              <Target className="w-16 h-16 text-primary mx-auto" />
+            </motion.div>
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              ¿Por qué <span className="text-primary">elegirnos</span>?
+              ¿Por qué <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-support">elegirnos</span>? 🌟
             </h2>
             <p className="text-xl text-muted-text max-w-2xl mx-auto">
               Descubre las ventajas que nos hacen la mejor opción del mercado
@@ -197,21 +259,24 @@ export default function HomePage() {
                 title: 'Red de Profesionales',
                 description: 'Accede a una amplia red de profesionales verificados listos para trabajar',
                 color: 'from-primary to-secondary',
-                delay: 0.1
+                delay: 0.1,
+                emoji: '👥'
               },
               {
                 icon: Shield,
                 title: 'Pago Seguro',
                 description: 'Sistema de escrow que protege tu dinero hasta que el trabajo esté completado',
                 color: 'from-accent to-support',
-                delay: 0.2
+                delay: 0.2,
+                emoji: '🔒'
               },
               {
                 icon: Zap,
                 title: 'Rápido y Fácil',
                 description: 'Publica trabajos o aplica a ofertas en minutos con nuestra plataforma intuitiva',
                 color: 'from-support to-support2',
-                delay: 0.3
+                delay: 0.3,
+                emoji: '⚡'
               }
             ].map((feature, index) => (
               <motion.div
@@ -221,16 +286,23 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: feature.delay }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white p-8 rounded-3xl border border-border shadow-lg hover:shadow-2xl transition-all group relative overflow-hidden"
+                className="bg-gradient-to-br from-white via-white to-gray-50 p-8 rounded-3xl border-2 border-border shadow-xl hover:shadow-2xl transition-all group relative overflow-hidden"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
                 
                 <motion.div
                   whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
+                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl relative`}
                 >
                   <feature.icon className="w-8 h-8 text-white" />
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute -top-2 -right-2 text-2xl"
+                  >
+                    {feature.emoji}
+                  </motion.div>
                 </motion.div>
 
                 <h3 className="font-heading text-2xl font-semibold mb-4 text-foreground">
@@ -241,7 +313,7 @@ export default function HomePage() {
                 </p>
 
                 {/* Decorative element */}
-                <div className={`absolute -bottom-2 -right-2 w-24 h-24 bg-gradient-to-br ${feature.color} rounded-full opacity-10 blur-2xl`} />
+                <div className={`absolute -bottom-2 -right-2 w-32 h-32 bg-gradient-to-br ${feature.color} rounded-full opacity-20 blur-2xl`} />
               </motion.div>
             ))}
           </div>
@@ -255,18 +327,24 @@ export default function HomePage() {
             className="grid md:grid-cols-4 gap-6 mt-16"
           >
             {[
-              { icon: Award, text: 'Profesionales Verificados', color: 'text-accent' },
-              { icon: Clock, text: 'Respuesta en 24h', color: 'text-primary' },
-              { icon: TrendingUp, text: 'Crecimiento Garantizado', color: 'text-support' },
-              { icon: Briefcase, text: 'Miles de Proyectos', color: 'text-secondary' }
+              { icon: Award, text: 'Profesionales Verificados', color: 'text-accent', bg: 'from-accent/20 to-support/20', emoji: '🏆' },
+              { icon: Clock, text: 'Respuesta en 24h', color: 'text-primary', bg: 'from-primary/20 to-secondary/20', emoji: '⏰' },
+              { icon: TrendingUp, text: 'Crecimiento Garantizado', color: 'text-support', bg: 'from-support/20 to-support2/20', emoji: '📈' },
+              { icon: Briefcase, text: 'Miles de Proyectos', color: 'text-secondary', bg: 'from-secondary/20 to-primary/20', emoji: '💼' }
             ].map((item, index) => (
               <motion.div
                 key={index}
-                whileHover={{ scale: 1.05 }}
-                className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-2xl border border-border text-center"
+                whileHover={{ scale: 1.08, rotate: 2 }}
+                className={`bg-gradient-to-br ${item.bg} p-6 rounded-2xl border-2 border-border text-center shadow-lg hover:shadow-xl transition-all relative overflow-hidden`}
               >
-                <item.icon className={`w-10 h-10 ${item.color} mx-auto mb-3`} />
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                >
+                  <item.icon className={`w-10 h-10 ${item.color} mx-auto mb-3`} />
+                </motion.div>
                 <p className="font-semibold text-foreground">{item.text}</p>
+                <div className="text-3xl mt-2">{item.emoji}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -276,10 +354,36 @@ export default function HomePage() {
       {/* How It Works Section */}
       <section className="py-24 px-6 bg-gradient-to-br from-white via-background to-white relative overflow-hidden">
         {/* Decorative background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-40">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-support/25 rounded-full blur-3xl" />
         </div>
+
+        {/* Floating icons */}
+        {[DollarSign, MessageCircle, Rocket, Heart].map((Icon, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [0, -20, 0],
+              rotate: [0, 10, 0],
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5,
+            }}
+            className="absolute"
+            style={{
+              left: `${15 + i * 20}%`,
+              top: `${10 + (i % 2) * 70}%`,
+            }}
+          >
+            <Icon className="w-12 h-12 text-primary/30" />
+          </motion.div>
+        ))}
 
         <div className="max-w-[100rem] mx-auto relative z-10">
           <motion.div
@@ -289,17 +393,24 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-20"
           >
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="inline-block mb-4"
+            >
+              <Zap className="w-16 h-16 text-secondary mx-auto" />
+            </motion.div>
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 text-foreground">
-              Cómo <span className="text-secondary">Funciona</span>
+              Cómo <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-support to-accent">Funciona</span> ⚙️
             </h2>
             <p className="text-xl text-muted-text max-w-2xl mx-auto">
-              Tres simples pasos para conectar talento con oportunidades
+              Tres simples pasos para conectar talento con oportunidades 🚀
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-12 relative">
             {/* Connection Lines */}
-            <div className="hidden md:block absolute top-1/3 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-support opacity-20" />
+            <div className="hidden md:block absolute top-1/3 left-0 right-0 h-2 bg-gradient-to-r from-primary via-accent to-support opacity-30 rounded-full" />
 
             {[
               {
@@ -349,9 +460,9 @@ export default function HomePage() {
                         src={step.image}
                         alt={step.title}
                         width={300}
-                        className="rounded-3xl shadow-xl mx-auto"
+                        className="rounded-3xl shadow-2xl mx-auto border-4 border-white"
                       />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-20 rounded-3xl`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-30 rounded-3xl`} />
                     </div>
                   </motion.div>
 
@@ -359,10 +470,10 @@ export default function HomePage() {
                   <motion.div
                     whileHover={{ scale: 1.2, rotate: 360 }}
                     transition={{ duration: 0.6 }}
-                    className={`w-20 h-20 bg-gradient-to-br ${step.color} text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-2xl relative`}
+                    className={`w-20 h-20 bg-gradient-to-br ${step.color} text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-2xl relative border-4 border-white`}
                   >
                     <span className="relative z-10">{step.number}</span>
-                    <div className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-full blur-xl opacity-50`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-full blur-xl opacity-60`} />
                   </motion.div>
 
                   {/* Icon */}
@@ -402,22 +513,27 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-20 bg-white rounded-3xl p-8 shadow-xl border border-border"
+            className="mt-20 bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-2xl border-2 border-border"
           >
             <h3 className="font-heading text-2xl font-bold text-center mb-8 text-foreground">
-              Flujo del Proceso
+              Flujo del Proceso 🔄
             </h3>
             <div className="flex flex-wrap justify-center items-center gap-4">
-              {['Cliente Publica', 'Joseador Aplica', 'Pago en Escrow', 'Trabajo Realizado', 'Confirmación', 'Pago Liberado'].map((step, index) => (
+              {['Cliente Publica 📝', 'Joseador Aplica 🙋', 'Pago en Escrow 💰', 'Trabajo Realizado 🔨', 'Confirmación ✅', 'Pago Liberado 💸'].map((step, index) => (
                 <div key={index} className="flex items-center">
                   <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="bg-gradient-to-br from-primary to-secondary text-white px-6 py-3 rounded-full font-semibold shadow-lg"
+                    whileHover={{ scale: 1.15, rotate: 2 }}
+                    className="bg-gradient-to-br from-primary via-secondary to-support text-white px-6 py-3 rounded-full font-semibold shadow-xl border-2 border-white"
                   >
                     {step}
                   </motion.div>
                   {index < 5 && (
-                    <ArrowRight className="w-6 h-6 text-muted-text mx-2" />
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <ArrowRight className="w-6 h-6 text-primary mx-2" />
+                    </motion.div>
                   )}
                 </div>
               ))}
@@ -433,19 +549,28 @@ export default function HomePage() {
           animate={{
             scale: [1, 1.5, 1],
             rotate: [0, 180, 360],
-            opacity: [0.1, 0.2, 0.1],
+            opacity: [0.15, 0.3, 0.15],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+          className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
             scale: [1.5, 1, 1.5],
             rotate: [360, 180, 0],
-            opacity: [0.2, 0.1, 0.2],
+            opacity: [0.3, 0.15, 0.3],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-0 left-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl"
+          className="absolute bottom-0 left-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.4, 1],
+            rotate: [0, -180, 0],
+            opacity: [0.2, 0.35, 0.2],
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-light-green/25 rounded-full blur-3xl"
         />
 
         <div className="max-w-[100rem] mx-auto text-center relative z-10">
@@ -469,20 +594,21 @@ export default function HomePage() {
             </div>
 
             <h2 className="font-heading text-4xl md:text-6xl font-bold mb-6">
-              ¿Listo para <span className="text-accent">empezar</span>?
+              ¿Listo para <span className="text-accent drop-shadow-2xl">empezar</span>? 🎉
             </h2>
-            <p className="font-paragraph text-xl md:text-2xl mb-10 text-white/90 max-w-3xl mx-auto">
-              Únete a la plataforma que está transformando el mercado de servicios y descubre un mundo de oportunidades
+            <p className="font-paragraph text-xl md:text-2xl mb-10 text-white/95 max-w-3xl mx-auto drop-shadow-lg">
+              Únete a la plataforma que está transformando el mercado de servicios y descubre un mundo de oportunidades 🌍✨
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-12">
               <Link to="/role-selection">
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
+                  whileHover={{ scale: 1.08, boxShadow: "0 25px 50px rgba(0,0,0,0.4)", rotate: 1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:bg-gray-100 transition-all shadow-2xl flex items-center gap-2"
+                  className="bg-gradient-to-r from-white via-gray-50 to-white text-primary px-10 py-5 rounded-full font-semibold text-xl hover:from-gray-50 hover:to-white transition-all shadow-2xl flex items-center gap-2 border-2 border-white/50"
                 >
-                  Crear Cuenta Gratis
+                  <Rocket className="w-6 h-6" />
+                  Crear Cuenta Gratis 🎁
                   <ArrowRight className="w-6 h-6" />
                 </motion.button>
               </Link>
@@ -494,20 +620,29 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap justify-center items-center gap-8 text-white/80"
+              className="flex flex-wrap justify-center items-center gap-8 text-white/90"
             >
-              <div className="flex items-center gap-2">
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
+              >
                 <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Sin tarjeta de crédito</span>
-              </div>
-              <div className="flex items-center gap-2">
+                <span>Sin tarjeta de crédito 💳</span>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
+              >
                 <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Configuración en 2 minutos</span>
-              </div>
-              <div className="flex items-center gap-2">
+                <span>Configuración en 2 minutos ⚡</span>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
+              >
                 <CheckCircle className="w-5 h-5 text-accent" />
-                <span>Soporte 24/7</span>
-              </div>
+                <span>Soporte 24/7 🤝</span>
+              </motion.div>
             </motion.div>
 
             {/* Animated illustration */}
@@ -535,12 +670,12 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, -15, 0], rotate: [-3, 3, -3] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-8 -left-8 bg-white text-foreground rounded-2xl p-4 shadow-2xl"
+                  className="absolute -top-8 -left-8 bg-gradient-to-br from-white to-gray-50 text-foreground rounded-2xl p-4 shadow-2xl border-2 border-primary/30"
                 >
                   <div className="flex items-center gap-2">
                     <Users className="w-6 h-6 text-primary" />
                     <div className="text-left">
-                      <div className="font-bold">10,000+</div>
+                      <div className="font-bold">10,000+ 👥</div>
                       <div className="text-sm text-muted-text">Usuarios Activos</div>
                     </div>
                   </div>
@@ -549,12 +684,12 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, 15, 0], rotate: [3, -3, 3] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-8 -right-8 bg-white text-foreground rounded-2xl p-4 shadow-2xl"
+                  className="absolute -bottom-8 -right-8 bg-gradient-to-br from-white to-gray-50 text-foreground rounded-2xl p-4 shadow-2xl border-2 border-accent/30"
                 >
                   <div className="flex items-center gap-2">
                     <Award className="w-6 h-6 text-accent" />
                     <div className="text-left">
-                      <div className="font-bold">4.9/5</div>
+                      <div className="font-bold">4.9/5 ⭐</div>
                       <div className="text-sm text-muted-text">Calificación</div>
                     </div>
                   </div>
