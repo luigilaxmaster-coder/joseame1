@@ -169,17 +169,17 @@ export default function HomePage() {
   ];
 
   const clientSteps = [
-    { id: 'client-step-1', step: '1', text: 'Publica tu trabajo con detalles claros y tu presupuesto.' },
-    { id: 'client-step-2', step: '2', text: 'Recibe aplicaciones de Joseadores calificados y revisa sus perfiles.' },
-    { id: 'client-step-3', step: '3', text: 'Elige al mejor profesional y formaliza el acuerdo en la plataforma.' },
-    { id: 'client-step-4', step: '4', text: 'Realiza el pago de forma segura. Los fondos se liberan al completar el trabajo.' }
+    { id: 'client-step-1', step: '1', text: 'Define tu proyecto con claridad: describe lo que necesitas y establece tu presupuesto ideal.' },
+    { id: 'client-step-2', step: '2', text: 'Recibe propuestas de profesionales verificados y compara perfiles, experiencia y valoraciones.' },
+    { id: 'client-step-3', step: '3', text: 'Selecciona al candidato perfecto y acuerda los términos directamente en la plataforma.' },
+    { id: 'client-step-4', step: '4', text: 'Paga con total seguridad. Tu dinero se libera solo cuando el trabajo esté completado a tu satisfacción.' }
   ];
 
   const joseadorSteps = [
-    { id: 'joseador-step-1', step: '1', text: 'Crea tu perfil profesional, destaca tus habilidades y verifica tu identidad.' },
-    { id: 'joseador-step-2', step: '2', text: 'Explora un feed de trabajos relevantes para ti, filtrados por categoría y ubicación.' },
-    { id: 'joseador-step-3', step: '3', text: 'Envía propuestas atractivas para los trabajos que te interesen.' },
-    { id: 'joseador-step-4', step: '4', text: 'Completa el trabajo con excelencia y recibe tu pago directamente en tu wallet.' }
+    { id: 'joseador-step-1', step: '1', text: 'Construye tu perfil profesional destacando tus mejores habilidades, experiencia y certificaciones.' },
+    { id: 'joseador-step-2', step: '2', text: 'Descubre oportunidades personalizadas: trabajos filtrados por tu especialidad, ubicación y preferencias.' },
+    { id: 'joseador-step-3', step: '3', text: 'Envía propuestas convincentes que resalten tu valor y diferenciación en el mercado.' },
+    { id: 'joseador-step-4', step: '4', text: 'Ejecuta el proyecto con profesionalismo y recibe tu pago de forma rápida y segura en tu billetera digital.' }
   ];
   
   const popularCategories = [
@@ -696,11 +696,16 @@ export default function HomePage() {
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             <AnimatedElement className="text-center mb-8 md:mb-24">
-              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Simple, Transparente y Directo.</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 mb-4">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-heading font-semibold text-primary">Tu Camino al Éxito</span>
+              </div>
+              <h2 className="font-heading text-2xl md:text-5xl font-bold text-foreground mb-3 md:mb-6">
+                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Conecta, Colabora y Crece</span>
               </h2>
               <p className="text-sm md:text-xl text-muted-text max-w-4xl mx-auto leading-relaxed">
-                Diseñamos un flujo de trabajo intuitivo que te da <span className="font-semibold text-foreground">control total</span> y <span className="font-semibold text-foreground">confianza absoluta</span> en cada paso del proceso.
+                Un proceso <span className="font-bold text-primary">inteligente y fluido</span> diseñado para que encuentres el talento perfecto o las mejores oportunidades. 
+                <span className="block mt-2 font-semibold text-foreground">Cada paso está pensado para darte seguridad, claridad y resultados.</span>
               </p>
             </AnimatedElement>
 
