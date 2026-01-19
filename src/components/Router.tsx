@@ -16,7 +16,7 @@ import JoseadorDashboardPage from '@/components/pages/JoseadorDashboardPage';
 import PublishJobPage from '@/components/pages/PublishJobPage';
 import JobDetailsPage from '@/components/pages/JobDetailsPage';
 import WalletPage from '@/components/pages/WalletPage';
-import BuyPiquetesPage from '@/components/pages/BuyPiquetesPage';
+import BuyJoseamePage from '@/components/pages/BuyPiquetesPage';
 import ProfilePage from '@/components/pages/ProfilePage';
 import ClientMyJobsPage from '@/components/pages/ClientMyJobsPage';
 import JoseadorMyJobsPage from '@/components/pages/JoseadorMyJobsPage';
@@ -171,10 +171,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "joseador/buy-piquetes",
+        path: "joseador/buy-joseames",
         element: (
           <MemberProtectedRoute>
-            <BuyPiquetesPage />
+            <BuyJoseamePage />
           </MemberProtectedRoute>
         ),
       },

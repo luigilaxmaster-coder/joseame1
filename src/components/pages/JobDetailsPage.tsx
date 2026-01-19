@@ -380,7 +380,7 @@ export default function JobDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Piquete Balance Card */}
+                  {/* Joseame Balance Card */}
                   <motion.div 
                     whileHover={{ scale: 1.02 }}
                     className="bg-white rounded-2xl p-6 border-2 border-secondary/30 shadow-lg"
@@ -391,7 +391,7 @@ export default function JobDetailsPage() {
                           <div className="p-2 bg-secondary/10 rounded-lg">
                             <Zap size={20} className="text-secondary" />
                           </div>
-                          <span className="font-paragraph text-sm text-muted-text">Piquetes Disponibles</span>
+                          <span className="font-paragraph text-sm text-muted-text">Joseames Disponibles</span>
                         </div>
                         <p className="font-heading text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
                           {currentPiqueteBalance}
@@ -403,7 +403,7 @@ export default function JobDetailsPage() {
                     </div>
                     <div className="pt-4 border-t border-border">
                       <p className="font-paragraph text-xs text-muted-text">
-                        Cada aplicación cuesta piquetes según tu nivel de experiencia
+                        Cada aplicación cuesta joseames según tu nivel de experiencia
                       </p>
                     </div>
                   </motion.div>
@@ -448,7 +448,7 @@ export default function JobDetailsPage() {
                             <span className="font-paragraph text-sm text-foreground">Costo estimado:</span>
                             <span className="font-heading font-bold text-secondary">
                               {piqueteInfo.totalPiquetes} 
-                              <span className="text-xs ml-1">piquete{piqueteInfo.totalPiquetes > 1 ? 's' : ''}</span>
+                              <span className="text-xs ml-1">joseame{piqueteInfo.totalPiquetes > 1 ? 's' : ''}</span>
                             </span>
                           </div>
                         </div>
@@ -483,7 +483,7 @@ export default function JobDetailsPage() {
                           />
                         </div>
                         
-                        {/* Piquete Calculator */}
+                        {/* Joseame Calculator */}
                         {piqueteInfo && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
@@ -492,7 +492,7 @@ export default function JobDetailsPage() {
                           >
                             <div className="flex items-center gap-2 mb-3">
                               <Zap size={18} className="text-secondary" />
-                              <span className="font-heading font-bold text-foreground">Cálculo de Piquetes</span>
+                              <span className="font-heading font-bold text-foreground">Cálculo de Joseames</span>
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between p-2 bg-white/50 rounded-lg">
@@ -504,7 +504,7 @@ export default function JobDetailsPage() {
                               <div className="text-xs text-muted-text space-y-1 pt-2">
                                 <p className="flex items-center gap-2">
                                   <span className="w-1.5 h-1.5 bg-secondary rounded-full"></span>
-                                  Base: {piqueteInfo.basePiquetes} piquete{piqueteInfo.basePiquetes > 1 ? 's' : ''}
+                                  Base: {piqueteInfo.basePiquetes} joseame{piqueteInfo.basePiquetes > 1 ? 's' : ''}
                                 </p>
                                 {expertiseLevel !== 'beginner' && (
                                   <p className="flex items-center gap-2">
@@ -525,13 +525,13 @@ export default function JobDetailsPage() {
                                 <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
                                 <div>
                                   <p className="font-heading text-xs font-bold text-red-700">
-                                    Piquetes insuficientes
+                                    Joseames insuficientes
                                   </p>
                                   <p className="font-paragraph text-xs text-red-600 mt-1">
                                     Necesitas {piqueteInfo.totalPiquetes} pero tienes {currentPiqueteBalance}
                                   </p>
-                                  <Link to="/joseador/buy-piquetes" className="font-heading text-xs font-bold text-red-700 underline mt-1 inline-block">
-                                    Compra más piquetes →
+                                  <Link to="/joseador/buy-joseames" className="font-heading text-xs font-bold text-red-700 underline mt-1 inline-block">
+                                    Compra más joseames →
                                   </Link>
                                 </div>
                               </motion.div>

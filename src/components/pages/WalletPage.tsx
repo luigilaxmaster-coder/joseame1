@@ -11,7 +11,7 @@ function WalletContent() {
 
   const transactions = [
     { id: '1', type: 'credit', amount: 5000, description: 'Pago por trabajo completado', date: '2025-01-15' },
-    { id: '2', type: 'debit', amount: 150, description: 'Compra de paquete de piquetes', date: '2025-01-14' },
+    { id: '2', type: 'debit', amount: 150, description: 'Compra de paquete de joseames', date: '2025-01-14' },
     { id: '3', type: 'credit', amount: 3500, description: 'Pago por trabajo completado', date: '2025-01-12' }
   ];
 
@@ -24,7 +24,7 @@ function WalletContent() {
             Mi Wallet
           </h1>
           <p className="font-paragraph text-muted-text text-sm">
-            Gestiona tus fondos y piquetes
+            Gestiona tus fondos y joseames
           </p>
         </div>
       </header>
@@ -48,7 +48,7 @@ function WalletContent() {
               <h1 className="font-heading text-2xl md:text-4xl font-bold text-foreground">
                 Mi Wallet
               </h1>
-              <p className="font-paragraph text-muted-text text-xs md:text-sm">Gestiona tus piquetes y fondos</p>
+              <p className="font-paragraph text-muted-text text-xs md:text-sm">Gestiona tus joseames y fondos</p>
             </div>
           </div>
 
@@ -106,7 +106,7 @@ function WalletContent() {
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/10 flex items-center justify-center">
                       <Zap size={20} className="text-accent" />
                     </div>
-                    <h3 className="font-heading text-sm md:text-lg font-semibold text-foreground">Piquetes Gratis</h3>
+                    <h3 className="font-heading text-sm md:text-lg font-semibold text-foreground">Joseames Gratis</h3>
                   </div>
                   <span className="px-2 py-1 bg-accent/10 rounded-full">
                     <span className="font-paragraph text-xs font-bold text-accent">Gratis</span>
@@ -136,7 +136,7 @@ function WalletContent() {
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
                       <ShoppingCart size={20} className="text-secondary" />
                     </div>
-                    <h3 className="font-heading text-sm md:text-lg font-semibold text-foreground">Piquetes Comprados</h3>
+                    <h3 className="font-heading text-sm md:text-lg font-semibold text-foreground">Joseames Comprados</h3>
                   </div>
                   <span className="px-2 py-1 bg-secondary/10 rounded-full">
                     <span className="font-paragraph text-xs font-bold text-secondary">Activos</span>
@@ -207,7 +207,7 @@ function WalletContent() {
 
           {/* Actions - Enhanced Layout */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
-            <Link to="/joseador/buy-piquetes">
+            <Link to="/joseador/buy-joseames">
               <motion.div
                 whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(58, 182, 137, 0.15)' }}
                 initial={{ opacity: 0, y: 20 }}
@@ -221,7 +221,7 @@ function WalletContent() {
                     <ShoppingCart size={24} className="text-white" />
                   </div>
                   <h3 className="font-heading text-base md:text-xl font-bold text-foreground mb-1 md:mb-2">
-                    Comprar Piquetes
+                    Comprar Joseames
                   </h3>
                   <p className="font-paragraph text-muted-text text-xs md:text-sm line-clamp-2">
                     Adquiere paquetes para más oportunidades

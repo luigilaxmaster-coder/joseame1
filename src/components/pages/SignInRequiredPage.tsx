@@ -80,7 +80,7 @@ export default function SignInRequiredPage() {
               onClick={() => navigate('/')}
               className="text-2xl font-heading font-bold bg-gradient-to-r from-primary via-support2 to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
-              Piquete
+              Joseame
             </motion.button>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -140,7 +140,7 @@ export default function SignInRequiredPage() {
                 className="text-lg text-muted-text leading-relaxed"
               >
                 Accede a tu cuenta para gestionar tus trabajos, conectar con profesionales
-                verificados y disfrutar de todas las funcionalidades de Piquete.
+                verificados y disfrutar de todas las funcionalidades de Joseame.
               </motion.p>
             </div>
 
@@ -258,7 +258,7 @@ export default function SignInRequiredPage() {
                       Únete a Nuestra Comunidad
                     </h3>
                     <p className="text-white/95 text-lg drop-shadow-md">
-                      Miles de profesionales y clientes confían en Piquete
+                      Miles de profesionales y clientes confían en Joseame
                     </p>
                   </motion.div>
                 </div>
@@ -372,7 +372,7 @@ export default function SignInRequiredPage() {
         <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-sm text-muted-text font-medium">
-              © 2026 Piquete. Todos los derechos reservados.
+              © 2026 Joseame. Todos los derechos reservados.
             </p>
             <div className="flex items-center gap-8">
               <motion.button

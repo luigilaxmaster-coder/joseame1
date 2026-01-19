@@ -6,7 +6,7 @@ import { PiquetePackages } from '@/entities';
 import { ArrowLeft, Check, ShoppingCart, Zap, TrendingUp, Clock, Shield, Percent, Calculator, Sparkles, Award, Flame, Crown, Rocket, Heart, Target, Lightbulb } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 
-export default function BuyPiquetesPage() {
+export default function BuyJoseamePage() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<PiquetePackages[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
@@ -26,13 +26,13 @@ export default function BuyPiquetesPage() {
     navigate('/checkout', { state: { packageId } });
   };
 
-  // Calculate piquetes based on budget
-  const calculatePiquetes = (budget: number) => {
+  // Calculate joseames based on budget
+  const calculateJoseames = (budget: number) => {
     const baseCost = Math.max(1, Math.floor(budget / 1000));
     return baseCost;
   };
 
-  const piquetesNeeded = calculatePiquetes(parseInt(budgetInput) || 0);
+  const joseamesNeeded = calculateJoseames(parseInt(budgetInput) || 0);
 
   // Pricing tiers configuration
   const pricingTiers = [
@@ -48,9 +48,9 @@ export default function BuyPiquetesPage() {
       icon: Sparkles,
       badge: 'INICIANTE',
       badgeColor: 'bg-blue-500',
-      features: ['10 piquetes', 'Sin expiración', 'Soporte básico', 'Acceso a trabajos'],
+      features: ['10 joseames', 'Sin expiración', 'Soporte básico', 'Acceso a trabajos'],
       bestFor: 'Nuevos joseadores',
-      pricePerPiquete: 50
+      pricePerJoseame: 50
     },
     {
       id: 'business',
@@ -64,9 +64,9 @@ export default function BuyPiquetesPage() {
       icon: TrendingUp,
       badge: 'POPULAR',
       badgeColor: 'bg-purple-500',
-      features: ['30 piquetes', 'Sin expiración', 'Soporte prioritario', 'Estadísticas avanzadas'],
+      features: ['30 joseames', 'Sin expiración', 'Soporte prioritario', 'Estadísticas avanzadas'],
       bestFor: 'Profesionales activos',
-      pricePerPiquete: 40
+      pricePerJoseame: 40
     },
     {
       id: 'professional',
@@ -81,9 +81,9 @@ export default function BuyPiquetesPage() {
       badge: 'RECOMENDADO',
       badgeColor: 'bg-gradient-to-r from-amber-500 to-orange-500',
       featured: true,
-      features: ['75 piquetes', 'Sin expiración', 'Soporte 24/7', 'Análisis detallado', 'Prioridad en búsquedas'],
+      features: ['75 joseames', 'Sin expiración', 'Soporte 24/7', 'Análisis detallado', 'Prioridad en búsquedas'],
       bestFor: 'Máxima productividad',
-      pricePerPiquete: 32,
+      pricePerJoseame: 32,
       savings: '36%'
     },
     {
@@ -98,9 +98,9 @@ export default function BuyPiquetesPage() {
       icon: Rocket,
       badge: 'ÉLITE',
       badgeColor: 'bg-emerald-500',
-      features: ['200 piquetes', 'Sin expiración', 'Soporte VIP', 'Acceso prioritario', 'Consultoría incluida'],
+      features: ['200 joseames', 'Sin expiración', 'Soporte VIP', 'Acceso prioritario', 'Consultoría incluida'],
       bestFor: 'Crecimiento acelerado',
-      pricePerPiquete: 22.5,
+      pricePerJoseame: 22.5,
       savings: '55%'
     }
   ];
@@ -165,7 +165,7 @@ export default function BuyPiquetesPage() {
               <Zap className="text-accent" size={24} />
             </motion.div>
             <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
-              Comprar Piquetes
+              Comprar Joseames
             </h1>
             <motion.div
               animate={{ rotate: [0, -10, 10, 0] }}
@@ -220,27 +220,27 @@ export default function BuyPiquetesPage() {
                 <div className="flex flex-col justify-between">
                   <div>
                     <p className="font-paragraph text-xs md:text-sm font-semibold text-foreground mb-2 md:mb-3">
-                      Piquetes Necesarios
+                      Joseames Necesarios
                     </p>
                     <motion.div
-                      key={piquetesNeeded}
+                      key={joseamesNeeded}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ duration: 0.3 }}
                       className="bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl md:rounded-2xl p-4 md:p-6 border border-secondary/30"
                     >
                       <div className="font-heading text-3xl md:text-5xl font-bold text-secondary">
-                        {piquetesNeeded}
+                        {joseamesNeeded}
                       </div>
                       <p className="font-paragraph text-xs md:text-sm text-muted-text mt-1 md:mt-2">
-                        piquetes
+                        joseames
                       </p>
                     </motion.div>
                   </div>
                 </div>
               </div>
               <p className="font-paragraph text-xs text-muted-text mt-3 text-center">
-                📊 1 piquete por cada 1000 RD$
+                📊 1 joseame por cada 1000 RD$
               </p>
             </div>
           </div>
@@ -331,10 +331,10 @@ export default function BuyPiquetesPage() {
                         por compra
                       </div>
                       <div className={`font-heading text-base md:text-lg font-bold ${tier.textColor} mt-1 md:mt-2`}>
-                        {tier.credits} piquetes
+                        {tier.credits} joseames
                       </div>
                       <div className={`font-paragraph text-xs ${tier.textColor === 'text-white' ? 'text-white/60' : 'text-foreground/60'} mt-2`}>
-                        RD$ {(tier.price / tier.credits).toFixed(0)} por piquete
+                        RD$ {(tier.price / tier.credits).toFixed(0)} por joseame
                       </div>
                     </motion.div>
 
@@ -436,7 +436,7 @@ export default function BuyPiquetesPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Costo de aplicación</p>
-                      <p className="text-xs md:text-sm text-muted-text">1 piquete por cada 1000 RD$</p>
+                      <p className="text-xs md:text-sm text-muted-text">1 joseame por cada 1000 RD$</p>
                     </div>
                   </div>
                   <div className="flex gap-2 md:gap-3">
@@ -445,7 +445,7 @@ export default function BuyPiquetesPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Ejemplo</p>
-                      <p className="text-xs md:text-sm text-muted-text">RD$ 5000 = 5 piquetes</p>
+                      <p className="text-xs md:text-sm text-muted-text">RD$ 5000 = 5 joseames</p>
                     </div>
                   </div>
                   <div className="flex gap-2 md:gap-3">
@@ -598,12 +598,12 @@ export default function BuyPiquetesPage() {
                   ¿Puedo cambiar de plan?
                 </h4>
                 <p className="font-paragraph text-sm md:text-base text-muted-text">
-                  Sí, compra cualquier plan en cualquier momento. Los piquetes se acumulan.
+                  Sí, compra cualquier plan en cualquier momento. Los joseames se acumulan.
                 </p>
               </div>
               <div>
                 <h4 className="font-heading text-base md:text-lg font-bold text-foreground mb-2">
-                  ¿Hay límite de piquetes?
+                  ¿Hay límite de joseames?
                 </h4>
                 <p className="font-paragraph text-sm md:text-base text-muted-text">
                   No hay límite. Acumula tantos como necesites.
