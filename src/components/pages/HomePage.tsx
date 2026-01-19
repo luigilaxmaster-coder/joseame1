@@ -820,93 +820,301 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Benefits Section - More Dynamic */}
+        {/* Dynamic Flow Diagram Section - Complete JOSEAME Flow */}
         <section className="py-12 md:py-32 bg-gradient-to-br from-white via-secondary/10 to-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-15">
             <div className="absolute top-1/4 left-0 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
             <div className="absolute bottom-1/4 right-0 w-[32rem] h-[32rem] bg-gradient-to-br from-accent via-support to-primary rounded-full blur-3xl"></div>
           </div>
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
-            <AnimatedElement className="text-center mb-8 md:mb-16">
+            <AnimatedElement className="text-center mb-8 md:mb-20">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
                 <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                  ¿Por qué elegir <span className="gradient-text">JOSEAME</span>?
+                  El Flujo Completo de <span className="gradient-text">JOSEAME</span>
                 </h2>
                 <p className="text-base md:text-lg text-muted-text max-w-3xl mx-auto">
-                  Somos tu aliado en el crecimiento profesional.
+                  Desde la publicación hasta el pago: un sistema transparente y eficiente
                 </p>
               </motion.div>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-              {[
-                {
-                  icon: Rocket,
-                  title: 'Crecimiento Rápido',
-                  description: 'Acceso a oportunidades reales.',
-                  color: 'from-primary to-secondary',
-                  bgColor: 'bg-primary/10'
-                },
-                {
-                  icon: Target,
-                  title: 'Precisión en Búsqueda',
-                  description: 'Filtros inteligentes y precisos.',
-                  color: 'from-secondary to-accent',
-                  bgColor: 'bg-secondary/10'
-                },
-                {
-                  icon: DollarSign,
-                  title: 'Pagos Justos',
-                  description: 'Trabajos bien pagados y verificados.',
-                  color: 'from-accent to-support',
-                  bgColor: 'bg-accent/10'
-                },
-                {
-                  icon: Shield,
-                  title: 'Protección Total',
-                  description: 'Pagos seguros y garantizados.',
-                  color: 'from-support to-primary',
-                  bgColor: 'bg-support/10'
-                },
-                {
-                  icon: Users,
-                  title: 'Comunidad Fuerte',
-                  description: 'Conecta y crece con otros.',
-                  color: 'from-primary to-accent',
-                  bgColor: 'bg-primary/10'
-                },
-                {
-                  icon: Heart,
-                  title: 'Soporte Dedicado',
-                  description: 'Equipo listo para ayudarte.',
-                  color: 'from-accent to-secondary',
-                  bgColor: 'bg-accent/10'
-                }
-              ].map((benefit, index) => (
-                <AnimatedElement key={`benefit-${index}`} delay={index * 100}>
-                  <motion.div
-                    whileHover={{ y: -8, scale: 1.03 }}
-                    className={`card-hover white-section-hover ${benefit.bgColor} rounded-2xl p-5 md:p-8 border-2 border-border/50 shadow-md hover:shadow-2xl transition-all relative overflow-hidden group bg-white`}
-                  >
+            {/* Desktop Flow Diagram */}
+            <div className="hidden lg:block">
+              <div className="relative">
+                {/* Main Flow Path */}
+                <div className="grid grid-cols-5 gap-6 mb-12">
+                  {[
+                    {
+                      icon: Briefcase,
+                      title: 'Cliente Publica',
+                      subtitle: 'Trabajo',
+                      description: 'Define el trabajo, presupuesto y requisitos',
+                      color: 'from-primary to-secondary',
+                      step: '1'
+                    },
+                    {
+                      icon: Search,
+                      title: 'Joseadores',
+                      subtitle: 'Exploran',
+                      description: 'Buscan trabajos relevantes en su área',
+                      color: 'from-secondary to-accent',
+                      step: '2'
+                    },
+                    {
+                      icon: FileText,
+                      title: 'Envían',
+                      subtitle: 'Propuestas',
+                      description: 'Presentan su oferta y experiencia',
+                      color: 'from-accent to-support',
+                      step: '3'
+                    },
+                    {
+                      icon: Handshake,
+                      title: 'Cliente',
+                      subtitle: 'Selecciona',
+                      description: 'Elige al mejor profesional',
+                      color: 'from-support to-primary',
+                      step: '4'
+                    },
+                    {
+                      icon: Rocket,
+                      title: 'Trabajo',
+                      subtitle: 'Comienza',
+                      description: 'Se formaliza el acuerdo',
+                      color: 'from-primary to-accent',
+                      step: '5'
+                    }
+                  ].map((item, index) => (
                     <motion.div
-                      whileHover={{ rotate: [0, -20, 20, -20, 0], scale: 1.1, transition: { duration: 0.5 } }}
-                      className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 md:mb-6 shadow-lg`}
+                      key={index}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.6 }}
+                      className="relative"
                     >
-                      <benefit.icon className="text-white" size={28} />
+                      <div className="bg-white rounded-3xl p-6 border-2 border-border/50 h-full relative overflow-hidden group hover:border-primary/50 transition-all hover:shadow-xl">
+                        <motion.div
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+                        />
+                        
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                          <motion.div
+                            whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-lg`}
+                          >
+                            <item.icon className="text-white" size={32} />
+                          </motion.div>
+                          
+                          <div className="mb-2">
+                            <h3 className="font-heading text-lg font-bold text-foreground">{item.title}</h3>
+                            <h4 className="font-heading text-base font-semibold text-primary">{item.subtitle}</h4>
+                          </div>
+                          
+                          <p className="text-xs text-muted-text leading-relaxed">{item.description}</p>
+                          
+                          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
+                            {item.step}
+                          </div>
+                        </div>
+                      </div>
+
+                      {index < 4 && (
+                        <motion.div
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          whileInView={{ opacity: 1, scaleX: 1 }}
+                          transition={{ delay: index * 0.1 + 0.3, duration: 0.6 }}
+                          className="absolute -right-3 top-1/2 transform -translate-y-1/2 z-20"
+                        >
+                          <ArrowRight className="text-primary" size={24} />
+                        </motion.div>
+                      )}
                     </motion.div>
-                    <h3 className="font-heading text-lg md:text-xl font-semibold text-foreground mb-2 md:mb-3">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-sm md:text-base text-muted-text">
-                      {benefit.description}
-                    </p>
-                  </motion.div>
-                </AnimatedElement>
+                  ))}
+                </div>
+
+                {/* Second Row - Execution Phase */}
+                <div className="grid grid-cols-4 gap-6 mt-8">
+                  {[
+                    {
+                      icon: Wallet,
+                      title: 'Pago Seguro',
+                      subtitle: 'Escrow',
+                      description: 'Fondos protegidos hasta completar',
+                      color: 'from-secondary to-accent',
+                      step: '6'
+                    },
+                    {
+                      icon: Target,
+                      title: 'Joseador',
+                      subtitle: 'Ejecuta',
+                      description: 'Realiza el trabajo con calidad',
+                      color: 'from-accent to-support',
+                      step: '7'
+                    },
+                    {
+                      icon: Shield,
+                      title: 'Cliente',
+                      subtitle: 'Verifica',
+                      description: 'Revisa y aprueba el resultado',
+                      color: 'from-support to-primary',
+                      step: '8'
+                    },
+                    {
+                      icon: DollarSign,
+                      title: 'Pago',
+                      subtitle: 'Liberado',
+                      description: 'Joseador recibe su compensación',
+                      color: 'from-primary to-secondary',
+                      step: '9'
+                    }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                      className="relative"
+                    >
+                      <div className="bg-white rounded-3xl p-6 border-2 border-border/50 h-full relative overflow-hidden group hover:border-accent/50 transition-all hover:shadow-xl">
+                        <motion.div
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 3, repeat: Infinity, delay: 0.5 + index * 0.3 }}
+                          className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+                        />
+                        
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                          <motion.div
+                            whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 shadow-lg`}
+                          >
+                            <item.icon className="text-white" size={32} />
+                          </motion.div>
+                          
+                          <div className="mb-2">
+                            <h3 className="font-heading text-lg font-bold text-foreground">{item.title}</h3>
+                            <h4 className="font-heading text-base font-semibold text-accent">{item.subtitle}</h4>
+                          </div>
+                          
+                          <p className="text-xs text-muted-text leading-relaxed">{item.description}</p>
+                          
+                          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-accent to-support flex items-center justify-center text-white font-heading font-bold text-sm shadow-lg">
+                            {item.step}
+                          </div>
+                        </div>
+                      </div>
+
+                      {index < 3 && (
+                        <motion.div
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          whileInView={{ opacity: 1, scaleX: 1 }}
+                          transition={{ delay: 0.5 + index * 0.1 + 0.3, duration: 0.6 }}
+                          className="absolute -right-3 top-1/2 transform -translate-y-1/2 z-20"
+                        >
+                          <ArrowRight className="text-accent" size={24} />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Connecting Line from Step 5 to Step 6 */}
+                <motion.div
+                  initial={{ opacity: 0, scaleY: 0 }}
+                  whileInView={{ opacity: 1, scaleY: 1 }}
+                  transition={{ delay: 0.8, duration: 0.6 }}
+                  className="absolute left-[90%] top-[45%] w-1 h-16 bg-gradient-to-b from-primary to-accent"
+                  style={{ transformOrigin: 'top' }}
+                />
+
+                {/* Success Badge */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                  className="text-center mt-12"
+                >
+                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-8 py-4 border-2 border-accent/30 shadow-lg">
+                    <motion.div
+                      animate={{ scale: [1, 1.3, 1], rotate: [0, 180, 360] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <Star className="text-accent fill-accent" size={24} />
+                    </motion.div>
+                    <span className="font-heading font-semibold text-foreground text-lg">¡Trabajo Completado con Éxito!</span>
+                    <motion.div
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-3 h-3 rounded-full bg-accent shadow-lg"
+                    />
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Mobile Flow Diagram */}
+            <div className="lg:hidden space-y-4">
+              {[
+                { icon: Briefcase, title: 'Cliente Publica Trabajo', description: 'Define requisitos y presupuesto', color: 'from-primary to-secondary', step: '1' },
+                { icon: Search, title: 'Joseadores Exploran', description: 'Buscan trabajos relevantes', color: 'from-secondary to-accent', step: '2' },
+                { icon: FileText, title: 'Envían Propuestas', description: 'Presentan oferta y experiencia', color: 'from-accent to-support', step: '3' },
+                { icon: Handshake, title: 'Cliente Selecciona', description: 'Elige al mejor profesional', color: 'from-support to-primary', step: '4' },
+                { icon: Rocket, title: 'Trabajo Comienza', description: 'Se formaliza el acuerdo', color: 'from-primary to-accent', step: '5' },
+                { icon: Wallet, title: 'Pago Seguro (Escrow)', description: 'Fondos protegidos', color: 'from-secondary to-accent', step: '6' },
+                { icon: Target, title: 'Joseador Ejecuta', description: 'Realiza el trabajo', color: 'from-accent to-support', step: '7' },
+                { icon: Shield, title: 'Cliente Verifica', description: 'Revisa y aprueba', color: 'from-support to-primary', step: '8' },
+                { icon: DollarSign, title: 'Pago Liberado', description: 'Joseador recibe compensación', color: 'from-primary to-secondary', step: '9' }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                  className="relative"
+                >
+                  {index < 8 && (
+                    <div className="absolute left-7 top-16 w-1 h-6 bg-gradient-to-b from-primary via-accent to-support"></div>
+                  )}
+
+                  <div className="bg-white rounded-2xl p-4 border-2 border-border/50 relative overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg">
+                    <div className="flex items-start gap-3">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        transition={{ delay: index * 0.08 + 0.1, type: 'spring' }}
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg relative`}
+                      >
+                        <item.icon className="text-white" size={28} />
+                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-heading font-bold text-xs shadow-lg">
+                          {item.step}
+                        </div>
+                      </motion.div>
+
+                      <div className="flex-1 pt-0.5">
+                        <h3 className="font-heading text-base font-bold text-foreground">{item.title}</h3>
+                        <p className="text-xs text-muted-text">{item.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               ))}
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="text-center mt-8"
+              >
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-support/20 rounded-full px-6 py-3 border-2 border-accent/30 shadow-lg">
+                  <Star className="text-accent fill-accent" size={20} />
+                  <span className="font-heading font-semibold text-foreground text-sm">¡Éxito!</span>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
