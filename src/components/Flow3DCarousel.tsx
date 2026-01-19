@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Home, UserPlus, Users, Shield, Briefcase, MessageSquare, DollarSign, Star, User, AlertCircle, Clock, TrendingUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, UserPlus, Users, Shield, Briefcase, MessageSquare, DollarSign, Star, User, AlertCircle, Clock, TrendingUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Visual mode themes
 const themes = {
@@ -350,6 +351,7 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [showGlow, setShowGlow] = useState(false);
+  const [selectedStep, setSelectedStep] = useState<typeof flowSteps[0] | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
 
@@ -403,15 +405,8 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
   };
 
   const handleFlip = (index: number) => {
-    setFlippedCards((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
+    // Open modal instead of flipping
+    setSelectedStep(flowSteps[index]);
   };
 
   const getCardPosition = (index: number) => {
@@ -658,6 +653,75 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
           Paso {activeIndex + 1} de {flowSteps.length}
         </p>
       </div>
+
+      {/* Details Modal */}
+      <Dialog open={!!selectedStep} onOpenChange={() => setSelectedStep(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedStep && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-4 text-2xl">
+                  <div className="p-3 rounded-full bg-primary/10">
+                    <selectedStep.icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-heading font-bold">{selectedStep.title}</div>
+                    <div className="text-sm font-normal text-muted-text mt-1">{selectedStep.benefit}</div>
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="mt-6 space-y-6">
+                {/* Category Badge */}
+                <div className="inline-block px-4 py-2 rounded-full bg-accent/20 text-accent text-sm font-medium">
+                  {selectedStep.category}
+                </div>
+
+                {/* Details List */}
+                <div>
+                  <h4 className="text-lg font-heading font-semibold mb-4 text-foreground">
+                    Detalles del Paso
+                  </h4>
+                  <ul className="space-y-3">
+                    {selectedStep.details.map((detail, i) => (
+                      <li key={i} className="flex items-start gap-3 text-foreground">
+                        <span className="text-accent mt-1 text-xl">•</span>
+                        <span className="flex-1">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Diagram */}
+                <div>
+                  <h4 className="text-lg font-heading font-semibold mb-4 text-foreground">
+                    Flujo del Proceso
+                  </h4>
+                  <div className="p-6 rounded-lg bg-background border border-border">
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      {selectedStep.diagram.blocks.map((block, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium whitespace-nowrap">
+                            {block}
+                          </div>
+                          {i < selectedStep.diagram.blocks.length - 1 && (
+                            <span className="text-primary text-xl">→</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <Button className="w-full" size="lg">
+                  {selectedStep.cta}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
