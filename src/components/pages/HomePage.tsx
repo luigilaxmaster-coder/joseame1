@@ -795,28 +795,25 @@ export default function HomePage() {
             <div className="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-1/3 w-[35rem] h-[35rem] bg-gradient-to-br from-accent via-support to-secondary rounded-full blur-3xl"></div>
           </div>
-          <div className="w-full relative">
-            {/* Text Overlay on Top Left of Carousel */}
-            <div className="absolute top-8 md:top-16 left-4 md:left-12 z-20 max-w-xl">
-              <AnimatedElement>
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="bg-white/95 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-primary/20"
-                >
-                  <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
-                    Encuentra el <span className="gradient-text">talento</span> que necesitas
-                  </h2>
-                  <p className="text-sm md:text-base lg:text-lg text-muted-text leading-relaxed">
-                    Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
-                    Conecta con profesionales en múltiples categorías.
-                  </p>
-                </motion.div>
-              </AnimatedElement>
-            </div>
+          <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
+            {/* Text Section Above Carousel */}
+            <AnimatedElement className="mb-8 md:mb-12">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
+                  Encuentra el <span className="gradient-text">talento</span> que necesitas
+                </h2>
+                <p className="text-base md:text-lg lg:text-xl text-muted-text leading-relaxed max-w-3xl">
+                  Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
+                  Conecta con profesionales en múltiples categorías.
+                </p>
+              </motion.div>
+            </AnimatedElement>
             
-            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 px-4 md:px-12 overflow-x-auto pt-[280px] md:pt-[320px]">
+            <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 overflow-x-auto">
               {popularCategories.map((category) => (
                 <AnimatedElement key={category.id} delay={popularCategories.indexOf(category) * 100} className="flex-shrink-0 w-[250px] sm:w-[280px] md:w-[350px]">
                   <motion.div 
@@ -829,7 +826,7 @@ export default function HomePage() {
                       <motion.h3
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-4 md:bottom-6 left-4 md:left-8 right-4 md:right-8 font-heading text-xl md:text-2xl font-bold text-white drop-shadow-lg"
+                        className="absolute top-4 md:top-6 left-4 md:left-6 right-4 md:right-6 font-heading text-xl md:text-2xl font-bold text-white drop-shadow-lg"
                       >
                         {category.name}
                       </motion.h3>
@@ -838,7 +835,6 @@ export default function HomePage() {
                 </AnimatedElement>
               ))}
             </div>
-            <div className="absolute top-0 right-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden"></div>
           </div>
         </section>
 
