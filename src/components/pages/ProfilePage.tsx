@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw, Clock, Phone, MapPin, Briefcase, FileText, Download, Share2, Settings } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw, Clock, Phone, MapPin, Briefcase, FileText, Download, Share2, Settings, Palette, Eye, EyeOff, Copy, Download as DownloadIcon, Share2 as ShareIcon, Zap, Target, Lightbulb } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings, RegisteredUsers, UserVerification, JoseadoresProfiles } from '@/entities';
@@ -36,6 +36,9 @@ function ProfilePage() {
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [joseadorProfile, setJoseadorProfile] = useState<JoseadoresProfiles | null>(null);
+  const [profileTheme, setProfileTheme] = useState<'light' | 'dark' | 'gradient'>('gradient');
+  const [showBio, setShowBio] = useState(true);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [editFormData, setEditFormData] = useState({
     phoneNumber: '',
     cityZone: '',
@@ -322,8 +325,20 @@ function ProfilePage() {
     }
   };
 
+  // Get theme background
+  const getThemeBackground = () => {
+    switch (profileTheme) {
+      case 'dark':
+        return 'bg-gradient-to-b from-foreground via-slate-900 to-slate-800';
+      case 'light':
+        return 'bg-gradient-to-b from-white via-slate-50 to-background';
+      default:
+        return 'bg-gradient-to-b from-primary/5 via-background to-secondary/5';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-secondary/5">
+    <div className={`min-h-screen ${getThemeBackground()}`}>
       {/* Real-time Update Notification */}
       <AnimatePresence>
         {showUpdateNotification && (
@@ -354,15 +369,50 @@ function ProfilePage() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[100rem] mx-auto px-4 md:px-6 py-3 md:py-4">
+      <header className={`${profileTheme === 'dark' ? 'bg-slate-900/80 border-slate-700' : 'bg-white/80'} backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm`}>
+        <div className="max-w-[100rem] mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
           <button 
             onClick={() => navigate(getBackButtonPath())}
-            className="inline-flex items-center gap-2 text-muted-text hover:text-primary transition-colors font-paragraph font-semibold text-sm md:text-base h-10 px-3 rounded-lg hover:bg-background"
+            className={`inline-flex items-center gap-2 transition-colors font-paragraph font-semibold text-sm md:text-base h-10 px-3 rounded-lg ${
+              profileTheme === 'dark' 
+                ? 'text-white hover:text-primary hover:bg-slate-800' 
+                : 'text-muted-text hover:text-primary hover:bg-background'
+            }`}
           >
             <ArrowLeft size={18} className="md:w-5 md:h-5" />
             <span className="hidden sm:inline">Volver</span>
           </button>
+          
+          {/* Theme Selector */}
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setProfileTheme('light')}
+              className={`p-2 rounded-lg transition-all ${profileTheme === 'light' ? 'bg-primary text-white' : profileTheme === 'dark' ? 'text-white hover:bg-slate-800' : 'text-muted-text hover:bg-background'}`}
+              title="Tema claro"
+            >
+              <Eye size={18} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setProfileTheme('dark')}
+              className={`p-2 rounded-lg transition-all ${profileTheme === 'dark' ? 'bg-foreground text-white' : profileTheme === 'light' ? 'text-muted-text hover:bg-background' : 'text-muted-text hover:bg-background'}`}
+              title="Tema oscuro"
+            >
+              <EyeOff size={18} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setProfileTheme('gradient')}
+              className={`p-2 rounded-lg transition-all ${profileTheme === 'gradient' ? 'bg-gradient-to-r from-primary to-secondary text-white' : profileTheme === 'dark' ? 'text-white hover:bg-slate-800' : 'text-muted-text hover:bg-background'}`}
+              title="Tema gradiente"
+            >
+              <Palette size={18} />
+            </motion.button>
+          </div>
         </div>
       </header>
 
