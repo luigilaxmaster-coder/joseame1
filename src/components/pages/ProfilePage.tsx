@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
 import { BaseCrudService } from '@/integrations';
-import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw, Clock } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Shield, Star, Upload, Heart, Trash2, Edit2, Check, AlertCircle, CheckCircle, XCircle, Award, RefreshCw, Clock, Phone, MapPin, Briefcase, FileText, Download, Share2, Settings } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
-import { ProfilePhotos, UserRatings, RegisteredUsers, UserVerification } from '@/entities';
+import { ProfilePhotos, UserRatings, RegisteredUsers, UserVerification, JoseadoresProfiles } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
 
@@ -32,6 +32,17 @@ function ProfilePage() {
   const [registeredUserRole, setRegisteredUserRole] = useState<string>('');
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [joseadorProfile, setJoseadorProfile] = useState<JoseadoresProfiles | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    phoneNumber: '',
+    cityZone: '',
+    mainCategory: '',
+    yearsOfExperience: 0,
+    basePriceEstimate: 0,
+    availability: '',
+    preferredContactMethod: ''
+  });
 
   // Sync user to registeredusers collection
   useSyncUser();
@@ -77,6 +88,24 @@ function ProfilePage() {
     if (userRatingsData.length > 0) {
       const avg = userRatingsData.reduce((sum, r) => sum + (r.ratingValue || 0), 0) / userRatingsData.length;
       setAverageRating(Math.round(avg * 10) / 10);
+    }
+
+    // Load joseador profile if user is a joseador
+    if (userRole === 'joseador') {
+      const { items: joseadorProfiles } = await BaseCrudService.getAll<JoseadoresProfiles>('joseadores');
+      const userJoseadorProfile = joseadorProfiles.find(p => p.userId === member.loginEmail);
+      if (userJoseadorProfile) {
+        setJoseadorProfile(userJoseadorProfile);
+        setEditFormData({
+          phoneNumber: userJoseadorProfile.phoneNumber || '',
+          cityZone: userJoseadorProfile.cityZone || '',
+          mainCategory: userJoseadorProfile.mainCategory || '',
+          yearsOfExperience: userJoseadorProfile.yearsOfExperience || 0,
+          basePriceEstimate: userJoseadorProfile.basePriceEstimate || 0,
+          availability: userJoseadorProfile.availability || '',
+          preferredContactMethod: userJoseadorProfile.preferredContactMethod || ''
+        });
+      }
     }
 
     // Load user data from registeredusers collection
@@ -243,6 +272,29 @@ function ProfilePage() {
     setDescription(tempDescription);
     setIsEditingDescription(false);
     // In a real app, this would be saved to the member profile
+  };
+
+  const handleSaveProfileChanges = async () => {
+    if (!joseadorProfile) return;
+    
+    try {
+      await BaseCrudService.update('joseadores', {
+        _id: joseadorProfile._id,
+        phoneNumber: editFormData.phoneNumber,
+        cityZone: editFormData.cityZone,
+        mainCategory: editFormData.mainCategory,
+        yearsOfExperience: editFormData.yearsOfExperience,
+        basePriceEstimate: editFormData.basePriceEstimate,
+        availability: editFormData.availability,
+        preferredContactMethod: editFormData.preferredContactMethod
+      });
+      
+      setIsEditingProfile(false);
+      await loadProfileData();
+    } catch (error) {
+      console.error('Error saving profile changes:', error);
+      setUploadError('Error al guardar los cambios. Por favor, intenta de nuevo.');
+    }
   };
 
   const handleDeletePhoto = async (photoId: string) => {
@@ -472,6 +524,189 @@ function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Professional Info Section - For Joseadores */}
+          {userRole === 'joseador' && joseadorProfile && (
+            <div className="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 border-2 border-secondary/20 shadow-xl md:shadow-2xl overflow-hidden relative">
+              {/* Decorative background */}
+              <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-secondary/5 to-accent/5 rounded-full -mr-32 -mt-32" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6 md:mb-8">
+                  <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground">Información Profesional</h3>
+                  {!isEditingProfile && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setIsEditingProfile(true)}
+                      className="p-2 hover:bg-secondary/10 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={20} className="text-secondary" />
+                    </motion.button>
+                  )}
+                </div>
+
+                {isEditingProfile ? (
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Teléfono</label>
+                        <input
+                          type="tel"
+                          value={editFormData.phoneNumber}
+                          onChange={(e) => setEditFormData({ ...editFormData, phoneNumber: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="Número de teléfono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Zona/Ciudad</label>
+                        <input
+                          type="text"
+                          value={editFormData.cityZone}
+                          onChange={(e) => setEditFormData({ ...editFormData, cityZone: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="Zona o ciudad"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Categoría Principal</label>
+                        <input
+                          type="text"
+                          value={editFormData.mainCategory}
+                          onChange={(e) => setEditFormData({ ...editFormData, mainCategory: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="Ej: Plomería, Electricidad"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Años de Experiencia</label>
+                        <input
+                          type="number"
+                          value={editFormData.yearsOfExperience}
+                          onChange={(e) => setEditFormData({ ...editFormData, yearsOfExperience: parseInt(e.target.value) || 0 })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="Años"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Precio Base Estimado</label>
+                        <input
+                          type="number"
+                          value={editFormData.basePriceEstimate}
+                          onChange={(e) => setEditFormData({ ...editFormData, basePriceEstimate: parseFloat(e.target.value) || 0 })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="Precio"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Disponibilidad</label>
+                        <select
+                          value={editFormData.availability}
+                          onChange={(e) => setEditFormData({ ...editFormData, availability: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                        >
+                          <option value="">Selecciona disponibilidad</option>
+                          <option value="Disponible">Disponible</option>
+                          <option value="Ocupado">Ocupado</option>
+                          <option value="Fin de semana">Fin de semana</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block font-paragraph text-sm font-bold text-foreground mb-2">Método de Contacto Preferido</label>
+                      <select
+                        value={editFormData.preferredContactMethod}
+                        onChange={(e) => setEditFormData({ ...editFormData, preferredContactMethod: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-secondary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                      >
+                        <option value="">Selecciona método</option>
+                        <option value="Teléfono">Teléfono</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Email">Email</option>
+                      </select>
+                    </div>
+                    <div className="flex gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleSaveProfileChanges}
+                        className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary to-accent text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <Check size={18} />
+                        Guardar Cambios
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setIsEditingProfile(false)}
+                        className="flex-1 px-4 py-3 border-2 border-secondary/30 text-foreground font-paragraph font-bold rounded-xl hover:bg-secondary/5 transition-all"
+                      >
+                        Cancelar
+                      </motion.button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {editFormData.phoneNumber && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <Phone size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Teléfono</p>
+                          <p className="font-paragraph text-foreground font-bold">{editFormData.phoneNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                    {editFormData.cityZone && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <MapPin size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Zona/Ciudad</p>
+                          <p className="font-paragraph text-foreground font-bold">{editFormData.cityZone}</p>
+                        </div>
+                      </div>
+                    )}
+                    {editFormData.mainCategory && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <Briefcase size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Categoría Principal</p>
+                          <p className="font-paragraph text-foreground font-bold">{editFormData.mainCategory}</p>
+                        </div>
+                      </div>
+                    )}
+                    {editFormData.yearsOfExperience > 0 && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <Award size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Años de Experiencia</p>
+                          <p className="font-paragraph text-foreground font-bold">{editFormData.yearsOfExperience} años</p>
+                        </div>
+                      </div>
+                    )}
+                    {editFormData.basePriceEstimate > 0 && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <FileText size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Precio Base</p>
+                          <p className="font-paragraph text-foreground font-bold">RD$ {editFormData.basePriceEstimate.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {editFormData.availability && (
+                      <div className="flex items-start gap-3 p-4 bg-secondary/5 rounded-xl">
+                        <Clock size={20} className="text-secondary flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Disponibilidad</p>
+                          <p className="font-paragraph text-foreground font-bold">{editFormData.availability}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Contact Info - Enhanced Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
