@@ -9,6 +9,8 @@ import { useState, useEffect, useRef } from 'react';
 import { ProfilePhotos, UserRatings, RegisteredUsers, UserVerification, JoseadoresProfiles } from '@/entities';
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
+import ProfilePhotoUploader from '@/components/profile/ProfilePhotoUploader';
+import PhotoGallery from '@/components/profile/PhotoGallery';
 
 function ProfilePage() {
   const { member, actions } = useMember();

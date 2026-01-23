@@ -675,6 +675,50 @@ export interface UserDirectory {
 
 
 /**
+ * Collection ID: userphotos
+ * Interface for UserPhotos
+ */
+export interface UserPhotos {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  memberId?: string;
+  /** @wixFieldType url */
+  photoUrl?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType text */
+  type?: string;
+  /** @wixFieldType text */
+  altText?: string;
+  /** @wixFieldType number */
+  fileSize?: number;
+}
+
+
+/**
+ * Collection ID: userprofiles
+ * Interface for UserProfiles
+ */
+export interface UserProfiles {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  memberId?: string;
+  /** @wixFieldType url */
+  profilePhoto?: string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
+  /** @wixFieldType text */
+  firstName?: string;
+  /** @wixFieldType text */
+  lastName?: string;
+}
+
+
+/**
  * Collection ID: userratings
  * Interface for UserRatings
  */
