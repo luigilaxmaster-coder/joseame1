@@ -14,6 +14,7 @@ import { UserProfiles, UserPhotos, UserRatings, RegisteredUsers, UserVerificatio
 import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib/file-upload-service';
 import { useSyncUser } from '@/lib/user-sync-hook';
 import { WixMediaService } from '@/lib/wix-media-service';
+import { PortfolioUploaderBasic } from '@/components/PortfolioUploaderBasic';
 
 type TabType = 'posts' | 'about' | 'settings';
 
@@ -165,8 +166,7 @@ function ProfilePage() {
     }
   };
 
-  const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleUploadPhoto = async (file: File) => {
     if (!file || !member?.loginEmail) {
       setUploadError('Por favor, selecciona un archivo y asegúrate de estar autenticado.');
       return;
@@ -188,7 +188,6 @@ function ProfilePage() {
     } catch (error) {
       console.error('Error in handleUploadPhoto:', error);
       setUploadError(getUploadErrorMessage(error));
-      if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -585,24 +584,7 @@ function ProfilePage() {
                           <p className="font-heading font-bold text-foreground mb-2 text-lg md:text-xl">Comparte una foto</p>
                           <p className="font-paragraph text-sm md:text-base text-muted-text">Muestra tu trabajo y destaca tu portafolio</p>
                         </div>
-                        <label className="relative">
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleUploadPhoto}
-                            disabled={isUploadingPhoto}
-                            className="hidden"
-                          />
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-6 md:px-8 py-3 md:py-4 bg-primary text-white font-paragraph font-bold rounded-xl cursor-pointer hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isUploadingPhoto}
-                          >
-                            {isUploadingPhoto ? 'Procesando...' : 'Seleccionar Foto'}
-                          </motion.button>
-                        </label>
+                        <PortfolioUploaderBasic onFile={handleUploadPhoto} />
                       </div>
                     </div>
                   )}
