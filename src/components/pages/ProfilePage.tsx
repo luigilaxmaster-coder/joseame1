@@ -207,7 +207,7 @@ function ProfilePage() {
       }
 
       // Upload to Wix Media Manager
-      const uploadResponse = await WixMediaService.uploadImage(selectedFile);
+      const uploadResponse = await WixMediaService.uploadImage(selectedFile, member.loginEmail);
 
       // Save to UserPhotos collection
       const photoId = crypto.randomUUID();
@@ -215,6 +215,7 @@ function ProfilePage() {
         _id: photoId,
         memberId: member.loginEmail,
         photoUrl: uploadResponse.url,
+        caption: photoCaption || undefined,
         createdAt: new Date().toISOString(),
         type: 'portfolio',
         altText: photoCaption || 'Portfolio photo',

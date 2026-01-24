@@ -683,6 +683,8 @@ export interface UserPhotos {
   _createdDate?: Date;
   _updatedDate?: Date;
   /** @wixFieldType text */
+  caption?: string;
+  /** @wixFieldType text */
   memberId?: string;
   /** @wixFieldType url */
   photoUrl?: string;

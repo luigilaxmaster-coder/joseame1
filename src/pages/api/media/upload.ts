@@ -17,6 +17,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const memberId = formData.get('memberId') as string;
 
     if (!file) {
       return new Response(
@@ -26,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
     if (!validTypes.includes(file.type)) {
       return new Response(
         JSON.stringify({ error: 'Invalid file type' }),
@@ -47,9 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
     const buffer = await file.arrayBuffer();
 
     // Use Wix Media Manager API to upload
-    // This would typically use the Wix backend SDK
-    // For now, we'll use a placeholder that simulates the upload
-    const mediaUrl = await uploadToWixMedia(buffer, file.name, file.type);
+    const mediaUrl = await uploadToWixMedia(buffer, file.name, file.type, memberId);
 
     return new Response(
       JSON.stringify({
@@ -71,30 +70,38 @@ export const POST: APIRoute = async ({ request }) => {
 
 /**
  * Upload file to Wix Media Manager
- * This is a placeholder implementation
- * In production, use the actual Wix Media Manager API
+ * Converts to data URL for storage in CMS
  */
 async function uploadToWixMedia(
   buffer: ArrayBuffer,
   fileName: string,
-  mimeType: string
+  mimeType: string,
+  memberId?: string
 ): Promise<string> {
-  // In a real implementation, you would:
-  // 1. Use the Wix Media Manager API
-  // 2. Upload the file
-  // 3. Get the public URL
-  // 4. Return the URL
+  try {
+    // Create a blob from the buffer
+    const blob = new Blob([buffer], { type: mimeType });
+    
+    // Convert to data URL for storage
+    const dataUrl = await blobToDataUrl(blob);
+    
+    return dataUrl;
+  } catch (error) {
+    console.error('Error uploading to Wix Media:', error);
+    throw new Error('Failed to process image upload');
+  }
+}
 
-  // For now, we'll create a data URL (this is for development)
-  // In production, implement actual Wix Media Manager integration
-  const blob = new Blob([buffer], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-
-  // In production, replace this with actual Wix Media Manager upload
-  // Example: const response = await wixMediaManager.upload(blob);
-  // return response.publicUrl;
-
-  // For now, return a placeholder that will work with the service
-  // This should be replaced with actual Wix Media Manager integration
-  return url;
+/**
+ * Convert blob to data URL
+ */
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
