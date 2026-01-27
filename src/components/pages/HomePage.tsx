@@ -45,70 +45,45 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
     target: ref,
     offset: ["start end", "end start"]
   });
-  const y = useTransform(scrollYProgress, [0, 1], ['-20%', '20%']);
+  // Reduced parallax effect for better performance
+  const y = useTransform(scrollYProgress, [0, 1], ['-10%', '10%']);
 
   return (
     <div ref={ref} className={cn("overflow-clip", className)}>
-      <motion.div style={{ y }} className="h-[140%] w-full">
+      <motion.div style={{ y }} className="h-[120%] w-full">
         <Image src={src} alt={alt} className="w-full h-full object-cover" width={1600} />
       </motion.div>
     </div>
   );
 };
 
-// Enhanced Floating Orbs with More Colors and Movement
+// Optimized Floating Orbs - Reduced animations
 const FloatingOrbs = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
         animate={{ 
-          y: [0, -60, 0], 
-          x: [0, 50, 0], 
-          scale: [1, 1.3, 1],
-          rotate: [0, 180, 360]
+          y: [0, -40, 0], 
+          x: [0, 30, 0]
         }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 to-secondary/30 rounded-full blur-3xl"
       />
       <motion.div
         animate={{ 
-          y: [0, 60, 0], 
-          x: [0, -50, 0], 
-          scale: [1, 1.4, 1],
-          rotate: [360, 180, 0]
+          y: [0, 40, 0], 
+          x: [0, -30, 0]
         }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 to-support/30 rounded-full blur-3xl"
       />
       <motion.div
         animate={{ 
-          y: [0, 40, 0], 
-          x: [0, 60, 0], 
-          scale: [1, 1.2, 1],
-          rotate: [0, -90, 0]
+          y: [0, 25, 0], 
+          x: [0, 40, 0]
         }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/30 to-accent/20 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, -35, 0], 
-          x: [0, -35, 0], 
-          scale: [1, 1.15, 1],
-          rotate: [0, 90, 0]
-        }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-br from-support/25 to-primary/20 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, 50, 0], 
-          x: [0, 30, 0], 
-          scale: [1, 1.25, 1],
-          rotate: [0, -180, 0]
-        }}
-        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-        className="absolute bottom-1/3 left-1/2 w-64 h-64 bg-gradient-to-br from-accent/25 to-primary/20 rounded-full blur-3xl"
       />
     </div>
   );

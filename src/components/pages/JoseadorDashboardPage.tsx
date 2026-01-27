@@ -32,11 +32,11 @@ function JoseadorDashboardContent() {
     loadJobs();
     loadPiqueteBalance();
     
-    // Set up auto-refresh every 15 seconds (reduced from 5s for better performance)
+    // Set up auto-refresh every 30 seconds (reduced for better performance)
     const refreshInterval = setInterval(() => {
       loadJobs();
       loadPiqueteBalance();
-    }, 15000);
+    }, 30000);
 
     return () => clearInterval(refreshInterval);
   }, [member?.loginEmail]);
@@ -225,7 +225,7 @@ function JoseadorDashboardContent() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="relative mb-6 md:mb-12 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-accent/30 to-support/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all opacity-70 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-accent/30 to-support/30 rounded-2xl md:rounded-3xl blur-xl transition-all opacity-70 group-hover:opacity-100" />
           <div className="relative bg-gradient-to-br from-secondary via-accent to-support rounded-2xl md:rounded-3xl p-4 md:p-8 text-white shadow-2xl overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />

@@ -355,12 +355,13 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
 
-  // Cursor glow effect - optimized with throttling
+  // Cursor glow effect - optimized with throttling (disabled on mobile)
   useEffect(() => {
     let throttleTimer: NodeJS.Timeout | null = null;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
     
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || isMobile) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (throttleTimer) return;
@@ -369,7 +370,7 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
         setCursorPos({ x: e.clientX, y: e.clientY });
         setShowGlow(true);
         throttleTimer = null;
-      }, 16); // ~60fps throttle
+      }, 32); // ~30fps throttle for better performance
     };
 
     const handleMouseLeave = () => {
@@ -436,24 +437,16 @@ export default function Flow3DCarousel({ onStepChange }: Flow3DCarouselProps) {
 
   return (
     <div className="relative w-full min-h-screen py-12 px-4 overflow-hidden bg-gradient-to-br from-background via-slate-50 to-background">
-      {/* Cursor Glow - optimized */}
+      {/* Cursor Glow - optimized (hidden on mobile) */}
       {showGlow && !prefersReducedMotion && (
         <motion.div
-          className="fixed pointer-events-none z-50 w-56 h-56 rounded-full"
+          className="fixed pointer-events-none z-50 w-56 h-56 rounded-full hidden md:block"
           style={{
-            background: 'radial-gradient(circle, rgba(14, 159, 168, 0.12) 0%, rgba(113, 210, 97, 0.08) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(14, 159, 168, 0.08) 0%, rgba(113, 210, 97, 0.05) 50%, transparent 70%)',
             filter: 'blur(40px)',
             left: cursorPos.x - 112,
             top: cursorPos.y - 112,
             willChange: 'transform',
-          }}
-          animate={{
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut',
           }}
         />
       )}
