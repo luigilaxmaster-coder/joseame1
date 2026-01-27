@@ -19,14 +19,13 @@ export const CursorGlow: React.FC = () => {
       return;
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      // Cancel previous animation frame
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
+    let throttleTimer: NodeJS.Timeout | null = null;
 
-      // Use requestAnimationFrame for smooth animation
-      rafRef.current = requestAnimationFrame(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Throttle to ~60fps
+      if (throttleTimer) return;
+
+      throttleTimer = setTimeout(() => {
         setPosition({ x: e.clientX, y: e.clientY });
 
         // Check if cursor is over a light/white background
@@ -36,11 +35,16 @@ export const CursorGlow: React.FC = () => {
           const isLightBackground = checkIfLightBackground(bgColor, elementUnderCursor);
           setIsActive(isLightBackground);
         }
-      });
+        throttleTimer = null;
+      }, 16);
     };
 
     const handleMouseLeave = () => {
       setIsActive(false);
+      if (throttleTimer) {
+        clearTimeout(throttleTimer);
+        throttleTimer = null;
+      }
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -51,6 +55,9 @@ export const CursorGlow: React.FC = () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
+      }
+      if (throttleTimer) {
+        clearTimeout(throttleTimer);
       }
     };
   }, []);
@@ -137,8 +144,8 @@ export const CursorGlow: React.FC = () => {
         position: 'fixed',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '350px',
-        height: '350px',
+        width: '300px',
+        height: '300px',
         borderRadius: '50%',
         background: `radial-gradient(circle, ${currentColor} 0%, transparent 70%)`,
         transform: 'translate(-50%, -50%)',
@@ -146,7 +153,7 @@ export const CursorGlow: React.FC = () => {
         zIndex: 9999,
         opacity: isActive ? 1 : 0,
         transition: 'opacity 0.2s ease-out',
-        filter: 'blur(60px)',
+        filter: 'blur(50px)',
         mixBlendMode: 'multiply',
         willChange: 'transform, opacity'
       }}

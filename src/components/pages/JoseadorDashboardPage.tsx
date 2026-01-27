@@ -32,11 +32,11 @@ function JoseadorDashboardContent() {
     loadJobs();
     loadPiqueteBalance();
     
-    // Set up auto-refresh every 5 seconds for live updates
+    // Set up auto-refresh every 15 seconds (reduced from 5s for better performance)
     const refreshInterval = setInterval(() => {
       loadJobs();
       loadPiqueteBalance();
-    }, 5000);
+    }, 15000);
 
     return () => clearInterval(refreshInterval);
   }, [member?.loginEmail]);
@@ -132,10 +132,10 @@ function JoseadorDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden pb-[90px]">
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
+      {/* Animated background elements - optimized */}
+      <div className="absolute top-0 left-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-2xl -z-10" />
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-2xl -z-10" />
+      <div className="absolute top-1/2 right-0 w-80 h-80 bg-support/5 rounded-full blur-2xl -z-10" />
       
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
