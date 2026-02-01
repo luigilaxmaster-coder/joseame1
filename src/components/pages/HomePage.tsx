@@ -1,5 +1,5 @@
 // HPI 3.0 - Dynamic, Intuitive & Colorful Design
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
@@ -16,30 +16,21 @@ type AnimatedElementProps = {
 };
 
 const AnimatedElement: React.FC<AnimatedElementProps> = ({ children, className, delay = 0, threshold = 0.1 }) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const element = ref.current;
-        if (!element) return;
-
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => {
-                    element.classList.add('is-visible');
-                }, delay);
-                observer.unobserve(element);
-            }
-        }, { threshold });
-
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, [delay, threshold]);
-
-    return <div ref={ref} className={cn('animate-reveal', className)}>{children}</div>;
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: delay / 1000, ease: 'easeOut' }}
+            viewport={{ once: true, amount: threshold }}
+            className={className}
+        >
+            {children}
+        </motion.div>
+    );
 };
 
 const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"]
@@ -56,33 +47,33 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-// Optimized Floating Orbs - Reduced animations
+// Optimized Floating Orbs - Smooth animations
 const FloatingOrbs = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
         animate={{ 
-          y: [0, -40, 0], 
+          y: [0, -30, 0], 
+          x: [0, 20, 0]
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, 30, 0], 
+          x: [0, -20, 0]
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/30 to-support/20 rounded-full blur-3xl"
+      />
+      <motion.div
+        animate={{ 
+          y: [0, 20, 0], 
           x: [0, 30, 0]
         }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 to-secondary/30 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, 40, 0], 
-          x: [0, -30, 0]
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 to-support/30 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, 25, 0], 
-          x: [0, 40, 0]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/30 to-accent/20 rounded-full blur-3xl"
+        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/20 to-accent/15 rounded-full blur-3xl"
       />
     </div>
   );
@@ -92,10 +83,11 @@ const FloatingOrbs = () => {
 const AnimatedStat = ({ icon: Icon, label, delay = 0 }: { icon: any; label: string; delay?: number }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.6 }}
-      className="flex flex-col items-center gap-2 p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20"
+      transition={{ delay: delay * 0.1, duration: 0.5, ease: 'easeOut' }}
+      viewport={{ once: true }}
+      className="flex flex-col items-center gap-2 p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 hover:bg-white/15 transition-all"
     >
       <Icon className="text-accent" size={32} />
       <div className="text-sm md:text-base text-white/80 text-center font-heading font-semibold">{label}</div>
@@ -177,21 +169,6 @@ export default function HomePage() {
           background-position: right center;
           transform: translateY(-2px);
         }
-        .animate-reveal {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .animate-reveal.is-visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .how-it-works-card {
-          clip-path: polygon(0 0, 100% 0, 100% 95%, 90% 100%, 0 100%);
-        }
-        .category-card-mask {
-          clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
-        }
         .gradient-text {
           background: linear-gradient(135deg, #0E9FA8 0%, #3AB689 30%, #71D261 60%, #55C376 100%);
           -webkit-background-clip: text;
@@ -262,12 +239,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-black/25"></div>
           </div>
           
-          <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center">
+          <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="relative z-20"
+              className="relative z-20 w-full"
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -286,32 +263,42 @@ export default function HomePage() {
 
               <motion.h1 
                 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight"
-                animate={{ 
-                  textShadow: [
-                    "0 0 20px rgba(113, 210, 97, 0.5)",
-                    "0 0 40px rgba(113, 210, 97, 0.8)",
-                    "0 0 20px rgba(113, 210, 97, 0.5)"
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <span className="inline-block">JOSEAME</span>
               </motion.h1>
-              <p className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold">
+              <motion.p 
+                className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
                 Trabajo cerca, rápido y fácil.
-              </p>
-              <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed">
+              </motion.p>
+              <motion.p 
+                className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+              >
                 Conectamos clientes con profesionales. Publica un trabajo o encuentra tu próximo joseo en minutos.
-              </p>
+              </motion.p>
               
               {/* Stats Row - Real indicators */}
               <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-4xl mx-auto mb-8 md:mb-12">
-                <AnimatedStat label="Creciendo Rápido" icon={TrendingUp} delay={0.3} />
-                <AnimatedStat label="Oportunidades Reales" icon={Briefcase} delay={0.4} />
-                <AnimatedStat label="Calidad Garantizada" icon={Star} delay={0.5} />
+                <AnimatedStat label="Creciendo Rápido" icon={TrendingUp} delay={3} />
+                <AnimatedStat label="Oportunidades Reales" icon={Briefcase} delay={4} />
+                <AnimatedStat label="Calidad Garantizada" icon={Star} delay={5} />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
                 <Link to="/login">
                   <motion.button
                     whileHover={{ scale: 1.08, y: -3 }}
@@ -337,7 +324,7 @@ export default function HomePage() {
                     Conocer Más
                   </motion.button>
                 </Link>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </section>
@@ -559,7 +546,6 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Feature Highlights - More Dynamic */}
             <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { 
@@ -615,22 +601,14 @@ export default function HomePage() {
         <section className="py-12 md:py-32 bg-gradient-to-br from-secondary/10 via-white to-accent/10">
           <div className="max-w-[120rem] mx-auto px-4 md:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-16">
-              <div className="lg:sticky top-32 h-fit">
-                <AnimatedElement>
-                  <motion.div
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8 }}
-                  >
-                    <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
-                      La plataforma del <span className="gradient-text">joseador moderno</span>.
-                    </h2>
-                    <p className="text-base md:text-lg text-muted-text max-w-md">
-                      Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
-                    </p>
-                  </motion.div>
-                </AnimatedElement>
-              </div>
+            <AnimatedElement className="lg:sticky top-32 h-fit">
+              <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4">
+                La plataforma del <span className="gradient-text">joseador moderno</span>.
+              </h2>
+              <p className="text-base md:text-lg text-muted-text max-w-md">
+                Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.
+              </p>
+            </AnimatedElement>
               <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
                 {features.map((feature) => (
                   <AnimatedElement key={feature.id} delay={features.indexOf(feature) * 100}>
@@ -685,19 +663,19 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 md:gap-16">
               {/* Para Clientes */}
               <div className="flex flex-col gap-4 md:gap-8">
-                <AnimatedElement className="lg:sticky top-32">
-                  <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
-                    <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-[1]"></div>
-                    <motion.h3 
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
-                    >
-                      Para Clientes
-                    </motion.h3>
-                  </div>
-                </AnimatedElement>
+            <AnimatedElement className="lg:sticky top-32">
+              <div className="relative h-[250px] md:h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl group">
+                <Image src="https://static.wixstatic.com/media/307f6c_e70ee8c65a1d48f8a687759c30af3f76~mv2.png?originWidth=576&originHeight=384" alt="Cliente planificando un proyecto en una tableta" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" width={576} />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-[1]"></div>
+                <motion.h3 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="absolute top-3 md:top-4 right-4 md:right-8 font-heading text-2xl md:text-4xl font-bold text-white drop-shadow-lg"
+                >
+                  Para Clientes
+                </motion.h3>
+              </div>
+            </AnimatedElement>
                 <div className="space-y-3 md:space-y-8 mt-0 md:mt-0">
                   {clientSteps.map((item) => (
                     <AnimatedElement key={item.id} delay={clientSteps.indexOf(item) * 150}>
@@ -771,19 +749,13 @@ export default function HomePage() {
           <div className="max-w-[120rem] mx-auto px-4 md:px-12 relative z-10">
             {/* Text Section Above Carousel */}
             <AnimatedElement className="mb-8 md:mb-12">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
-                  Encuentra el <span className="gradient-text">talento</span> que necesitas
-                </h2>
-                <p className="text-base md:text-lg lg:text-xl text-muted-text leading-relaxed max-w-3xl">
-                  Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
-                  Conecta con profesionales en múltiples categorías.
-                </p>
-              </motion.div>
+              <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
+                Encuentra el <span className="gradient-text">talento</span> que necesitas
+              </h2>
+              <p className="text-base md:text-lg lg:text-xl text-muted-text leading-relaxed max-w-3xl">
+                Desde <span className="font-semibold text-foreground">tareas rápidas</span> hasta <span className="font-semibold text-foreground">proyectos complejos</span>. 
+                Conecta con profesionales en múltiples categorías.
+              </p>
             </AnimatedElement>
             
             <div className="flex gap-4 md:gap-8 pb-4 md:pb-8 overflow-x-auto">
