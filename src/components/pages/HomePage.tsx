@@ -6,7 +6,6 @@ import { Image } from '@/components/ui/image';
 import { ArrowRight, Briefcase, Users, Shield, Zap, Sparkles, TrendingUp, Star, Rocket, Target, Search, FileText, Handshake, Wallet, DollarSign, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSyncUser } from '@/lib/user-sync-hook';
-import CursorGlow from '@/components/CursorGlow';
 import Flow3DCarousel from '@/components/Flow3DCarousel';
 
 type AnimatedElementProps = {
@@ -168,7 +167,6 @@ export default function HomePage() {
 
   return (
     <>
-      <CursorGlow />
       <style>{`
         .btn-gradient {
           background-image: linear-gradient(90deg, #0E9FA8, #3AB689, #71D261);
