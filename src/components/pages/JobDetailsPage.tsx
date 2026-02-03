@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { BaseCrudService } from '@/integrations';
 import { useMember } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
+import { useApplicationStore } from '@/store/applicationStore';
 import { TrabajosdeServicio, JobApplications } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Calendar, User, Briefcase, AlertCircle, Zap, Info, TrendingUp, MessageSquare, Award, Sparkles } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -28,6 +29,7 @@ export default function JobDetailsPage() {
   const navigate = useNavigate();
   const { member } = useMember();
   const { userRole } = useRoleStore();
+  const { applications: storeApplications, addApplication, setApplications: setStoreApplications } = useApplicationStore();
   const [job, setJob] = useState<TrabajosdeServicio | null>(null);
   const [applications, setApplications] = useState<JobApplications[]>([]);
   const [joseadorInfoMap, setJoseadorInfoMap] = useState<Record<string, JoseadorInfo>>({});
@@ -162,13 +164,16 @@ export default function JobDetailsPage() {
 
       await BaseCrudService.create('jobapplications', newApplication);
       
-      // Update UI
+      // Update store immediately for real-time update
+      addApplication(newApplication);
+      
+      // Update local state
+      setApplications([newApplication, ...applications]);
       setShowApplicationForm(false);
       setApplicationData({ coverLetter: '', proposedPrice: '' });
       setExpertiseLevel('beginner');
       
-      // Reload data
-      await loadApplications();
+      // Reload piquete balance
       await loadPiqueteBalance();
       
       // Show success message

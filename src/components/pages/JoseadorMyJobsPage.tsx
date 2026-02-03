@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
+import { useApplicationStore } from '@/store/applicationStore';
 import { JobApplications, TrabajosdeServicio } from '@/entities';
 import { ArrowLeft, MapPin, DollarSign, Calendar, Eye, CheckCircle, Clock } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -10,13 +11,14 @@ import { Image } from '@/components/ui/image';
 export default function JoseadorMyJobsPage() {
   const navigate = useNavigate();
   const { member } = useMember();
+  const { applications: storeApplications } = useApplicationStore();
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'completed'>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadJoseadorJobs();
-  }, [member]);
+  }, [member, storeApplications]);
 
   const loadJoseadorJobs = async () => {
     try {
@@ -25,7 +27,7 @@ export default function JoseadorMyJobsPage() {
       const { items: applications } = await BaseCrudService.getAll<JobApplications>('jobapplications');
       // Note: member doesn't have _id property, this filter won't work correctly
       // You may need to add a proper member ID field to the Member type
-      const joseadorApplications = applications.filter(app => app.joseadorId === (member as any)?._id);
+      const joseadorApplications = applications.filter(app => app.joseadorId === (member as any)?.loginEmail);
       
       // Get all jobs
       const { items: allJobs } = await BaseCrudService.getAll<TrabajosdeServicio>('servicejobs');
