@@ -145,11 +145,9 @@ function ProfilePage() {
       const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
       const currentUser = users.find(u => u.email === member.loginEmail);
 
-      if (currentUser && currentUser.userId) {
-        const { items: verificationItems } = await BaseCrudService.getAll<UserVerification>('userverification');
-        const userVerification = verificationItems.find(v => v.joseadorId === currentUser.userId);
-
-        const verificationStatusValue = userVerification?.isVerified ? 'Aprobado' : 'Pendiente';
+      if (currentUser) {
+        // Use verification status from RegisteredUsers collection (source of truth from admin)
+        const verificationStatusValue = currentUser.verificationStatus || 'Pendiente';
         setVerificationStatus(verificationStatusValue);
 
         if (currentUser.badges) {
@@ -159,6 +157,7 @@ function ProfilePage() {
           setUserBadges([]);
         }
 
+        // Set the role from RegisteredUsers collection
         setRegisteredUserRole(currentUser.role || '');
       }
     } catch (error) {
