@@ -1,60 +1,86 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Target, Users, Shield, Heart, Sparkles, ArrowRight, TrendingUp, Briefcase, Star, Zap } from 'lucide-react';
-import { useRef } from 'react';
+import { ArrowLeft, ChevronRight, ChevronLeft, Sparkles, ArrowRight, Users, Target, Shield, Heart, Zap, Star, TrendingUp, Briefcase } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Image } from '@/components/ui/image';
 
-// Floating Orbs Component
-const FloatingOrbs = () => {
+// Slide Component
+const Slide = ({ children, isActive }: { children: React.ReactNode; isActive: boolean }) => {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        animate={{ 
-          y: [0, -40, 0], 
-          x: [0, 30, 0]
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 to-secondary/30 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, 40, 0], 
-          x: [0, -30, 0]
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 to-support/30 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ 
-          y: [0, 25, 0], 
-          x: [0, 40, 0]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/30 to-accent/20 rounded-full blur-3xl"
-      />
-    </div>
-  );
-};
-
-// Parallax Image Component
-const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  const y = useTransform(scrollYProgress, [0, 1], ['-10%', '10%']);
-
-  return (
-    <div ref={ref} className={`overflow-clip ${className}`}>
-      <motion.div style={{ y }} className="h-[120%] w-full">
-        <Image src={src} alt={alt} className="w-full h-full object-cover" />
-      </motion.div>
-    </div>
+    <AnimatePresence mode="wait">
+      {isActive && (
+        <motion.div
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -100 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className="absolute inset-0"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
 export default function AboutPage() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  const slides = [
+    {
+      title: "Sobre JOSEAME",
+      subtitle: "La infraestructura digital del joseo dominicano",
+      description: "Transformando la forma en que los dominicanos trabajan y conectan con oportunidades",
+      image: "https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896",
+      color: "from-primary to-secondary"
+    },
+    {
+      title: "Nuestra Misión",
+      subtitle: "Conectar profesionales con oportunidades",
+      description: "Conectar a profesionales dominicanos con clientes que necesitan sus servicios, creando oportunidades de trabajo digno",
+      image: "https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896",
+      color: "from-secondary to-accent"
+    },
+    {
+      title: "Nuestra Visión",
+      subtitle: "Ser la plataforma líder",
+      description: "Ser la plataforma líder de servicios profesionales en República Dominicana, impulsando el crecimiento económico",
+      image: "https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896",
+      color: "from-accent to-support"
+    },
+    {
+      title: "Nuestra Comunidad",
+      subtitle: "Miles de profesionales confiando",
+      description: "Una comunidad vibrante de profesionales y clientes que trabajan juntos para crear un futuro mejor",
+      image: "https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896",
+      color: "from-support to-primary"
+    }
+  ];
+
+  useEffect(() => {
+    if (!autoPlay) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [autoPlay, slides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setAutoPlay(false);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setAutoPlay(false);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setAutoPlay(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-white to-background">
       <style>{`
@@ -96,6 +122,13 @@ export default function AboutPage() {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-15px); }
         }
+        .slide-dot {
+          transition: all 0.3s ease;
+        }
+        .slide-dot.active {
+          background-color: white;
+          transform: scale(1.3);
+        }
       `}</style>
 
       {/* Header */}
@@ -108,143 +141,106 @@ export default function AboutPage() {
         </div>
       </header>
 
-      {/* Hero Section - Ultra Dynamic */}
-      <section className="relative min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20">
-        <FloatingOrbs />
-        <div className="absolute inset-0 z-0">
-          <ParallaxImage 
-            src="https://static.wixstatic.com/media/307f6c_459db4e37d4c4a09830e7ff2da30e8f8~mv2.png?originWidth=1600&originHeight=896"
-            alt="Profesionales dominicanos trabajando juntos"
-            className="h-full"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-secondary/60 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-support/20"></div>
-          <div className="absolute inset-0 bg-black/25"></div>
-        </div>
-        
-        <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="relative z-20"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
-            >
+      {/* Hero Slider Section */}
+      <section className="relative min-h-screen flex items-center justify-center w-full overflow-hidden">
+        {/* Slides */}
+        {slides.map((slide, index) => (
+          <Slide key={index} isActive={index === currentSlide}>
+            <div className="absolute inset-0 z-0">
+              <Image 
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br ${slide.color} opacity-20`}></div>
+            </div>
+            
+            <div className="relative z-10 max-w-[120rem] mx-auto px-4 md:px-12 text-center flex flex-col items-center justify-center h-full">
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles size={18} className="text-yellow-300" />
-              </motion.div>
-              <span className="text-white font-heading font-semibold text-sm md:text-base">Conoce nuestra historia</span>
-            </motion.div>
-
-            <motion.h1 
-              className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight"
-              animate={{ 
-                textShadow: [
-                  "0 0 20px rgba(113, 210, 97, 0.5)",
-                  "0 0 40px rgba(113, 210, 97, 0.8)",
-                  "0 0 20px rgba(113, 210, 97, 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span className="inline-block">Sobre JOSEAME</span>
-            </motion.h1>
-            <p className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold">
-              La infraestructura digital del joseo dominicano
-            </p>
-            <p className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed">
-              Transformando la forma en que los dominicanos trabajan y conectan con oportunidades
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Mission Section - Enhanced */}
-      <section className="py-12 md:py-32 px-6 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-accent via-support to-secondary rounded-full blur-3xl"></div>
-        </div>
-        <div className="max-w-[120rem] mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 md:mb-24"
-          >
-            <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Nuestra <span className="gradient-text">Misión</span>
-            </h2>
-            <p className="font-paragraph text-lg md:text-2xl text-muted-text max-w-3xl mx-auto leading-relaxed">
-              Conectar a profesionales dominicanos con clientes que necesitan sus servicios, 
-              creando oportunidades de trabajo digno y facilitando el acceso a servicios de calidad.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {[
-              {
-                icon: Target,
-                title: 'Nuestra Visión',
-                description: 'Ser la plataforma líder de servicios profesionales en República Dominicana',
-                color: 'from-primary to-secondary'
-              },
-              {
-                icon: Users,
-                title: 'Comunidad',
-                description: 'Miles de profesionales y clientes confiando en nuestra plataforma',
-                color: 'from-secondary to-accent'
-              },
-              {
-                icon: Shield,
-                title: 'Confianza',
-                description: 'Sistema de verificación y pagos seguros para todos',
-                color: 'from-accent to-support'
-              },
-              {
-                icon: Heart,
-                title: 'Compromiso',
-                description: 'Apoyando el desarrollo económico de nuestra comunidad',
-                color: 'from-support to-primary'
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="card-hover bg-background rounded-2xl p-8 border border-border shadow-md hover:shadow-2xl"
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
               >
-                <motion.div 
-                  whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
-                  className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-lg`}
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 mb-4 md:mb-8 pulse-glow"
                 >
-                  <item.icon className="text-white" size={32} />
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Sparkles size={18} className="text-yellow-300" />
+                  </motion.div>
+                  <span className="text-white font-heading font-semibold text-sm md:text-base">Slide {index + 1} de {slides.length}</span>
                 </motion.div>
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
-                  {item.title}
-                </h3>
-                <p className="font-paragraph text-muted-text">
-                  {item.description}
-                </p>
+
+                <motion.h1 
+                  className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-3 md:mb-6 leading-tight"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  {slide.title}
+                </motion.h1>
+                <motion.p 
+                  className="font-heading text-xl md:text-3xl text-white mb-4 md:mb-8 font-semibold"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                >
+                  {slide.subtitle}
+                </motion.p>
+                <motion.p 
+                  className="text-base md:text-xl text-white/90 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                >
+                  {slide.description}
+                </motion.p>
               </motion.div>
-            ))}
-          </div>
+            </div>
+          </Slide>
+        ))}
+
+        {/* Navigation Buttons */}
+        <motion.button
+          onClick={prevSlide}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-md p-3 rounded-full border border-white/30 transition-all"
+        >
+          <ChevronLeft size={28} className="text-white" />
+        </motion.button>
+
+        <motion.button
+          onClick={nextSlide}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-md p-3 rounded-full border border-white/30 transition-all"
+        >
+          <ChevronRight size={28} className="text-white" />
+        </motion.button>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+          {slides.map((_, index) => (
+            <motion.button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`slide-dot w-3 h-3 rounded-full border border-white/50 ${
+                index === currentSlide ? 'active bg-white' : 'bg-white/30'
+              }`}
+              whileHover={{ scale: 1.2 }}
+            />
+          ))}
         </div>
       </section>
 
-      {/* Values Section - More Vibrant */}
+      {/* Values Section */}
       <section className="py-12 md:py-32 px-6 bg-gradient-to-br from-secondary/10 via-white to-accent/10 relative overflow-hidden">
         <div className="absolute inset-0 opacity-15">
           <div className="absolute top-1/2 left-1/4 w-[32rem] h-[32rem] bg-gradient-to-br from-secondary via-accent to-support rounded-full blur-3xl"></div>
@@ -321,7 +317,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section - New */}
+      {/* Why Choose Us Section */}
       <section className="py-12 md:py-32 px-6 bg-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-br from-primary via-secondary to-accent rounded-full blur-3xl"></div>
@@ -411,10 +407,19 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA Section - Ultra Dynamic */}
+      {/* CTA Section */}
       <section className="py-12 md:py-32 px-4 md:px-12">
         <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
-          <FloatingOrbs />
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, -40, 0], 
+                x: [0, 30, 0]
+              }}
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-10 left-10 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+            />
+          </div>
           <div className="relative z-10">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -432,14 +437,6 @@ export default function AboutPage() {
             </motion.div>
             <motion.h2 
               className="font-heading text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6"
-              animate={{ 
-                textShadow: [
-                  "0 0 20px rgba(255, 255, 255, 0.5)",
-                  "0 0 40px rgba(255, 255, 255, 0.8)",
-                  "0 0 20px rgba(255, 255, 255, 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
             >
               ¿Listo para unirte?
             </motion.h2>
