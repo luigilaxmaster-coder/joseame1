@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', './public/**/*.html', './integrations/**/*.{ts,tsx}'],
+    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', '!./src/backend/**', './public/**/*.html', './integrations/**/*.{ts,tsx}'],
     theme: {
         extend: {
             fontSize: {
