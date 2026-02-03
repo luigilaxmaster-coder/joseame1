@@ -63,12 +63,23 @@ function ClientMyJobsContent() {
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-30">
         <div className="max-w-[100rem] mx-auto px-6 py-4">
-          <h1 className="font-heading text-2xl font-bold text-foreground">
-            Mis Solicitudes
-          </h1>
-          <p className="font-paragraph text-muted-text text-sm">
-            Gestiona los trabajos que has publicado
-          </p>
+          <div className="flex items-center gap-4 mb-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-background rounded-lg transition-colors"
+              aria-label="Volver atrás"
+            >
+              <ArrowLeft size={24} className="text-foreground" />
+            </button>
+            <div>
+              <h1 className="font-heading text-2xl font-bold text-foreground">
+                Mis Solicitudes
+              </h1>
+              <p className="font-paragraph text-muted-text text-sm">
+                Gestiona los trabajos que has publicado
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
