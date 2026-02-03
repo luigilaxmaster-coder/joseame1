@@ -1,5 +1,6 @@
 // @ts-ignore - wix-members-backend is a Wix backend module
 import { currentMember } from 'wix-members-backend';
+// @ts-ignore - wix-data is a Wix backend module
 import { query, insert, update, get } from 'wix-data';
 
 const CONVERSATIONS_COLLECTION = 'conversations';
