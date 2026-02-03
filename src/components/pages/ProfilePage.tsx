@@ -6,7 +6,7 @@ import { BaseCrudService } from '@/integrations';
 import {
   ArrowLeft, User, Mail, Calendar, Star, Upload, Trash2, Edit2, Check, AlertCircle,
   CheckCircle, Award, Clock, Phone, MapPin, Briefcase, FileText, Settings,
-  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal
+  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield
 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
@@ -76,7 +76,7 @@ function ProfilePage() {
     loadProfileData();
     const intervalId = setInterval(() => {
       loadUserDataFromAdmin();
-    }, 3000);
+    }, 2000);
     return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
 
@@ -885,6 +885,40 @@ function ProfilePage() {
                   {userRole === 'joseador' && (
                     <div className="space-y-4 pt-6 border-t border-border">
                       <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Verificación</h3>
+                      
+                      {/* Verification Status Display */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
+                          verificationStatus === 'Aprobado'
+                            ? 'bg-accent/10 border-accent'
+                            : verificationStatus === 'Rechazado'
+                            ? 'bg-destructive/10 border-destructive'
+                            : 'bg-secondary/10 border-secondary'
+                        }`}
+                      >
+                        {verificationStatus === 'Aprobado' ? (
+                          <CheckCircle size={24} className="text-accent flex-shrink-0" />
+                        ) : verificationStatus === 'Rechazado' ? (
+                          <AlertCircle size={24} className="text-destructive flex-shrink-0" />
+                        ) : (
+                          <Clock size={24} className="text-secondary flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className="font-heading font-bold text-foreground text-sm">Estado de Verificación</p>
+                          <p className={`font-paragraph text-sm font-semibold ${
+                            verificationStatus === 'Aprobado'
+                              ? 'text-accent'
+                              : verificationStatus === 'Rechazado'
+                              ? 'text-destructive'
+                              : 'text-secondary'
+                          }`}>
+                            {verificationStatus === 'Aprobado' ? '✓ Verificado' : verificationStatus === 'Rechazado' ? '✗ Rechazado' : '⏳ Pendiente'}
+                          </p>
+                        </div>
+                      </motion.div>
+
                       <p className="font-paragraph text-foreground text-sm">
                         Completa tu verificación para acceder a más oportunidades de trabajo.
                       </p>
@@ -896,6 +930,25 @@ function ProfilePage() {
                       >
                         <CheckCircle size={18} />
                         Iniciar Verificación
+                      </motion.button>
+                    </div>
+                  )}
+
+                  {/* Admin Dashboard Access */}
+                  {registeredUserRole === 'Admin' && (
+                    <div className="space-y-4 pt-6 border-t border-border">
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Panel de Administración</h3>
+                      <p className="font-paragraph text-foreground text-sm">
+                        Accede al panel de administración para gestionar usuarios y verificaciones.
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/admin/dashboard')}
+                        className="w-full px-6 py-3 bg-primary text-white font-heading font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                      >
+                        <Shield size={18} />
+                        Ir al Panel Admin
                       </motion.button>
                     </div>
                   )}
