@@ -1,0 +1,155 @@
+import { currentMember } from 'wix-members-backend';
+import { query, insert, update, get } from 'wix-data';
+
+const USERPROFILES_COLLECTION = 'userprofiles';
+
+/**
+ * Get or create user profile for the current logged-in member
+ * Ensures every member has a profile record
+ */
+export async function getOrCreateUserProfile() {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const memberId = member._id;
+
+    // Try to find existing profile
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
+
+    if (results.items.length > 0) {
+      return results.items[0];
+    }
+
+    // Create new profile if doesn't exist
+    const newProfile = {
+      _id: `profile_${memberId}_${Date.now()}`,
+      memberId: memberId,
+      firstName: member.contact?.firstName || '',
+      lastName: member.contact?.lastName || '',
+      profilePhoto: member.profile?.photo?.url || '',
+      bio: '',
+      updatedAt: new Date().toISOString(),
+    };
+
+    const inserted = await insert(USERPROFILES_COLLECTION, newProfile);
+    return inserted;
+  } catch (error) {
+    console.error('Error in getOrCreateUserProfile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get current user's profile
+ * Only returns the profile of the logged-in user
+ */
+export async function getMyProfile() {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const memberId = member._id;
+
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
+
+    if (results.items.length === 0) {
+      throw new Error('NOT_FOUND');
+    }
+
+    return results.items[0];
+  } catch (error) {
+    console.error('Error in getMyProfile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update current user's profile
+ * Only the profile owner can update their own profile
+ */
+export async function updateMyProfile(profileData) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const memberId = member._id;
+
+    // Get current profile to verify ownership
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
+
+    if (results.items.length === 0) {
+      throw new Error('NOT_FOUND');
+    }
+
+    const currentProfile = results.items[0];
+
+    // Update only allowed fields
+    const updatedProfile = {
+      _id: currentProfile._id,
+      firstName: profileData.firstName !== undefined ? profileData.firstName : currentProfile.firstName,
+      lastName: profileData.lastName !== undefined ? profileData.lastName : currentProfile.lastName,
+      bio: profileData.bio !== undefined ? profileData.bio : currentProfile.bio,
+      profilePhoto: profileData.profilePhoto !== undefined ? profileData.profilePhoto : currentProfile.profilePhoto,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await update(USERPROFILES_COLLECTION, updatedProfile);
+    return updatedProfile;
+  } catch (error) {
+    console.error('Error in updateMyProfile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get another user's public profile (read-only)
+ * Only returns non-sensitive profile information
+ */
+export async function getPublicProfile(targetMemberId) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', targetMemberId)
+      .find();
+
+    if (results.items.length === 0) {
+      throw new Error('NOT_FOUND');
+    }
+
+    const profile = results.items[0];
+
+    // Return only public fields
+    return {
+      _id: profile._id,
+      memberId: profile.memberId,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      profilePhoto: profile.profilePhoto,
+      bio: profile.bio,
+    };
+  } catch (error) {
+    console.error('Error in getPublicProfile:', error);
+    throw error;
+  }
+}

@@ -15,6 +15,7 @@ import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib
 import { useSyncUser } from '@/lib/user-sync-hook';
 import { WixMediaService } from '@/lib/wix-media-service';
 import { PortfolioUploaderBasic } from '@/components/PortfolioUploaderBasic';
+import { initializeUserProfile, fetchMyProfile, updateUserProfile } from '@/lib/multi-tenant-profiles-service';
 
 type TabType = 'posts' | 'about' | 'settings';
 
@@ -64,6 +65,13 @@ function ProfilePage() {
   });
 
   useSyncUser();
+
+  // Initialize multi-tenant profile on component mount
+  useEffect(() => {
+    initializeUserProfile().catch(error => {
+      console.error('Failed to initialize multi-tenant profile:', error);
+    });
+  }, []);
 
   const getBackButtonPath = () => {
     if (userRole === 'client') return '/client/dashboard';

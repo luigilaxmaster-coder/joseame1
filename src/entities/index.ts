@@ -81,6 +81,29 @@ export interface CompletionAttempts {
 
 
 /**
+ * Collection ID: conversations
+ * Interface for Conversations
+ */
+export interface Conversations {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  participants?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType datetime */
+  lastMessageAt?: Date | string;
+  /** @wixFieldType text */
+  lastMessageText?: string;
+  /** @wixFieldType text */
+  createdBy?: string;
+  /** @wixFieldType text */
+  title?: string;
+}
+
+
+/**
  * Collection ID: jobapplications
  * Interface for JobApplications
  */
@@ -265,7 +288,15 @@ export interface Messages {
   _createdDate?: Date;
   _updatedDate?: Date;
   /** @wixFieldType text */
+  receiverId?: string;
+  /** @wixFieldType boolean */
+  isDeleted?: boolean;
+  /** @wixFieldType text */
+  attachments?: string;
+  /** @wixFieldType text */
   chatId?: string;
+  /** @wixFieldType text */
+  conversationId?: string;
   /** @wixFieldType text */
   senderId?: string;
   /** @wixFieldType text */
@@ -276,6 +307,31 @@ export interface Messages {
   createdAt?: Date | string;
   /** @wixFieldType multi_reference */
   renegotiationoffers?: RenegotiationOffers[];
+}
+
+
+/**
+ * Collection ID: messages-1
+ * Interface for Messages
+ */
+export interface Messages {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  conversationId?: string;
+  /** @wixFieldType text */
+  senderId?: string;
+  /** @wixFieldType text */
+  receiverId?: string;
+  /** @wixFieldType text */
+  text?: string;
+  /** @wixFieldType text */
+  attachments?: string;
+  /** @wixFieldType datetime */
+  createdAt?: Date | string;
+  /** @wixFieldType boolean */
+  isDeleted?: boolean;
 }
 
 
@@ -708,6 +764,8 @@ export interface UserProfiles {
   _createdDate?: Date;
   _updatedDate?: Date;
   /** @wixFieldType text */
+  bio?: string;
+  /** @wixFieldType text */
   memberId?: string;
   /** @wixFieldType url */
   profilePhoto?: string;
@@ -717,6 +775,29 @@ export interface UserProfiles {
   firstName?: string;
   /** @wixFieldType text */
   lastName?: string;
+}
+
+
+/**
+ * Collection ID: userprofiles-1
+ * Interface for UserProfiles
+ */
+export interface UserProfiles {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  memberId?: string;
+  /** @wixFieldType text */
+  firstName?: string;
+  /** @wixFieldType text */
+  lastName?: string;
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
+  profilePhoto?: string;
+  /** @wixFieldType text */
+  bio?: string;
+  /** @wixFieldType datetime */
+  updatedAt?: Date | string;
 }
 
 

@@ -1,0 +1,288 @@
+import { currentMember } from 'wix-members-backend';
+import { query, insert, update, get } from 'wix-data';
+
+const CONVERSATIONS_COLLECTION = 'conversations';
+const MESSAGES_COLLECTION = 'messages-1';
+
+/**
+ * Create or get existing 1:1 conversation between two members
+ * Validates that the user is not creating a conversation with themselves
+ */
+export async function createConversation(otherMemberId) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    // Prevent self-conversation
+    if (currentMemberId === otherMemberId) {
+      throw new Error('INVALID_OPERATION: Cannot create conversation with yourself');
+    }
+
+    // Check if conversation already exists
+    const existingConversations = await query(CONVERSATIONS_COLLECTION)
+      .find();
+
+    const existing = existingConversations.items.find(conv => {
+      const participants = conv.participants.split(',').map(p => p.trim());
+      return (
+        (participants.includes(currentMemberId) && participants.includes(otherMemberId))
+      );
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    // Create new conversation
+    const newConversation = {
+      _id: `conv_${currentMemberId}_${otherMemberId}_${Date.now()}`,
+      participants: `${currentMemberId},${otherMemberId}`,
+      createdAt: new Date().toISOString(),
+      lastMessageAt: null,
+      lastMessageText: '',
+      createdBy: currentMemberId,
+      title: '',
+    };
+
+    const inserted = await insert(CONVERSATIONS_COLLECTION, newConversation);
+    return inserted;
+  } catch (error) {
+    console.error('Error in createConversation:', error);
+    throw error;
+  }
+}
+
+/**
+ * List all conversations for the current user
+ * Only returns conversations where the user is a participant
+ */
+export async function listMyConversations(limit = 50, cursor = null) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    // Get all conversations and filter by participant
+    const allConversations = await query(CONVERSATIONS_COLLECTION)
+      .find();
+
+    const myConversations = allConversations.items.filter(conv => {
+      const participants = conv.participants.split(',').map(p => p.trim());
+      return participants.includes(currentMemberId);
+    });
+
+    // Sort by lastMessageAt (most recent first)
+    myConversations.sort((a, b) => {
+      const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+      const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+      return timeB - timeA;
+    });
+
+    // Apply pagination
+    const startIndex = cursor ? parseInt(cursor) : 0;
+    const paginatedConversations = myConversations.slice(startIndex, startIndex + limit);
+    const hasMore = startIndex + limit < myConversations.length;
+
+    return {
+      items: paginatedConversations,
+      hasMore: hasMore,
+      nextCursor: hasMore ? (startIndex + limit).toString() : null,
+      totalCount: myConversations.length,
+    };
+  } catch (error) {
+    console.error('Error in listMyConversations:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send a message in a conversation
+ * Validates that the user is a participant in the conversation
+ */
+export async function sendMessage(conversationId, text, attachments = []) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    // Verify conversation exists and user is participant
+    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+
+    if (!conversation) {
+      throw new Error('NOT_FOUND');
+    }
+
+    const participants = conversation.participants.split(',').map(p => p.trim());
+    if (!participants.includes(currentMemberId)) {
+      throw new Error('FORBIDDEN: You are not a participant in this conversation');
+    }
+
+    // Create message
+    const newMessage = {
+      _id: `msg_${conversationId}_${currentMemberId}_${Date.now()}`,
+      conversationId: conversationId,
+      senderId: currentMemberId,
+      receiverId: participants.find(p => p !== currentMemberId) || '',
+      text: text,
+      attachments: JSON.stringify(attachments),
+      createdAt: new Date().toISOString(),
+      isDeleted: false,
+    };
+
+    const inserted = await insert(MESSAGES_COLLECTION, newMessage);
+
+    // Update conversation's last message info
+    await update(CONVERSATIONS_COLLECTION, {
+      _id: conversationId,
+      lastMessageAt: new Date().toISOString(),
+      lastMessageText: text.substring(0, 100),
+    });
+
+    return inserted;
+  } catch (error) {
+    console.error('Error in sendMessage:', error);
+    throw error;
+  }
+}
+
+/**
+ * List messages in a conversation
+ * Validates that the user is a participant before returning messages
+ */
+export async function listMessages(conversationId, limit = 50, cursor = null) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    // Verify conversation exists and user is participant
+    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+
+    if (!conversation) {
+      throw new Error('NOT_FOUND');
+    }
+
+    const participants = conversation.participants.split(',').map(p => p.trim());
+    if (!participants.includes(currentMemberId)) {
+      throw new Error('FORBIDDEN: You are not a participant in this conversation');
+    }
+
+    // Get all messages for this conversation (excluding deleted ones)
+    const allMessages = await query(MESSAGES_COLLECTION)
+      .eq('conversationId', conversationId)
+      .eq('isDeleted', false)
+      .find();
+
+    // Sort by createdAt (oldest first)
+    allMessages.items.sort((a, b) => {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    // Apply pagination
+    const startIndex = cursor ? parseInt(cursor) : 0;
+    const paginatedMessages = allMessages.items.slice(startIndex, startIndex + limit);
+    const hasMore = startIndex + limit < allMessages.items.length;
+
+    // Parse attachments back to objects
+    const messagesWithParsedAttachments = paginatedMessages.map(msg => ({
+      ...msg,
+      attachments: msg.attachments ? JSON.parse(msg.attachments) : [],
+    }));
+
+    return {
+      items: messagesWithParsedAttachments,
+      hasMore: hasMore,
+      nextCursor: hasMore ? (startIndex + limit).toString() : null,
+      totalCount: allMessages.items.length,
+    };
+  } catch (error) {
+    console.error('Error in listMessages:', error);
+    throw error;
+  }
+}
+
+/**
+ * Soft-delete a message (only the sender can delete their own messages)
+ */
+export async function deleteMessage(messageId) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    // Get the message
+    const message = await get(MESSAGES_COLLECTION, messageId);
+
+    if (!message) {
+      throw new Error('NOT_FOUND');
+    }
+
+    // Only the sender can delete their own message
+    if (message.senderId !== currentMemberId) {
+      throw new Error('FORBIDDEN: You can only delete your own messages');
+    }
+
+    // Soft delete
+    await update(MESSAGES_COLLECTION, {
+      _id: messageId,
+      isDeleted: true,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteMessage:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get a specific conversation (with validation)
+ */
+export async function getConversation(conversationId) {
+  try {
+    const member = await currentMember.getMember();
+    
+    if (!member) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+
+    const currentMemberId = member._id;
+
+    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+
+    if (!conversation) {
+      throw new Error('NOT_FOUND');
+    }
+
+    const participants = conversation.participants.split(',').map(p => p.trim());
+    if (!participants.includes(currentMemberId)) {
+      throw new Error('FORBIDDEN: You are not a participant in this conversation');
+    }
+
+    return conversation;
+  } catch (error) {
+    console.error('Error in getConversation:', error);
+    throw error;
+  }
+}
