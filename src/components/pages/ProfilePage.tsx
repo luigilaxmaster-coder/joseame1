@@ -685,6 +685,44 @@ function ProfilePage() {
                     )}
                   </div>
 
+                  {/* Verification Status Section */}
+                  {userRole === 'joseador' && (
+                    <div className="space-y-4 pt-6 border-t border-border">
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Estado de Verificación</h3>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
+                          verificationStatus === 'Aprobado'
+                            ? 'bg-accent/10 border-accent'
+                            : verificationStatus === 'Rechazado'
+                            ? 'bg-destructive/10 border-destructive'
+                            : 'bg-secondary/10 border-secondary'
+                        }`}
+                      >
+                        {verificationStatus === 'Aprobado' ? (
+                          <CheckCircle size={24} className="text-accent flex-shrink-0" />
+                        ) : verificationStatus === 'Rechazado' ? (
+                          <AlertCircle size={24} className="text-destructive flex-shrink-0" />
+                        ) : (
+                          <Clock size={24} className="text-secondary flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className="font-heading font-bold text-foreground text-sm">Estado Actual</p>
+                          <p className={`font-paragraph text-sm font-semibold ${
+                            verificationStatus === 'Aprobado'
+                              ? 'text-accent'
+                              : verificationStatus === 'Rechazado'
+                              ? 'text-destructive'
+                              : 'text-secondary'
+                          }`}>
+                            {verificationStatus === 'Aprobado' ? '✓ Verificado' : verificationStatus === 'Rechazado' ? '✗ Rechazado' : '⏳ Pendiente'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+
                   {/* Professional Info */}
                   {userRole === 'joseador' && joseadorProfile && (
                     <div className="space-y-4 pt-6 border-t border-border">
