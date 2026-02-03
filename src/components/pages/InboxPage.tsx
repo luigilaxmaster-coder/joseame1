@@ -8,7 +8,8 @@ import { RenegotiationOffers, Messages } from '@/entities';
 import { 
   ArrowLeft, MessageSquare, Send, User, DollarSign, CheckCircle, X, AlertCircle, Clock, 
   Info, Briefcase, Star, Zap, Phone, Mail, TrendingUp, Shield, Heart, MessageCircle, 
-  Calendar, MapPin, Sparkles, ChevronLeft
+  Calendar, MapPin, Sparkles, ChevronLeft, Search, Filter, MoreVertical, Smile, Paperclip,
+  ThumbsUp, Eye, EyeOff, Bell, Settings, Archive, Trash2, Pin
 } from 'lucide-react';
 import {
   Dialog,
@@ -88,6 +89,9 @@ function InboxContent() {
   const [completionBarData, setCompletionBarData] = useState<any>(null);
   const [showRejectionBar, setShowRejectionBar] = useState(false);
   const [rejectionBarData, setRejectionBarData] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'pending' | 'completed'>('all');
+  const [pinnedChats, setPinnedChats] = useState<string[]>([]);
 
   useEffect(() => {
     loadChats();
@@ -189,9 +193,8 @@ function InboxContent() {
     if (!newPrice || !selectedChatData) return;
 
     const proposedPriceNum = parseFloat(newPrice);
-    const currentPrice = 500; // Mock current price
+    const currentPrice = 500;
 
-    // Validations
     if (proposedPriceNum < 1 || proposedPriceNum > 1000000) {
       alert('El monto debe estar entre $1 y $1,000,000');
       return;
@@ -203,11 +206,10 @@ function InboxContent() {
     }
 
     try {
-      // Create renegotiation offer
       const offerId = crypto.randomUUID();
       const renegotiationOffer: RenegotiationOffers = {
         _id: offerId,
-        jobId: 'job-1', // Mock job ID
+        jobId: 'job-1',
         offeringUserId: member?.profile?.nickname || 'user-1',
         receivingUserId: selectedChatData.otherUserId,
         currentPrice: currentPrice,
@@ -219,7 +221,6 @@ function InboxContent() {
 
       await BaseCrudService.create('renegotiationoffers', renegotiationOffer);
 
-      // Create message with renegotiation offer
       const messageId = crypto.randomUUID();
       const renegotiationMessage: Messages = {
         _id: messageId,
@@ -237,7 +238,6 @@ function InboxContent() {
 
       await BaseCrudService.create('messages', renegotiationMessage);
 
-      // Reset form
       setNewPrice('');
       const textarea = document.querySelector('textarea');
       if (textarea) textarea.value = '';
@@ -290,55 +290,59 @@ function InboxContent() {
   const renderMessage = (msg: Message) => {
     const isMyMessage = msg.sender === 'me';
     
-    if (userRole === 'joseador') {
-      return (
-        <motion.div
-          key={msg.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
-        >
+    return (
+      <motion.div
+        key={msg.id}
+        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.2 }}
+        className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'} group`}
+      >
+        <div className="relative">
           <div
-            className={`max-w-[65%] rounded-3xl px-5 py-3 backdrop-blur-sm ${ 
+            className={`max-w-xs md:max-w-md lg:max-w-lg rounded-2xl px-4 py-3 backdrop-blur-sm transition-all ${ 
               isMyMessage
-                ? 'bg-gradient-to-r from-secondary to-accent text-white shadow-lg'
-                : 'bg-white/80 text-foreground border border-secondary/20'
+                ? 'bg-gradient-to-br from-secondary to-accent text-white shadow-lg hover:shadow-xl'
+                : 'bg-white/90 text-foreground border border-border/50 hover:border-border'
             }`}
           >
-            <p className="font-paragraph text-sm">{msg.text}</p>
-            <p className={`font-paragraph text-xs mt-2 ${ 
-              isMyMessage ? 'text-white/70' : 'text-muted-text'
-            }`}>
-              {msg.time}
-            </p>
+            <p className="font-paragraph text-sm leading-relaxed break-words">{msg.text}</p>
+            <div className="flex items-center justify-between gap-2 mt-1.5">
+              <p className={`font-paragraph text-xs ${ 
+                isMyMessage ? 'text-white/60' : 'text-muted-text'
+              }`}>
+                {msg.time}
+              </p>
+              {isMyMessage && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`text-xs ${isMyMessage ? 'text-white/60' : 'text-muted-text'}`}
+                >
+                  ✓
+                </motion.div>
+              )}
+            </div>
           </div>
-        </motion.div>
-      );
-    } else {
-      return (
-        <motion.div
-          key={msg.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
-        >
-          <div
-            className={`max-w-[65%] rounded-3xl px-5 py-3 backdrop-blur-sm ${ 
-              isMyMessage
-                ? 'bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg'
-                : 'bg-white/80 text-foreground border border-primary/20'
-            }`}
+          
+          <motion.div
+            initial={{ opacity: 0, x: isMyMessage ? 10 : -10 }}
+            whileHover={{ opacity: 1, x: isMyMessage ? 20 : -20 }}
+            className={`absolute top-0 ${isMyMessage ? '-right-12' : '-left-12'} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}
           >
-            <p className="font-paragraph text-sm">{msg.text}</p>
-            <p className={`font-paragraph text-xs mt-2 ${ 
-              isMyMessage ? 'text-white/70' : 'text-muted-text'
-            }`}>
-              {msg.time}
-            </p>
-          </div>
-        </motion.div>
-      );
-    }
+            <motion.button
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-1.5 rounded-lg bg-white/80 hover:bg-white shadow-md text-muted-text hover:text-secondary transition-colors"
+              title="Reaccionar"
+            >
+              <Smile size={14} />
+            </motion.button>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
   };
 
   const containerVariants = {
@@ -363,14 +367,12 @@ function InboxContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#f0fbf8] to-background relative overflow-hidden">
-      {/* Animated background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-support/10 rounded-full blur-3xl -z-10" />
 
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-[120rem] mx-auto px-6 py-4">
+        <div className="max-w-[120rem] mx-auto px-4 sm:px-6 py-4">
           <Link to={getBackLink()} className="inline-flex items-center gap-2 text-muted-text hover:text-secondary transition-colors font-paragraph font-semibold group">
             <motion.div
               whileHover={{ x: -4 }}
@@ -383,39 +385,78 @@ function InboxContent() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 relative z-10">
+      <div className="max-w-[120rem] mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="h-[calc(100vh-180px)]"
         >
-          {/* Title with Icon - Responsive */}
-          <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
-              <MessageSquare className="text-white" size={20} />
+          <div className="flex items-center justify-between gap-2 md:gap-3 mb-4 md:mb-6">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+              <motion.div 
+                whileHover={{ rotate: 10, scale: 1.1 }}
+                className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg"
+              >
+                <MessageSquare className="text-white" size={20} />
+              </motion.div>
+              <h1 className="font-heading text-xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent truncate">
+                Mis Mensajes
+              </h1>
             </div>
-            <h1 className="font-heading text-2xl md:text-5xl font-bold bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent">
-              Mis Mensajes
-            </h1>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 md:p-3 rounded-xl hover:bg-white/50 transition-colors text-secondary flex-shrink-0"
+              title="Configuración"
+            >
+              <Settings size={20} />
+            </motion.button>
           </div>
 
-          {/* Desktop Layout */}
           <div className="hidden md:flex gap-6 h-[calc(100vh-280px)]">
-            {/* Chat List - 25-30% */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               className="w-[28%] bg-white/80 backdrop-blur-sm rounded-3xl border border-border/50 shadow-lg overflow-hidden flex flex-col"
             >
-              <div className="p-4 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
+              <div className="p-4 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5 space-y-3">
                 <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
                   <MessageCircle size={18} className="text-secondary" />
                   Conversaciones
                 </h2>
+                
+                <div className="relative">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-text" />
+                  <input
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 border border-border/50 rounded-lg font-paragraph text-xs focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white/80 transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  {(['all', 'active', 'pending', 'completed'] as const).map((status) => (
+                    <motion.button
+                      key={status}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setFilterStatus(status)}
+                      className={`px-3 py-1.5 rounded-lg font-paragraph text-xs font-semibold whitespace-nowrap transition-all ${
+                        filterStatus === status
+                          ? 'bg-gradient-to-r from-secondary to-accent text-white shadow-md'
+                          : 'bg-white/50 text-foreground hover:bg-white/80 border border-border/30'
+                      }`}
+                    >
+                      {status === 'all' ? 'Todos' : status === 'active' ? 'Activos' : status === 'pending' ? 'Pendientes' : 'Completados'}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
+
               <div className="overflow-y-auto flex-1">
                 {loading ? (
                   <div className="p-8 text-center">
@@ -424,7 +465,7 @@ function InboxContent() {
                       transition={{ duration: 2, repeat: Infinity }}
                       className="w-8 h-8 rounded-full border-2 border-secondary border-t-transparent mx-auto mb-4"
                     />
-                    <p className="font-paragraph text-sm text-muted-text">Cargando conversaciones...</p>
+                    <p className="font-paragraph text-sm text-muted-text">Cargando...</p>
                   </div>
                 ) : chats.length === 0 ? (
                   <div className="p-8 text-center">
@@ -437,71 +478,97 @@ function InboxContent() {
                     initial="hidden"
                     animate="visible"
                   >
-                    {chats.map((chat) => (
-                      <motion.div
-                        key={chat.id}
-                        variants={itemVariants}
-                        whileHover={{ backgroundColor: selectedChat === chat.id ? undefined : 'rgba(0,0,0,0.02)' }}
-                        onClick={() => setSelectedChat(chat.id)}
-                        className={`p-3 border-b border-border/30 cursor-pointer transition-all relative group ${ 
-                          selectedChat === chat.id 
-                            ? 'bg-gradient-to-r from-secondary/10 to-accent/10 border-l-4 border-l-secondary' 
-                            : 'hover:bg-white/50'
-                        }`}
-                      >
-                        {/* Status indicator */}
-                        <div className="absolute top-2 right-2">
-                          <motion.div
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className={`w-2.5 h-2.5 rounded-full bg-gradient-to-r ${getStatusColor(chat.status)}`}
-                          />
-                        </div>
-
-                        <div className="flex items-start gap-2">
-                          <motion.div
-                            whileHover={{ scale: 1.1 }}
-                            className={`w-10 h-10 rounded-full bg-gradient-to-br ${getStatusColor(chat.status)} flex items-center justify-center flex-shrink-0 shadow-md`}
-                          >
-                            <User size={18} className="text-white" />
-                          </motion.div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-0.5">
-                              <h3 className="font-heading font-semibold text-foreground text-xs truncate">
-                                {chat.name}
-                              </h3>
-                              <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-1">
-                                {chat.time}
-                              </span>
-                            </div>
-                            <p className="font-paragraph text-xs text-secondary font-medium mb-0.5 truncate flex items-center gap-0.5">
-                              {getStatusIcon(chat.status)}
-                              {chat.jobTitle}
-                            </p>
-                            <p className="font-paragraph text-xs text-muted-text truncate">
-                              {chat.lastMessage}
-                            </p>
-                          </div>
-                          {chat.unread > 0 && (
+                    {chats
+                      .filter(chat => {
+                        const matchesSearch = chat.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                            chat.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
+                        const matchesFilter = filterStatus === 'all' || chat.status === filterStatus;
+                        return matchesSearch && matchesFilter;
+                      })
+                      .sort((a, b) => {
+                        if (pinnedChats.includes(a.id) && !pinnedChats.includes(b.id)) return -1;
+                        if (!pinnedChats.includes(a.id) && pinnedChats.includes(b.id)) return 1;
+                        return 0;
+                      })
+                      .map((chat) => (
+                        <motion.div
+                          key={chat.id}
+                          variants={itemVariants}
+                          whileHover={{ backgroundColor: selectedChat === chat.id ? undefined : 'rgba(0,0,0,0.02)' }}
+                          onClick={() => setSelectedChat(chat.id)}
+                          className={`p-3 border-b border-border/30 cursor-pointer transition-all relative group ${ 
+                            selectedChat === chat.id 
+                              ? 'bg-gradient-to-r from-secondary/10 to-accent/10 border-l-4 border-l-secondary' 
+                              : 'hover:bg-white/50'
+                          }`}
+                        >
+                          <div className="absolute top-2 right-2">
                             <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="w-5 h-5 rounded-full bg-gradient-to-r from-accent to-support flex items-center justify-center flex-shrink-0 shadow-md"
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className={`w-2.5 h-2.5 rounded-full bg-gradient-to-r ${getStatusColor(chat.status)}`}
+                            />
+                          </div>
+
+                          <motion.button
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPinnedChats(prev => 
+                                prev.includes(chat.id) 
+                                  ? prev.filter(id => id !== chat.id)
+                                  : [chat.id, ...prev]
+                              );
+                            }}
+                            className="absolute top-2 right-8 p-1 rounded-lg hover:bg-secondary/10 transition-colors text-secondary opacity-0 group-hover:opacity-100"
+                          >
+                            <Pin size={14} fill={pinnedChats.includes(chat.id) ? 'currentColor' : 'none'} />
+                          </motion.button>
+
+                          <div className="flex items-start gap-2">
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              className={`w-10 h-10 rounded-full bg-gradient-to-br ${getStatusColor(chat.status)} flex items-center justify-center flex-shrink-0 shadow-md`}
                             >
-                              <span className="font-paragraph text-xs text-white font-bold">
-                                {chat.unread}
-                              </span>
+                              <User size={18} className="text-white" />
                             </motion.div>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-0.5">
+                                <h3 className="font-heading font-semibold text-foreground text-xs truncate">
+                                  {chat.name}
+                                </h3>
+                                <span className="font-paragraph text-xs text-muted-text flex-shrink-0 ml-1">
+                                  {chat.time}
+                                </span>
+                              </div>
+                              <p className="font-paragraph text-xs text-secondary font-medium mb-0.5 truncate flex items-center gap-0.5">
+                                {getStatusIcon(chat.status)}
+                                {chat.jobTitle}
+                              </p>
+                              <p className="font-paragraph text-xs text-muted-text truncate">
+                                {chat.lastMessage}
+                              </p>
+                            </div>
+                            {chat.unread > 0 && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="w-5 h-5 rounded-full bg-gradient-to-r from-accent to-support flex items-center justify-center flex-shrink-0 shadow-md"
+                              >
+                                <span className="font-paragraph text-xs text-white font-bold">
+                                  {chat.unread}
+                                </span>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
                   </motion.div>
                 )}
               </div>
             </motion.div>
 
-            {/* Chat Window - 70-75% */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -510,7 +577,6 @@ function InboxContent() {
             >
               {selectedChat && selectedChatData ? (
                 <>
-                  {/* Chat Header */}
                   <div className="p-4 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -535,18 +601,17 @@ function InboxContent() {
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleShowUserInfo(selectedChatData)}
                         className="p-2 rounded-2xl hover:bg-secondary/10 transition-colors text-secondary hover:text-secondary/80"
-                        title="Ver información del usuario"
+                        title="Ver información"
                       >
                         <Info size={18} />
                       </motion.button>
                     </div>
                   </div>
 
-                  {/* Action Buttons Bar - Sticky */}
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="px-4 py-3 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1.5 overflow-x-auto"
+                    className="px-4 py-3 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1.5 overflow-x-auto flex-wrap"
                   >
                     {userRole === 'joseador' ? (
                       <>
@@ -555,7 +620,7 @@ function InboxContent() {
                             <motion.button
                               whileHover={{ scale: 1.05, y: -2 }}
                               whileTap={{ scale: 0.95 }}
-                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                              className="flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-secondary to-accent text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                             >
                               <DollarSign size={14} />
                               <span className="hidden sm:inline">Renegociar</span>
@@ -563,7 +628,6 @@ function InboxContent() {
                           </PopoverTrigger>
                           <PopoverContent className="w-80 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
                             <div className="p-4 space-y-3">
-                              {/* Header */}
                               <div className="flex items-center justify-between">
                                 <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
                                   <DollarSign size={16} className="text-secondary" />
@@ -571,13 +635,10 @@ function InboxContent() {
                                 </h3>
                               </div>
 
-                              {/* Price Comparison */}
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="p-2.5 rounded-lg border-2 bg-secondary/5 border-secondary/20">
                                   <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                                  <p className="font-heading font-bold text-base text-secondary">
-                                    $500
-                                  </p>
+                                  <p className="font-heading font-bold text-base text-secondary">$500</p>
                                 </div>
                                 <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
                                   <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
@@ -587,17 +648,13 @@ function InboxContent() {
                                 </div>
                               </div>
 
-                              {/* Input and Submit */}
                               <div className="space-y-2.5">
-                                {/* Price Input */}
                                 <div>
                                   <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
                                     Nuevo monto
                                   </label>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-secondary">
-                                      $
-                                    </span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-secondary">$</span>
                                     <input
                                       type="number"
                                       value={newPrice}
@@ -610,7 +667,6 @@ function InboxContent() {
                                   </div>
                                 </div>
 
-                                {/* Optional Message */}
                                 <div>
                                   <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
                                     Nota (opcional)
@@ -622,7 +678,6 @@ function InboxContent() {
                                   />
                                 </div>
 
-                                {/* Action Buttons */}
                                 <div className="flex gap-2 pt-1">
                                   <motion.button
                                     whileHover={{ scale: 1.02 }}
@@ -652,7 +707,7 @@ function InboxContent() {
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setShowReportModal(true)}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-secondary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
+                          className="flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-secondary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
                         >
                           <AlertCircle size={14} />
                           <span className="hidden sm:inline">Reportar</span>
@@ -665,7 +720,7 @@ function InboxContent() {
                             setRejectContext('GENERAL');
                             setShowRejectModal(true);
                           }}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          className="flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
                           <X size={14} />
                           <span className="hidden sm:inline">Rechazar</span>
@@ -678,7 +733,7 @@ function InboxContent() {
                             <motion.button
                               whileHover={{ scale: 1.05, y: -2 }}
                               whileTap={{ scale: 0.95 }}
-                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                              className="flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-primary/30 rounded-xl font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
                             >
                               <DollarSign size={14} />
                               <span className="hidden sm:inline">Renegociar</span>
@@ -686,7 +741,6 @@ function InboxContent() {
                           </PopoverTrigger>
                           <PopoverContent className="w-80 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
                             <div className="p-4 space-y-3">
-                              {/* Header */}
                               <div className="flex items-center justify-between">
                                 <h3 className="font-heading font-bold text-foreground text-sm flex items-center gap-2">
                                   <DollarSign size={16} className="text-primary" />
@@ -694,13 +748,10 @@ function InboxContent() {
                                 </h3>
                               </div>
 
-                              {/* Price Comparison */}
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="p-2.5 rounded-lg border-2 bg-primary/5 border-primary/20">
                                   <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                                  <p className="font-heading font-bold text-base text-primary">
-                                    $500
-                                  </p>
+                                  <p className="font-heading font-bold text-base text-primary">$500</p>
                                 </div>
                                 <div className="p-2.5 rounded-lg border-2 border-border/30 bg-white/50">
                                   <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
@@ -710,17 +761,13 @@ function InboxContent() {
                                 </div>
                               </div>
 
-                              {/* Input and Submit */}
                               <div className="space-y-2.5">
-                                {/* Price Input */}
                                 <div>
                                   <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
                                     Nuevo monto
                                   </label>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-primary">
-                                      $
-                                    </span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-paragraph font-bold text-base text-primary">$</span>
                                     <input
                                       type="number"
                                       value={newPrice}
@@ -733,7 +780,6 @@ function InboxContent() {
                                   </div>
                                 </div>
 
-                                {/* Optional Message */}
                                 <div>
                                   <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1.5">
                                     Nota (opcional)
@@ -745,7 +791,6 @@ function InboxContent() {
                                   />
                                 </div>
 
-                                {/* Action Buttons */}
                                 <div className="flex gap-2 pt-1">
                                   <motion.button
                                     whileHover={{ scale: 1.02 }}
@@ -778,7 +823,7 @@ function InboxContent() {
                             setJobOrderId('job-' + selectedChat);
                             setShowCompleteModal(true);
                           }}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                          className="flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                         >
                           <CheckCircle size={14} />
                           <span className="hidden sm:inline">Completado</span>
@@ -791,7 +836,7 @@ function InboxContent() {
                             setRejectContext('GENERAL');
                             setShowRejectModal(true);
                           }}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                          className="flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-destructive/30 rounded-xl font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                         >
                           <X size={14} />
                           <span className="hidden sm:inline">Cancelar</span>
@@ -800,12 +845,10 @@ function InboxContent() {
                     )}
                   </motion.div>
 
-                  {/* Messages Area */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white/50 to-white/30">
                     {messages.map((msg) => renderMessage(msg))}
                   </div>
 
-                  {/* Pending Request Banner - Sticky */}
                   <AnimatePresence>
                     {pendingRequest && (
                       <motion.div
@@ -854,7 +897,6 @@ function InboxContent() {
                     )}
                   </AnimatePresence>
 
-                  {/* Message Input */}
                   <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 bg-white/50 backdrop-blur-sm">
                     <div className="flex gap-2">
                       <input
@@ -890,7 +932,7 @@ function InboxContent() {
                       <MessageSquare size={40} className="text-secondary/50" />
                     </motion.div>
                     <p className="font-paragraph text-lg text-muted-text font-medium">
-                      Selecciona una conversación para empezar
+                      Selecciona una conversación
                     </p>
                   </motion.div>
                 </div>
@@ -898,10 +940,8 @@ function InboxContent() {
             </motion.div>
           </div>
 
-          {/* Mobile Layout */}
           <div className="md:hidden flex flex-col h-[calc(100vh-200px)]">
             {showChatList ? (
-              // Chat List View
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -999,7 +1039,6 @@ function InboxContent() {
                 </div>
               </motion.div>
             ) : (
-              // Chat Window View
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -1008,7 +1047,6 @@ function InboxContent() {
               >
                 {selectedChat && selectedChatData ? (
                   <>
-                    {/* Chat Header */}
                     <div className="p-3 border-b border-border/50 bg-gradient-to-r from-secondary/5 to-accent/5">
                       <div className="flex items-center justify-between gap-2">
                         <motion.button
@@ -1016,7 +1054,7 @@ function InboxContent() {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setShowChatList(true)}
                           className="p-1.5 rounded-lg hover:bg-secondary/10 transition-colors text-secondary"
-                          title="Volver a conversaciones"
+                          title="Volver"
                         >
                           <ChevronLeft size={20} />
                         </motion.button>
@@ -1034,18 +1072,17 @@ function InboxContent() {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleShowUserInfo(selectedChatData)}
                           className="p-1.5 rounded-lg hover:bg-secondary/10 transition-colors text-secondary"
-                          title="Ver información del usuario"
+                          title="Ver información"
                         >
                           <Info size={18} />
                         </motion.button>
                       </div>
                     </div>
 
-                    {/* Action Buttons Bar - Sticky */}
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="px-3 py-2 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1 overflow-x-auto"
+                      className="px-3 py-2 bg-gradient-to-r from-secondary/5 to-accent/5 border-b border-border/50 flex gap-1 overflow-x-auto flex-wrap"
                     >
                       {userRole === 'joseador' ? (
                         <>
@@ -1054,7 +1091,7 @@ function InboxContent() {
                               <motion.button
                                 whileHover={{ scale: 1.05, y: -2 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                                className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-secondary to-accent text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                               >
                                 <DollarSign size={12} />
                                 <span className="hidden xs:inline">Renegociar</span>
@@ -1062,7 +1099,6 @@ function InboxContent() {
                             </PopoverTrigger>
                             <PopoverContent className="w-72 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
                               <div className="p-3 space-y-2.5">
-                                {/* Header */}
                                 <div className="flex items-center justify-between">
                                   <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
                                     <DollarSign size={14} className="text-secondary" />
@@ -1070,13 +1106,10 @@ function InboxContent() {
                                   </h3>
                                 </div>
 
-                                {/* Price Comparison */}
                                 <div className="grid grid-cols-2 gap-1.5">
                                   <div className="p-2 rounded-lg border-2 bg-secondary/5 border-secondary/20">
                                     <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                                    <p className="font-heading font-bold text-sm text-secondary">
-                                      $500
-                                    </p>
+                                    <p className="font-heading font-bold text-sm text-secondary">$500</p>
                                   </div>
                                   <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
                                     <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
@@ -1086,17 +1119,13 @@ function InboxContent() {
                                   </div>
                                 </div>
 
-                                {/* Input and Submit */}
                                 <div className="space-y-2">
-                                  {/* Price Input */}
                                   <div>
                                     <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
                                       Nuevo monto
                                     </label>
                                     <div className="relative">
-                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-secondary">
-                                        $
-                                      </span>
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-secondary">$</span>
                                       <input
                                         type="number"
                                         value={newPrice}
@@ -1109,7 +1138,6 @@ function InboxContent() {
                                     </div>
                                   </div>
 
-                                  {/* Optional Message */}
                                   <div>
                                     <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
                                       Nota (opcional)
@@ -1121,7 +1149,6 @@ function InboxContent() {
                                     />
                                   </div>
 
-                                  {/* Action Buttons */}
                                   <div className="flex gap-2 pt-0.5">
                                     <motion.button
                                       whileHover={{ scale: 1.02 }}
@@ -1151,7 +1178,7 @@ function InboxContent() {
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setShowReportModal(true)}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-secondary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
+                            className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-secondary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-secondary/5 transition-all whitespace-nowrap"
                           >
                             <AlertCircle size={12} />
                             <span className="hidden xs:inline">Reportar</span>
@@ -1159,7 +1186,7 @@ function InboxContent() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                            className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                           >
                             <X size={12} />
                             <span className="hidden xs:inline">Rechazar</span>
@@ -1172,7 +1199,7 @@ function InboxContent() {
                               <motion.button
                                 whileHover={{ scale: 1.05, y: -2 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
+                                className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-primary/30 rounded-lg font-paragraph text-xs font-semibold text-foreground hover:bg-primary/5 transition-all whitespace-nowrap"
                               >
                                 <DollarSign size={12} />
                                 <span className="hidden xs:inline">Renegociar</span>
@@ -1180,7 +1207,6 @@ function InboxContent() {
                             </PopoverTrigger>
                             <PopoverContent className="w-72 p-0 bg-white/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
                               <div className="p-3 space-y-2.5">
-                                {/* Header */}
                                 <div className="flex items-center justify-between">
                                   <h3 className="font-heading font-bold text-foreground text-xs flex items-center gap-2">
                                     <DollarSign size={14} className="text-primary" />
@@ -1188,13 +1214,10 @@ function InboxContent() {
                                   </h3>
                                 </div>
 
-                                {/* Price Comparison */}
                                 <div className="grid grid-cols-2 gap-1.5">
                                   <div className="p-2 rounded-lg border-2 bg-primary/5 border-primary/20">
                                     <p className="font-paragraph text-xs text-muted-text mb-0.5">Actual</p>
-                                    <p className="font-heading font-bold text-sm text-primary">
-                                      $500
-                                    </p>
+                                    <p className="font-heading font-bold text-sm text-primary">$500</p>
                                   </div>
                                   <div className="p-2 rounded-lg border-2 border-border/30 bg-white/50">
                                     <p className="font-paragraph text-xs text-muted-text mb-0.5">Propuesto</p>
@@ -1204,17 +1227,13 @@ function InboxContent() {
                                   </div>
                                 </div>
 
-                                {/* Input and Submit */}
                                 <div className="space-y-2">
-                                  {/* Price Input */}
                                   <div>
                                     <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
                                       Nuevo monto
                                     </label>
                                     <div className="relative">
-                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-primary">
-                                        $
-                                      </span>
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-paragraph font-bold text-sm text-primary">$</span>
                                       <input
                                         type="number"
                                         value={newPrice}
@@ -1227,7 +1246,6 @@ function InboxContent() {
                                     </div>
                                   </div>
 
-                                  {/* Optional Message */}
                                   <div>
                                     <label className="font-paragraph text-xs text-muted-text font-semibold block mb-1">
                                       Nota (opcional)
@@ -1239,7 +1257,6 @@ function InboxContent() {
                                     />
                                   </div>
 
-                                  {/* Action Buttons */}
                                   <div className="flex gap-2 pt-0.5">
                                     <motion.button
                                       whileHover={{ scale: 1.02 }}
@@ -1268,7 +1285,7 @@ function InboxContent() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+                            className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg font-paragraph text-xs font-semibold hover:shadow-lg transition-all whitespace-nowrap"
                           >
                             <CheckCircle size={12} />
                             <span className="hidden xs:inline">Completado</span>
@@ -1276,7 +1293,7 @@ function InboxContent() {
                           <motion.button
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
-                            className="flex-1 flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
+                            className="flex items-center justify-center gap-0.5 px-2 py-1.5 bg-white border-2 border-destructive/30 rounded-lg font-paragraph text-xs font-semibold text-destructive hover:bg-destructive/5 transition-all whitespace-nowrap"
                           >
                             <X size={12} />
                             <span className="hidden xs:inline">Cancelar</span>
@@ -1285,12 +1302,10 @@ function InboxContent() {
                       )}
                     </motion.div>
 
-                    {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-white/50 to-white/30">
                       {messages.map((msg) => renderMessage(msg))}
                     </div>
 
-                    {/* Pending Request Banner - Sticky */}
                     <AnimatePresence>
                       {pendingRequest && (
                         <motion.div
@@ -1339,7 +1354,6 @@ function InboxContent() {
                       )}
                     </AnimatePresence>
 
-                    {/* Message Input */}
                     <form onSubmit={handleSendMessage} className="p-3 border-t border-border/50 bg-white/50 backdrop-blur-sm">
                       <div className="flex gap-2">
                         <input
@@ -1386,7 +1400,6 @@ function InboxContent() {
         </motion.div>
       </div>
 
-      {/* Report Modal */}
       <ReportModal
         open={showReportModal}
         onOpenChange={setShowReportModal}
@@ -1394,12 +1407,9 @@ function InboxContent() {
         threadId={selectedChat || ''}
         jobOrderId=""
         messages={messages}
-        onSuccess={() => {
-          // Optionally refresh chats or show success message
-        }}
+        onSuccess={() => {}}
       />
 
-      {/* Complete Job Modal */}
       <CompleteJobModal
         isOpen={showCompleteModal}
         onClose={() => setShowCompleteModal(false)}
@@ -1411,7 +1421,6 @@ function InboxContent() {
         }}
       />
 
-      {/* Reject Job Modal */}
       <RejectJobModal
         isOpen={showRejectModal}
         onClose={() => setShowRejectModal(false)}
@@ -1420,20 +1429,17 @@ function InboxContent() {
         context={rejectContext}
         onSuccess={() => {
           setShowRejectModal(false);
-          // Show rejection confirmation bar
           setShowRejectionBar(true);
           setRejectionBarData({
             context: rejectContext,
             reasonLabel: 'Rechazo registrado',
           });
-          // Refresh chats after 2 seconds
           setTimeout(() => {
             loadChats();
           }, 2000);
         }}
       />
 
-      {/* Rejection Confirmation Bar */}
       <RejectionConfirmationBar
         show={showRejectionBar}
         context={rejectionBarData?.context || 'GENERAL'}
@@ -1441,7 +1447,6 @@ function InboxContent() {
         onDismiss={() => setShowRejectionBar(false)}
       />
 
-      {/* Completion Confirmation Bar */}
       {showCompletionBar && completionBarData && (
         <CompletionConfirmationBar
           completionAttemptId={activeCompletionAttemptId || ''}
@@ -1457,7 +1462,6 @@ function InboxContent() {
         />
       )}
 
-      {/* User Info Modal */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
         <DialogContent className="max-w-md bg-white/95 backdrop-blur-sm border border-border/50">
           <DialogHeader>
@@ -1467,7 +1471,6 @@ function InboxContent() {
           </DialogHeader>
           {selectedUserInfo && (
             <div className="space-y-6">
-              {/* User Avatar and Name */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -1484,14 +1487,12 @@ function InboxContent() {
                 </h2>
               </motion.div>
 
-              {/* User Details */}
               <motion.div
-                variants={containerVariants}
                 initial="hidden"
                 animate="visible"
+                variants={containerVariants}
                 className="space-y-3"
               >
-                {/* Email */}
                 <motion.div variants={itemVariants} className="flex items-start gap-3 p-4 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-2xl border border-secondary/20">
                   <div className="flex-shrink-0 mt-1">
                     <Mail size={20} className="text-secondary" />
@@ -1504,7 +1505,6 @@ function InboxContent() {
                   </div>
                 </motion.div>
 
-                {/* Phone */}
                 {selectedUserInfo.phone && (
                   <motion.div variants={itemVariants} className="flex items-start gap-3 p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl border border-primary/20">
                     <div className="flex-shrink-0 mt-1">
@@ -1519,7 +1519,6 @@ function InboxContent() {
                   </motion.div>
                 )}
 
-                {/* Rating */}
                 {selectedUserInfo.rating && (
                   <motion.div variants={itemVariants} className="flex items-start gap-3 p-4 bg-gradient-to-r from-accent/10 to-support/10 rounded-2xl border border-accent/20">
                     <div className="flex-shrink-0 mt-1">
@@ -1534,7 +1533,6 @@ function InboxContent() {
                   </motion.div>
                 )}
 
-                {/* Jobs Completed */}
                 {selectedUserInfo.jobsCompleted !== undefined && (
                   <motion.div variants={itemVariants} className="flex items-start gap-3 p-4 bg-gradient-to-r from-support/10 to-secondary/10 rounded-2xl border border-support/20">
                     <div className="flex-shrink-0 mt-1">
@@ -1550,7 +1548,6 @@ function InboxContent() {
                 )}
               </motion.div>
 
-              {/* Close Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
