@@ -1,5 +1,6 @@
 import { currentMember } from 'wix-members-backend';
 import { query, insert, update, get } from 'wix-data';
+// @ts-ignore - wix-members-backend is a Wix backend module
 
 const USERPROFILES_COLLECTION = 'userprofiles';
 
