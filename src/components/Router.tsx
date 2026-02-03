@@ -4,37 +4,41 @@ import { ScrollToTop } from '@/lib/scroll-to-top';
 import ErrorPage from '@/integrations/errorHandlers/ErrorPage';
 import { MemberProtectedRoute } from '@/components/ui/member-protected-route';
 import { useRoleStore } from '@/store/roleStore';
+import { Suspense, lazy } from 'react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
-// Pages
-import HomePage from '@/components/pages/HomePage';
-import LoginPage from '@/components/pages/LoginPage';
-import RoleSelectionPage from '@/components/pages/RoleSelectionPage';
-import ClientOnboardingPage from '@/components/pages/ClientOnboardingPage';
-import JoseadorOnboardingPage from '@/components/pages/JoseadorOnboardingPage';
-import ClientDashboardPage from '@/components/pages/ClientDashboardPage';
-import JoseadorDashboardPage from '@/components/pages/JoseadorDashboardPage';
-import PublishJobPage from '@/components/pages/PublishJobPage';
-import JobDetailsPage from '@/components/pages/JobDetailsPage';
-import WalletPage from '@/components/pages/WalletPage';
-import BuyPiquetesPage from '@/components/pages/BuyPiquetesPage';
-import ProfilePage from '@/components/pages/ProfilePage';
-import ClientMyJobsPage from '@/components/pages/ClientMyJobsPage';
-import JoseadorMyJobsPage from '@/components/pages/JoseadorMyJobsPage';
-import InboxPage from '@/components/pages/InboxPage';
-import DisputesPage from '@/components/pages/DisputesPage';
-import DisputeDetailsPage from '@/components/pages/DisputeDetailsPage';
-import AboutPage from '@/components/pages/AboutPage';
-import CheckoutPage from '@/components/pages/CheckoutPage';
-import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
-import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
-import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
+// Lazy load pages
+const HomePage = lazy(() => import('@/components/pages/HomePage'));
+const LoginPage = lazy(() => import('@/components/pages/LoginPage'));
+const RoleSelectionPage = lazy(() => import('@/components/pages/RoleSelectionPage'));
+const ClientOnboardingPage = lazy(() => import('@/components/pages/ClientOnboardingPage'));
+const JoseadorOnboardingPage = lazy(() => import('@/components/pages/JoseadorOnboardingPage'));
+const ClientDashboardPage = lazy(() => import('@/components/pages/ClientDashboardPage'));
+const JoseadorDashboardPage = lazy(() => import('@/components/pages/JoseadorDashboardPage'));
+const PublishJobPage = lazy(() => import('@/components/pages/PublishJobPage'));
+const JobDetailsPage = lazy(() => import('@/components/pages/JobDetailsPage'));
+const WalletPage = lazy(() => import('@/components/pages/WalletPage'));
+const BuyPiquetesPage = lazy(() => import('@/components/pages/BuyPiquetesPage'));
+const ProfilePage = lazy(() => import('@/components/pages/ProfilePage'));
+const ClientMyJobsPage = lazy(() => import('@/components/pages/ClientMyJobsPage'));
+const JoseadorMyJobsPage = lazy(() => import('@/components/pages/JoseadorMyJobsPage'));
+const InboxPage = lazy(() => import('@/components/pages/InboxPage'));
+const DisputesPage = lazy(() => import('@/components/pages/DisputesPage'));
+const DisputeDetailsPage = lazy(() => import('@/components/pages/DisputeDetailsPage'));
+const AboutPage = lazy(() => import('@/components/pages/AboutPage'));
+const CheckoutPage = lazy(() => import('@/components/pages/CheckoutPage'));
+const AdminDashboardPage = lazy(() => import('@/components/pages/AdminDashboardPage'));
+const AdminUsersVerificationPage = lazy(() => import('@/components/pages/AdminUsersVerificationPage'));
+const JoseadorVerificationPage = lazy(() => import('@/components/pages/JoseadorVerificationPage'));
 
 // Layout component that includes ScrollToTop
 function Layout() {
   return (
     <>
       <ScrollToTop />
-      <Outlet />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Outlet />
+      </Suspense>
     </>
   );
 }
@@ -65,21 +69,21 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <Suspense fallback={<LoadingSpinner />}><HomePage /></Suspense>,
       },
       {
         path: "login",
-        element: <LoginPage />,
+        element: <Suspense fallback={<LoadingSpinner />}><LoginPage /></Suspense>,
       },
       {
         path: "about",
-        element: <AboutPage />,
+        element: <Suspense fallback={<LoadingSpinner />}><AboutPage /></Suspense>,
       },
       {
         path: "role-selection",
         element: (
           <MemberProtectedRoute>
-            <RoleSelectionPage />
+            <Suspense fallback={<LoadingSpinner />}><RoleSelectionPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -87,7 +91,7 @@ const router = createBrowserRouter([
         path: "profile",
         element: (
           <MemberProtectedRoute>
-            <ProfilePage />
+            <Suspense fallback={<LoadingSpinner />}><ProfilePage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -96,7 +100,7 @@ const router = createBrowserRouter([
         path: "client/onboarding",
         element: (
           <MemberProtectedRoute>
-            <ClientOnboardingRedirect />
+            <Suspense fallback={<LoadingSpinner />}><ClientOnboardingRedirect /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -104,7 +108,7 @@ const router = createBrowserRouter([
         path: "client/dashboard",
         element: (
           <MemberProtectedRoute>
-            <ClientDashboardPage />
+            <Suspense fallback={<LoadingSpinner />}><ClientDashboardPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -112,7 +116,7 @@ const router = createBrowserRouter([
         path: "client/publish-job",
         element: (
           <MemberProtectedRoute>
-            <PublishJobPage />
+            <Suspense fallback={<LoadingSpinner />}><PublishJobPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -120,7 +124,7 @@ const router = createBrowserRouter([
         path: "client/my-jobs",
         element: (
           <MemberProtectedRoute>
-            <ClientMyJobsPage />
+            <Suspense fallback={<LoadingSpinner />}><ClientMyJobsPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -128,7 +132,7 @@ const router = createBrowserRouter([
         path: "client/inbox",
         element: (
           <MemberProtectedRoute>
-            <InboxPage />
+            <Suspense fallback={<LoadingSpinner />}><InboxPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -136,7 +140,7 @@ const router = createBrowserRouter([
         path: "client/wallet",
         element: (
           <MemberProtectedRoute>
-            <WalletPage />
+            <Suspense fallback={<LoadingSpinner />}><WalletPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -145,7 +149,7 @@ const router = createBrowserRouter([
         path: "joseador/onboarding",
         element: (
           <MemberProtectedRoute>
-            <JoseadorOnboardingRedirect />
+            <Suspense fallback={<LoadingSpinner />}><JoseadorOnboardingRedirect /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -153,7 +157,7 @@ const router = createBrowserRouter([
         path: "joseador/dashboard",
         element: (
           <MemberProtectedRoute>
-            <JoseadorDashboardPage />
+            <Suspense fallback={<LoadingSpinner />}><JoseadorDashboardPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -161,7 +165,7 @@ const router = createBrowserRouter([
         path: "joseador/wallet",
         element: (
           <MemberProtectedRoute>
-            <WalletPage />
+            <Suspense fallback={<LoadingSpinner />}><WalletPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -169,7 +173,7 @@ const router = createBrowserRouter([
         path: "joseador/buy-piquetes",
         element: (
           <MemberProtectedRoute>
-            <BuyPiquetesPage />
+            <Suspense fallback={<LoadingSpinner />}><BuyPiquetesPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -177,7 +181,7 @@ const router = createBrowserRouter([
         path: "joseador/my-applications",
         element: (
           <MemberProtectedRoute>
-            <JoseadorMyJobsPage />
+            <Suspense fallback={<LoadingSpinner />}><JoseadorMyJobsPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -185,7 +189,7 @@ const router = createBrowserRouter([
         path: "joseador/inbox",
         element: (
           <MemberProtectedRoute>
-            <InboxPage />
+            <Suspense fallback={<LoadingSpinner />}><InboxPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -193,20 +197,20 @@ const router = createBrowserRouter([
         path: "joseador/verification",
         element: (
           <MemberProtectedRoute>
-            <JoseadorVerificationPage />
+            <Suspense fallback={<LoadingSpinner />}><JoseadorVerificationPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
       // Shared Routes
       {
         path: "job/:jobId",
-        element: <JobDetailsPage />,
+        element: <Suspense fallback={<LoadingSpinner />}><JobDetailsPage /></Suspense>,
       },
       {
         path: "checkout",
         element: (
           <MemberProtectedRoute>
-            <CheckoutPage />
+            <Suspense fallback={<LoadingSpinner />}><CheckoutPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -215,7 +219,7 @@ const router = createBrowserRouter([
         path: "admin/dashboard",
         element: (
           <MemberProtectedRoute>
-            <AdminDashboardPage />
+            <Suspense fallback={<LoadingSpinner />}><AdminDashboardPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -223,7 +227,7 @@ const router = createBrowserRouter([
         path: "admin/users-verification",
         element: (
           <MemberProtectedRoute>
-            <AdminUsersVerificationPage />
+            <Suspense fallback={<LoadingSpinner />}><AdminUsersVerificationPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -231,7 +235,7 @@ const router = createBrowserRouter([
         path: "admin/disputes",
         element: (
           <MemberProtectedRoute>
-            <DisputesPage />
+            <Suspense fallback={<LoadingSpinner />}><DisputesPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
@@ -239,7 +243,7 @@ const router = createBrowserRouter([
         path: "admin/dispute/:disputeId",
         element: (
           <MemberProtectedRoute>
-            <DisputeDetailsPage />
+            <Suspense fallback={<LoadingSpinner />}><DisputeDetailsPage /></Suspense>
           </MemberProtectedRoute>
         ),
       },
