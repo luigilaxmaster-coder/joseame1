@@ -76,7 +76,7 @@ function ProfilePage() {
     loadProfileData();
     const intervalId = setInterval(() => {
       loadUserDataFromAdmin();
-    }, 2000);
+    }, 1000); // Poll every 1 second for real-time updates
     return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
 
