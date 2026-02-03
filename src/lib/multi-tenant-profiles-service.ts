@@ -1,4 +1,13 @@
-import { getOrCreateUserProfile, getMyProfile, updateMyProfile, getPublicProfile } from '@/backend/multi-tenant-profiles.jsw';
+// Lazy import backend functions to support dynamic module loading
+let backendFunctions: any = null;
+
+async function getBackendFunctions() {
+  if (!backendFunctions) {
+    const module = await import('@/backend/multi-tenant-profiles.jsw');
+    backendFunctions = module;
+  }
+  return backendFunctions;
+}
 
 export interface UserProfile {
   _id: string;
@@ -16,6 +25,7 @@ export interface UserProfile {
  */
 export async function initializeUserProfile(): Promise<UserProfile> {
   try {
+    const { getOrCreateUserProfile } = await getBackendFunctions();
     return await getOrCreateUserProfile();
   } catch (error) {
     console.error('Failed to initialize user profile:', error);
@@ -28,6 +38,7 @@ export async function initializeUserProfile(): Promise<UserProfile> {
  */
 export async function fetchMyProfile(): Promise<UserProfile> {
   try {
+    const { getMyProfile } = await getBackendFunctions();
     return await getMyProfile();
   } catch (error) {
     console.error('Failed to fetch profile:', error);
@@ -40,6 +51,7 @@ export async function fetchMyProfile(): Promise<UserProfile> {
  */
 export async function updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile> {
   try {
+    const { updateMyProfile } = await getBackendFunctions();
     return await updateMyProfile(data);
   } catch (error) {
     console.error('Failed to update profile:', error);
@@ -52,6 +64,7 @@ export async function updateUserProfile(data: Partial<UserProfile>): Promise<Use
  */
 export async function fetchPublicProfile(memberId: string): Promise<Partial<UserProfile>> {
   try {
+    const { getPublicProfile } = await getBackendFunctions();
     return await getPublicProfile(memberId);
   } catch (error) {
     console.error('Failed to fetch public profile:', error);

@@ -1,11 +1,13 @@
-import { 
-  createConversation, 
-  listMyConversations, 
-  sendMessage, 
-  listMessages, 
-  deleteMessage,
-  getConversation 
-} from '@/backend/multi-tenant-messaging.jsw';
+// Lazy import backend functions to support dynamic module loading
+let backendFunctions: any = null;
+
+async function getBackendFunctions() {
+  if (!backendFunctions) {
+    const module = await import('@/backend/multi-tenant-messaging.jsw');
+    backendFunctions = module;
+  }
+  return backendFunctions;
+}
 
 export interface Message {
   _id: string;
@@ -40,6 +42,7 @@ export interface PaginatedResult<T> {
  */
 export async function startConversation(otherMemberId: string): Promise<Conversation> {
   try {
+    const { createConversation } = await getBackendFunctions();
     return await createConversation(otherMemberId);
   } catch (error) {
     console.error('Failed to create conversation:', error);
@@ -55,6 +58,7 @@ export async function getMyConversations(
   cursor: string | null = null
 ): Promise<PaginatedResult<Conversation>> {
   try {
+    const { listMyConversations } = await getBackendFunctions();
     return await listMyConversations(limit, cursor);
   } catch (error) {
     console.error('Failed to fetch conversations:', error);
@@ -71,6 +75,7 @@ export async function sendMessageToConversation(
   attachments: any[] = []
 ): Promise<Message> {
   try {
+    const { sendMessage } = await getBackendFunctions();
     return await sendMessage(conversationId, text, attachments);
   } catch (error) {
     console.error('Failed to send message:', error);
@@ -87,6 +92,7 @@ export async function getConversationMessages(
   cursor: string | null = null
 ): Promise<PaginatedResult<Message>> {
   try {
+    const { listMessages } = await getBackendFunctions();
     return await listMessages(conversationId, limit, cursor);
   } catch (error) {
     console.error('Failed to fetch messages:', error);
@@ -99,6 +105,7 @@ export async function getConversationMessages(
  */
 export async function removeMessage(messageId: string): Promise<{ success: boolean }> {
   try {
+    const { deleteMessage } = await getBackendFunctions();
     return await deleteMessage(messageId);
   } catch (error) {
     console.error('Failed to delete message:', error);
@@ -111,6 +118,7 @@ export async function removeMessage(messageId: string): Promise<{ success: boole
  */
 export async function fetchConversation(conversationId: string): Promise<Conversation> {
   try {
+    const { getConversation } = await getBackendFunctions();
     return await getConversation(conversationId);
   } catch (error) {
     console.error('Failed to fetch conversation:', error);
