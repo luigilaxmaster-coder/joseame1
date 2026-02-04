@@ -175,44 +175,52 @@ export async function listDirectoryUsers(options = {}) {
     pageSize = 20
   } = options;
 
-  let query = wixData.query(COLLECTION);
-
-  // Apply search filter
-  if (search) {
-    query = query.contains("fullName", search).or(query.contains("email", search));
-  }
+  let queryFilter = {};
 
   // Apply verification filter
   if (verificationFilter === "VERIFIED") {
-    query = query.eq("verificationStatus", "VERIFIED");
+    queryFilter.verificationStatus = "VERIFIED";
   } else if (verificationFilter === "UNVERIFIED") {
-    query = query.eq("verificationStatus", "UNVERIFIED");
+    queryFilter.verificationStatus = "UNVERIFIED";
   }
 
-  // Get total count before pagination
-  const countResult = await query.find({ suppressAuth: true });
-  const total = countResult.items.length;
+  // Get all items with filters
+  const result = await items.queryDataItems({
+    dataCollectionId: COLLECTION,
+    query: {
+      filter: queryFilter
+    }
+  });
+
+  let filteredItems = result.items || [];
+
+  // Apply search filter
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredItems = filteredItems.filter(item => 
+      item.data.fullName?.toLowerCase().includes(searchLower) || 
+      item.data.email?.toLowerCase().includes(searchLower)
+    );
+  }
 
   // Apply status filter (requires date calculations)
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  let filteredItems = countResult.items;
-
   if (statusFilter === "ONLINE") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.lastSeen);
+      const lastSeen = new Date(item.data.lastSeen);
       return lastSeen >= fiveMinutesAgo;
     });
   } else if (statusFilter === "INACTIVE") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.lastSeen);
+      const lastSeen = new Date(item.data.lastSeen);
       return lastSeen < fiveMinutesAgo && lastSeen >= thirtyDaysAgo;
     });
   } else if (statusFilter === "DISCONNECTED") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.lastSeen);
+      const lastSeen = new Date(item.data.lastSeen);
       return lastSeen < thirtyDaysAgo;
     });
   }
@@ -222,7 +230,7 @@ export async function listDirectoryUsers(options = {}) {
   const paginatedItems = filteredItems.slice(offset, offset + pageSize);
 
   return {
-    items: paginatedItems,
+    items: paginatedItems.map(item => item.data),
     total: filteredItems.length,
     page,
     pageSize
@@ -234,8 +242,10 @@ export async function listDirectoryUsers(options = {}) {
  * @returns {Promise<{total: number, verified: number, unverified: number, online: number, inactive: number, disconnected: number}>}
  */
 export async function getStats() {
-  const result = await wixData.query(COLLECTION).find({ suppressAuth: true });
-  const items = result.items || [];
+  const result = await items.queryDataItems({
+    dataCollectionId: COLLECTION
+  });
+  const itemsList = result.items || [];
 
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
@@ -247,14 +257,14 @@ export async function getStats() {
   let inactive = 0;
   let disconnected = 0;
 
-  for (const item of items) {
-    if (item.verificationStatus === "VERIFIED") {
+  for (const item of itemsList) {
+    if (item.data.verificationStatus === "VERIFIED") {
       verified++;
     } else {
       unverified++;
     }
 
-    const lastSeen = new Date(item.lastSeen);
+    const lastSeen = new Date(item.data.lastSeen);
     if (lastSeen >= fiveMinutesAgo) {
       online++;
     } else if (lastSeen >= thirtyDaysAgo) {
@@ -265,7 +275,7 @@ export async function getStats() {
   }
 
   return {
-    total: items.length,
+    total: itemsList.length,
     verified,
     unverified,
     online,
