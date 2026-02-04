@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
+// @ts-ignore - Backend module, not processed by frontend build
 import wixData from 'wix-data';
+// @ts-ignore - Backend module, not processed by frontend build
 import { getLoggedInMember } from 'wix-members-backend';
 
 /**
