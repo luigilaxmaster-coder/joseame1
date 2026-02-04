@@ -1,7 +1,7 @@
 // @ts-ignore - wix-members-backend is a Wix backend module
 import { currentMember } from 'wix-members-backend';
 // @ts-ignore - wix-data is a Wix backend module
-import { items } from '@wix/data';
+import { query } from 'wix-data';
 
 const USERPROFILES_COLLECTION = 'userprofiles';
 
@@ -20,15 +20,12 @@ export async function getOrCreateUserProfile() {
     const memberId = member._id;
 
     // Try to find existing profile
-    const results = await items.queryDataItems({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      query: {
-        filter: { 'memberId': memberId }
-      }
-    });
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
 
     if (results.items && results.items.length > 0) {
-      return results.items[0].data;
+      return results.items[0];
     }
 
     // Create new profile if doesn't exist
@@ -41,11 +38,9 @@ export async function getOrCreateUserProfile() {
       updatedAt: new Date().toISOString(),
     };
 
-    const inserted = await items.insertDataItem({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      item: newProfile
-    });
-    return inserted.item?.data;
+    const inserted = await query(USERPROFILES_COLLECTION)
+      .insert(newProfile);
+    return inserted;
   } catch (error) {
     console.error('Error in getOrCreateUserProfile:', error);
     throw error;
@@ -66,18 +61,15 @@ export async function getMyProfile() {
 
     const memberId = member._id;
 
-    const results = await items.queryDataItems({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      query: {
-        filter: { 'memberId': memberId }
-      }
-    });
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
 
     if (!results.items || results.items.length === 0) {
       throw new Error('NOT_FOUND');
     }
 
-    return results.items[0].data;
+    return results.items[0];
   } catch (error) {
     console.error('Error in getMyProfile:', error);
     throw error;
@@ -99,12 +91,9 @@ export async function updateMyProfile(profileData) {
     const memberId = member._id;
 
     // Get current profile to verify ownership
-    const results = await items.queryDataItems({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      query: {
-        filter: { 'memberId': memberId }
-      }
-    });
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', memberId)
+      .find();
 
     if (!results.items || results.items.length === 0) {
       throw new Error('NOT_FOUND');
@@ -114,18 +103,16 @@ export async function updateMyProfile(profileData) {
 
     // Update only allowed fields
     const updatedProfile = {
-      firstName: profileData.firstName !== undefined ? profileData.firstName : currentProfile.data.firstName,
-      lastName: profileData.lastName !== undefined ? profileData.lastName : currentProfile.data.lastName,
-      bio: profileData.bio !== undefined ? profileData.bio : currentProfile.data.bio,
-      profilePhoto: profileData.profilePhoto !== undefined ? profileData.profilePhoto : currentProfile.data.profilePhoto,
+      firstName: profileData.firstName !== undefined ? profileData.firstName : currentProfile.firstName,
+      lastName: profileData.lastName !== undefined ? profileData.lastName : currentProfile.lastName,
+      bio: profileData.bio !== undefined ? profileData.bio : currentProfile.bio,
+      profilePhoto: profileData.profilePhoto !== undefined ? profileData.profilePhoto : currentProfile.profilePhoto,
       updatedAt: new Date().toISOString(),
     };
 
-    await items.updateDataItem({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      itemId: currentProfile._id,
-      item: updatedProfile
-    });
+    await query(USERPROFILES_COLLECTION)
+      .eq('_id', currentProfile._id)
+      .update(updatedProfile);
     return updatedProfile;
   } catch (error) {
     console.error('Error in updateMyProfile:', error);
@@ -145,18 +132,15 @@ export async function getPublicProfile(targetMemberId) {
       throw new Error('NOT_AUTHENTICATED');
     }
 
-    const results = await items.queryDataItems({
-      dataCollectionId: USERPROFILES_COLLECTION,
-      query: {
-        filter: { 'memberId': targetMemberId }
-      }
-    });
+    const results = await query(USERPROFILES_COLLECTION)
+      .eq('memberId', targetMemberId)
+      .find();
 
     if (!results.items || results.items.length === 0) {
       throw new Error('NOT_FOUND');
     }
 
-    const profile = results.items[0].data;
+    const profile = results.items[0];
 
     // Return only public fields
     return {
