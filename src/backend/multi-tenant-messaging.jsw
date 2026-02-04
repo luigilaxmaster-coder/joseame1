@@ -74,18 +74,19 @@ export async function listMyConversations(limit = 50, cursor = null) {
     const currentMemberId = member._id;
 
     // Get all conversations and filter by participant
-    const allConversations = await query(CONVERSATIONS_COLLECTION)
-      .find();
-
-    const myConversations = allConversations.items.filter(conv => {
-      const participants = conv.participants.split(',').map(p => p.trim());
-      return participants.includes(currentMemberId);
+    const allConversations = await items.queryDataItems({
+      dataCollectionId: CONVERSATIONS_COLLECTION
     });
+
+    const myConversations = allConversations.items?.filter(conv => {
+      const participants = conv.data.participants.split(',').map(p => p.trim());
+      return participants.includes(currentMemberId);
+    }) || [];
 
     // Sort by lastMessageAt (most recent first)
     myConversations.sort((a, b) => {
-      const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-      const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+      const timeA = a.data.lastMessageAt ? new Date(a.data.lastMessageAt).getTime() : 0;
+      const timeB = b.data.lastMessageAt ? new Date(b.data.lastMessageAt).getTime() : 0;
       return timeB - timeA;
     });
 
@@ -95,7 +96,7 @@ export async function listMyConversations(limit = 50, cursor = null) {
     const hasMore = startIndex + limit < myConversations.length;
 
     return {
-      items: paginatedConversations,
+      items: paginatedConversations.map(c => c.data),
       hasMore: hasMore,
       nextCursor: hasMore ? (startIndex + limit).toString() : null,
       totalCount: myConversations.length,
@@ -121,20 +122,22 @@ export async function sendMessage(conversationId, text, attachments = []) {
     const currentMemberId = member._id;
 
     // Verify conversation exists and user is participant
-    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+    const conversation = await items.getDataItem({
+      dataCollectionId: CONVERSATIONS_COLLECTION,
+      itemId: conversationId
+    });
 
-    if (!conversation) {
+    if (!conversation.item) {
       throw new Error('NOT_FOUND');
     }
 
-    const participants = conversation.participants.split(',').map(p => p.trim());
+    const participants = conversation.item.data.participants.split(',').map(p => p.trim());
     if (!participants.includes(currentMemberId)) {
       throw new Error('FORBIDDEN: You are not a participant in this conversation');
     }
 
     // Create message
     const newMessage = {
-      _id: `msg_${conversationId}_${currentMemberId}_${Date.now()}`,
       conversationId: conversationId,
       senderId: currentMemberId,
       receiverId: participants.find(p => p !== currentMemberId) || '',
@@ -144,16 +147,22 @@ export async function sendMessage(conversationId, text, attachments = []) {
       isDeleted: false,
     };
 
-    const inserted = await insert(MESSAGES_COLLECTION, newMessage);
-
-    // Update conversation's last message info
-    await update(CONVERSATIONS_COLLECTION, {
-      _id: conversationId,
-      lastMessageAt: new Date().toISOString(),
-      lastMessageText: text.substring(0, 100),
+    const inserted = await items.insertDataItem({
+      dataCollectionId: MESSAGES_COLLECTION,
+      item: newMessage
     });
 
-    return inserted;
+    // Update conversation's last message info
+    await items.updateDataItem({
+      dataCollectionId: CONVERSATIONS_COLLECTION,
+      itemId: conversationId,
+      item: {
+        lastMessageAt: new Date().toISOString(),
+        lastMessageText: text.substring(0, 100),
+      }
+    });
+
+    return inserted.item?.data;
   } catch (error) {
     console.error('Error in sendMessage:', error);
     throw error;
@@ -175,44 +184,52 @@ export async function listMessages(conversationId, limit = 50, cursor = null) {
     const currentMemberId = member._id;
 
     // Verify conversation exists and user is participant
-    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+    const conversation = await items.getDataItem({
+      dataCollectionId: CONVERSATIONS_COLLECTION,
+      itemId: conversationId
+    });
 
-    if (!conversation) {
+    if (!conversation.item) {
       throw new Error('NOT_FOUND');
     }
 
-    const participants = conversation.participants.split(',').map(p => p.trim());
+    const participants = conversation.item.data.participants.split(',').map(p => p.trim());
     if (!participants.includes(currentMemberId)) {
       throw new Error('FORBIDDEN: You are not a participant in this conversation');
     }
 
     // Get all messages for this conversation (excluding deleted ones)
-    const allMessages = await query(MESSAGES_COLLECTION)
-      .eq('conversationId', conversationId)
-      .eq('isDeleted', false)
-      .find();
+    const allMessages = await items.queryDataItems({
+      dataCollectionId: MESSAGES_COLLECTION,
+      query: {
+        filter: {
+          'conversationId': conversationId,
+          'isDeleted': false
+        }
+      }
+    });
 
     // Sort by createdAt (oldest first)
-    allMessages.items.sort((a, b) => {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    });
+    const sortedMessages = allMessages.items?.sort((a, b) => {
+      return new Date(a.data.createdAt).getTime() - new Date(b.data.createdAt).getTime();
+    }) || [];
 
     // Apply pagination
     const startIndex = cursor ? parseInt(cursor) : 0;
-    const paginatedMessages = allMessages.items.slice(startIndex, startIndex + limit);
-    const hasMore = startIndex + limit < allMessages.items.length;
+    const paginatedMessages = sortedMessages.slice(startIndex, startIndex + limit);
+    const hasMore = startIndex + limit < sortedMessages.length;
 
     // Parse attachments back to objects
     const messagesWithParsedAttachments = paginatedMessages.map(msg => ({
-      ...msg,
-      attachments: msg.attachments ? JSON.parse(msg.attachments) : [],
+      ...msg.data,
+      attachments: msg.data.attachments ? JSON.parse(msg.data.attachments) : [],
     }));
 
     return {
       items: messagesWithParsedAttachments,
       hasMore: hasMore,
       nextCursor: hasMore ? (startIndex + limit).toString() : null,
-      totalCount: allMessages.items.length,
+      totalCount: sortedMessages.length,
     };
   } catch (error) {
     console.error('Error in listMessages:', error);
@@ -234,21 +251,27 @@ export async function deleteMessage(messageId) {
     const currentMemberId = member._id;
 
     // Get the message
-    const message = await get(MESSAGES_COLLECTION, messageId);
+    const message = await items.getDataItem({
+      dataCollectionId: MESSAGES_COLLECTION,
+      itemId: messageId
+    });
 
-    if (!message) {
+    if (!message.item) {
       throw new Error('NOT_FOUND');
     }
 
     // Only the sender can delete their own message
-    if (message.senderId !== currentMemberId) {
+    if (message.item.data.senderId !== currentMemberId) {
       throw new Error('FORBIDDEN: You can only delete your own messages');
     }
 
     // Soft delete
-    await update(MESSAGES_COLLECTION, {
-      _id: messageId,
-      isDeleted: true,
+    await items.updateDataItem({
+      dataCollectionId: MESSAGES_COLLECTION,
+      itemId: messageId,
+      item: {
+        isDeleted: true,
+      }
     });
 
     return { success: true };
@@ -271,18 +294,21 @@ export async function getConversation(conversationId) {
 
     const currentMemberId = member._id;
 
-    const conversation = await get(CONVERSATIONS_COLLECTION, conversationId);
+    const conversation = await items.getDataItem({
+      dataCollectionId: CONVERSATIONS_COLLECTION,
+      itemId: conversationId
+    });
 
-    if (!conversation) {
+    if (!conversation.item) {
       throw new Error('NOT_FOUND');
     }
 
-    const participants = conversation.participants.split(',').map(p => p.trim());
+    const participants = conversation.item.data.participants.split(',').map(p => p.trim());
     if (!participants.includes(currentMemberId)) {
       throw new Error('FORBIDDEN: You are not a participant in this conversation');
     }
 
-    return conversation;
+    return conversation.item.data;
   } catch (error) {
     console.error('Error in getConversation:', error);
     throw error;
