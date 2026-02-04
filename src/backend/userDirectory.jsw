@@ -1,4 +1,4 @@
-import { items } from '@wix/data';
+import { query } from 'wix-data';
 import { members } from 'wix-members-backend';
 import { currentMember } from 'wix-members-backend';
 
@@ -75,26 +75,21 @@ export async function upsertMemberToDirectory(member) {
   const now = new Date();
 
   // Find existing record by memberId
-  const existing = await items.queryDataItems({
-    dataCollectionId: COLLECTION,
-    query: {
-      filter: { 'memberId': memberId }
-    }
-  });
+  const existing = await query(COLLECTION)
+    .eq('memberId', memberId)
+    .find();
 
   if (existing.items && existing.items.length > 0) {
     // Update existing record
     const item = existing.items[0];
-    await items.updateDataItem({
-      dataCollectionId: COLLECTION,
-      itemId: item._id,
-      item: {
+    await query(COLLECTION)
+      .eq('_id', item._id)
+      .update({
         fullName: fullName,
         email: email,
         lastSeen: now,
-      }
-    });
-    return { isNew: false, item: item.data };
+      });
+    return { isNew: false, item: item };
   }
 
   // Create new record
@@ -108,11 +103,9 @@ export async function upsertMemberToDirectory(member) {
     isActive: true
   };
 
-  const created = await items.insertDataItem({
-    dataCollectionId: COLLECTION,
-    item: newItem
-  });
-  return { isNew: true, item: created.item?.data };
+  const created = await query(COLLECTION)
+    .insert(newItem);
+  return { isNew: true, item: created };
 }
 
 /**
@@ -126,22 +119,17 @@ export async function touchLastSeen(memberId) {
   const now = new Date();
 
   // Find existing record
-  const existing = await items.queryDataItems({
-    dataCollectionId: COLLECTION,
-    query: {
-      filter: { 'memberId': memberId }
-    }
-  });
+  const existing = await query(COLLECTION)
+    .eq('memberId', memberId)
+    .find();
 
   if (existing.items && existing.items.length > 0) {
     const item = existing.items[0];
-    return items.updateDataItem({
-      dataCollectionId: COLLECTION,
-      itemId: item._id,
-      item: {
+    return query(COLLECTION)
+      .eq('_id', item._id)
+      .update({
         lastSeen: now,
-      }
-    });
+      });
   }
 
   // Create new record if doesn't exist
@@ -155,10 +143,8 @@ export async function touchLastSeen(memberId) {
     isActive: true
   };
 
-  return items.insertDataItem({
-    dataCollectionId: COLLECTION,
-    item: newItem
-  });
+  return query(COLLECTION)
+    .insert(newItem);
 }
 
 /**
@@ -185,21 +171,24 @@ export async function listDirectoryUsers(options = {}) {
   }
 
   // Get all items with filters
-  const result = await items.queryDataItems({
-    dataCollectionId: COLLECTION,
-    query: {
-      filter: queryFilter
-    }
-  });
+  const result = await query(COLLECTION)
+    .find();
 
   let filteredItems = result.items || [];
+
+  // Apply verification filter
+  if (verificationFilter === "VERIFIED") {
+    filteredItems = filteredItems.filter(item => item.verificationStatus === "VERIFIED");
+  } else if (verificationFilter === "UNVERIFIED") {
+    filteredItems = filteredItems.filter(item => item.verificationStatus === "UNVERIFIED");
+  }
 
   // Apply search filter
   if (search) {
     const searchLower = search.toLowerCase();
     filteredItems = filteredItems.filter(item => 
-      item.data.fullName?.toLowerCase().includes(searchLower) || 
-      item.data.email?.toLowerCase().includes(searchLower)
+      item.fullName?.toLowerCase().includes(searchLower) || 
+      item.email?.toLowerCase().includes(searchLower)
     );
   }
 
@@ -210,17 +199,17 @@ export async function listDirectoryUsers(options = {}) {
 
   if (statusFilter === "ONLINE") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.data.lastSeen);
+      const lastSeen = new Date(item.lastSeen);
       return lastSeen >= fiveMinutesAgo;
     });
   } else if (statusFilter === "INACTIVE") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.data.lastSeen);
+      const lastSeen = new Date(item.lastSeen);
       return lastSeen < fiveMinutesAgo && lastSeen >= thirtyDaysAgo;
     });
   } else if (statusFilter === "DISCONNECTED") {
     filteredItems = filteredItems.filter(item => {
-      const lastSeen = new Date(item.data.lastSeen);
+      const lastSeen = new Date(item.lastSeen);
       return lastSeen < thirtyDaysAgo;
     });
   }
@@ -230,7 +219,7 @@ export async function listDirectoryUsers(options = {}) {
   const paginatedItems = filteredItems.slice(offset, offset + pageSize);
 
   return {
-    items: paginatedItems.map(item => item.data),
+    items: paginatedItems,
     total: filteredItems.length,
     page,
     pageSize
@@ -242,9 +231,8 @@ export async function listDirectoryUsers(options = {}) {
  * @returns {Promise<{total: number, verified: number, unverified: number, online: number, inactive: number, disconnected: number}>}
  */
 export async function getStats() {
-  const result = await items.queryDataItems({
-    dataCollectionId: COLLECTION
-  });
+  const result = await query(COLLECTION)
+    .find();
   const itemsList = result.items || [];
 
   const now = new Date();
@@ -258,13 +246,13 @@ export async function getStats() {
   let disconnected = 0;
 
   for (const item of itemsList) {
-    if (item.data.verificationStatus === "VERIFIED") {
+    if (item.verificationStatus === "VERIFIED") {
       verified++;
     } else {
       unverified++;
     }
 
-    const lastSeen = new Date(item.data.lastSeen);
+    const lastSeen = new Date(item.lastSeen);
     if (lastSeen >= fiveMinutesAgo) {
       online++;
     } else if (lastSeen >= thirtyDaysAgo) {

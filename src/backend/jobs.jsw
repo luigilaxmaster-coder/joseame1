@@ -1,5 +1,5 @@
-import wixData from '@wix/data';
-import { getLoggedInMember } from '@wix/members';
+import wixData from 'wix-data';
+import { getLoggedInMember } from 'wix-members-backend';
 
 /**
  * Get job context by threadId
