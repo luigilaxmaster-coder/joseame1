@@ -1,4 +1,4 @@
-import wixData from 'wix-data';
+import { items } from '@wix/data';
 import { members } from 'wix-members-backend';
 import { currentMember } from 'wix-members-backend';
 
@@ -75,20 +75,26 @@ export async function upsertMemberToDirectory(member) {
   const now = new Date();
 
   // Find existing record by memberId
-  const existing = await wixData.query(COLLECTION)
-    .eq("memberId", memberId)
-    .limit(1)
-    .find({ suppressAuth: true });
+  const existing = await items.queryDataItems({
+    dataCollectionId: COLLECTION,
+    query: {
+      filter: { 'memberId': memberId }
+    }
+  });
 
-  if (existing.items.length > 0) {
+  if (existing.items && existing.items.length > 0) {
     // Update existing record
     const item = existing.items[0];
-    item.fullName = fullName;
-    item.email = email;
-    item.lastSeen = now;
-
-    await wixData.update(COLLECTION, item, { suppressAuth: true });
-    return { isNew: false, item };
+    await items.updateDataItem({
+      dataCollectionId: COLLECTION,
+      itemId: item._id,
+      item: {
+        fullName: fullName,
+        email: email,
+        lastSeen: now,
+      }
+    });
+    return { isNew: false, item: item.data };
   }
 
   // Create new record
@@ -102,8 +108,11 @@ export async function upsertMemberToDirectory(member) {
     isActive: true
   };
 
-  const created = await wixData.insert(COLLECTION, newItem, { suppressAuth: true });
-  return { isNew: true, item: created };
+  const created = await items.insertDataItem({
+    dataCollectionId: COLLECTION,
+    item: newItem
+  });
+  return { isNew: true, item: created.item?.data };
 }
 
 /**
@@ -117,15 +126,22 @@ export async function touchLastSeen(memberId) {
   const now = new Date();
 
   // Find existing record
-  const existing = await wixData.query(COLLECTION)
-    .eq("memberId", memberId)
-    .limit(1)
-    .find({ suppressAuth: true });
+  const existing = await items.queryDataItems({
+    dataCollectionId: COLLECTION,
+    query: {
+      filter: { 'memberId': memberId }
+    }
+  });
 
-  if (existing.items.length > 0) {
+  if (existing.items && existing.items.length > 0) {
     const item = existing.items[0];
-    item.lastSeen = now;
-    return wixData.update(COLLECTION, item, { suppressAuth: true });
+    return items.updateDataItem({
+      dataCollectionId: COLLECTION,
+      itemId: item._id,
+      item: {
+        lastSeen: now,
+      }
+    });
   }
 
   // Create new record if doesn't exist
@@ -139,7 +155,10 @@ export async function touchLastSeen(memberId) {
     isActive: true
   };
 
-  return wixData.insert(COLLECTION, newItem, { suppressAuth: true });
+  return items.insertDataItem({
+    dataCollectionId: COLLECTION,
+    item: newItem
+  });
 }
 
 /**

@@ -99,11 +99,14 @@ export async function updateMyProfile(profileData) {
     const memberId = member._id;
 
     // Get current profile to verify ownership
-    const results = await query(USERPROFILES_COLLECTION)
-      .eq('memberId', memberId)
-      .find();
+    const results = await items.queryDataItems({
+      dataCollectionId: USERPROFILES_COLLECTION,
+      query: {
+        filter: { 'memberId': memberId }
+      }
+    });
 
-    if (results.items.length === 0) {
+    if (!results.items || results.items.length === 0) {
       throw new Error('NOT_FOUND');
     }
 
@@ -111,15 +114,18 @@ export async function updateMyProfile(profileData) {
 
     // Update only allowed fields
     const updatedProfile = {
-      _id: currentProfile._id,
-      firstName: profileData.firstName !== undefined ? profileData.firstName : currentProfile.firstName,
-      lastName: profileData.lastName !== undefined ? profileData.lastName : currentProfile.lastName,
-      bio: profileData.bio !== undefined ? profileData.bio : currentProfile.bio,
-      profilePhoto: profileData.profilePhoto !== undefined ? profileData.profilePhoto : currentProfile.profilePhoto,
+      firstName: profileData.firstName !== undefined ? profileData.firstName : currentProfile.data.firstName,
+      lastName: profileData.lastName !== undefined ? profileData.lastName : currentProfile.data.lastName,
+      bio: profileData.bio !== undefined ? profileData.bio : currentProfile.data.bio,
+      profilePhoto: profileData.profilePhoto !== undefined ? profileData.profilePhoto : currentProfile.data.profilePhoto,
       updatedAt: new Date().toISOString(),
     };
 
-    await update(USERPROFILES_COLLECTION, updatedProfile);
+    await items.updateDataItem({
+      dataCollectionId: USERPROFILES_COLLECTION,
+      itemId: currentProfile._id,
+      item: updatedProfile
+    });
     return updatedProfile;
   } catch (error) {
     console.error('Error in updateMyProfile:', error);
@@ -139,19 +145,21 @@ export async function getPublicProfile(targetMemberId) {
       throw new Error('NOT_AUTHENTICATED');
     }
 
-    const results = await query(USERPROFILES_COLLECTION)
-      .eq('memberId', targetMemberId)
-      .find();
+    const results = await items.queryDataItems({
+      dataCollectionId: USERPROFILES_COLLECTION,
+      query: {
+        filter: { 'memberId': targetMemberId }
+      }
+    });
 
-    if (results.items.length === 0) {
+    if (!results.items || results.items.length === 0) {
       throw new Error('NOT_FOUND');
     }
 
-    const profile = results.items[0];
+    const profile = results.items[0].data;
 
     // Return only public fields
     return {
-      _id: profile._id,
       memberId: profile.memberId,
       firstName: profile.firstName,
       lastName: profile.lastName,
