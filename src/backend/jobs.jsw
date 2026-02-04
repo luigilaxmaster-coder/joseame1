@@ -1,15 +1,95 @@
-/**
- * DEPRECATED: This file is no longer used
- * 
- * All web methods have been migrated to Astro API Routes:
- * - /src/pages/api/jobs/get-context.ts
- * - /src/pages/api/jobs/propose-completion.ts
- * - /src/pages/api/jobs/accept-completion.ts
- * - /src/pages/api/jobs/reject.ts
- * - /src/pages/api/jobs/timeline.ts
- * 
- * This file is kept for reference only.
- * The wix-web-module dependency has been removed.
- */
+import wixData from 'wix-data';
+import { getLoggedInMember } from 'wix-members-backend';
 
-// This file is deprecated - use Astro API Routes instead
+/**
+ * Get job context by threadId
+ * @param threadId - The thread ID to look up
+ * @returns Job context with active completion attempt
+ */
+export async function getJobContext(threadId) {
+  try {
+    if (!threadId) {
+      return {
+        ok: false,
+        message: 'threadId is required',
+        status: 400,
+      };
+    }
+
+    // Get current user
+    const member = await getLoggedInMember();
+    if (!member) {
+      return {
+        ok: false,
+        message: 'UNAUTHORIZED: User not logged in',
+        status: 401,
+      };
+    }
+
+    const userId = member._id;
+
+    // Find job by threadId
+    const jobs = await wixData.query('joborders')
+      .eq('threadId', threadId)
+      .find();
+
+    if (jobs.items.length === 0) {
+      return {
+        ok: false,
+        message: 'Job not found for this thread',
+        status: 404,
+      };
+    }
+
+    const job = jobs.items[0];
+
+    // Validate user belongs to job
+    if (job.clientId !== userId && job.joseadorId !== userId) {
+      return {
+        ok: false,
+        message: 'FORBIDDEN: User does not belong to this job',
+        status: 403,
+      };
+    }
+
+    // Get active completion attempt if exists
+    let activeAttempt = null;
+    if (job.activeCompletionAttemptId) {
+      activeAttempt = await wixData.get('completionattempts', job.activeCompletionAttemptId);
+    }
+
+    return {
+      ok: true,
+      job: {
+        _id: job._id,
+        clientId: job.clientId,
+        joseadorId: job.joseadorId,
+        threadId: job.threadId,
+        status: job.status,
+        activeCompletionAttemptId: job.activeCompletionAttemptId,
+        createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
+      },
+      activeAttempt: activeAttempt
+        ? {
+            _id: activeAttempt._id,
+            proposedByUserId: activeAttempt.proposedByUserId,
+            proposedByRole: activeAttempt.proposedByRole,
+            note: activeAttempt.note,
+            status: activeAttempt.status,
+            createdAt: activeAttempt.createdAt,
+          }
+        : null,
+      currentUserId: userId,
+      userRole: job.clientId === userId ? 'client' : 'joseador',
+      status: 200,
+    };
+  } catch (error) {
+    console.error('Error in getJobContext:', error);
+    return {
+      ok: false,
+      message: String(error),
+      status: 500,
+    };
+  }
+}
