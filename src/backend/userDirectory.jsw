@@ -1,4 +1,4 @@
-import { query } from 'wix-data';
+import wixData from 'wix-data';
 import { members } from 'wix-members-backend';
 import { currentMember } from 'wix-members-backend';
 
@@ -75,21 +75,20 @@ export async function upsertMemberToDirectory(member) {
   const now = new Date();
 
   // Find existing record by memberId
-  const existing = await query(COLLECTION)
-    .eq('memberId', memberId)
-    .find();
+  const existing = await wixData.query(COLLECTION)
+    .eq("memberId", memberId)
+    .limit(1)
+    .find({ suppressAuth: true });
 
-  if (existing.items && existing.items.length > 0) {
+  if (existing.items.length > 0) {
     // Update existing record
     const item = existing.items[0];
-    await query(COLLECTION)
-      .eq('_id', item._id)
-      .update({
-        fullName: fullName,
-        email: email,
-        lastSeen: now,
-      });
-    return { isNew: false, item: item };
+    item.fullName = fullName;
+    item.email = email;
+    item.lastSeen = now;
+
+    await wixData.update(COLLECTION, item, { suppressAuth: true });
+    return { isNew: false, item };
   }
 
   // Create new record
@@ -103,8 +102,7 @@ export async function upsertMemberToDirectory(member) {
     isActive: true
   };
 
-  const created = await query(COLLECTION)
-    .insert(newItem);
+  const created = await wixData.insert(COLLECTION, newItem, { suppressAuth: true });
   return { isNew: true, item: created };
 }
 
@@ -119,17 +117,15 @@ export async function touchLastSeen(memberId) {
   const now = new Date();
 
   // Find existing record
-  const existing = await query(COLLECTION)
-    .eq('memberId', memberId)
-    .find();
+  const existing = await wixData.query(COLLECTION)
+    .eq("memberId", memberId)
+    .limit(1)
+    .find({ suppressAuth: true });
 
-  if (existing.items && existing.items.length > 0) {
+  if (existing.items.length > 0) {
     const item = existing.items[0];
-    return query(COLLECTION)
-      .eq('_id', item._id)
-      .update({
-        lastSeen: now,
-      });
+    item.lastSeen = now;
+    return wixData.update(COLLECTION, item, { suppressAuth: true });
   }
 
   // Create new record if doesn't exist
@@ -143,8 +139,7 @@ export async function touchLastSeen(memberId) {
     isActive: true
   };
 
-  return query(COLLECTION)
-    .insert(newItem);
+  return wixData.insert(COLLECTION, newItem, { suppressAuth: true });
 }
 
 /**
@@ -161,41 +156,30 @@ export async function listDirectoryUsers(options = {}) {
     pageSize = 20
   } = options;
 
-  let queryFilter = {};
-
-  // Apply verification filter
-  if (verificationFilter === "VERIFIED") {
-    queryFilter.verificationStatus = "VERIFIED";
-  } else if (verificationFilter === "UNVERIFIED") {
-    queryFilter.verificationStatus = "UNVERIFIED";
-  }
-
-  // Get all items with filters
-  const result = await query(COLLECTION)
-    .find();
-
-  let filteredItems = result.items || [];
-
-  // Apply verification filter
-  if (verificationFilter === "VERIFIED") {
-    filteredItems = filteredItems.filter(item => item.verificationStatus === "VERIFIED");
-  } else if (verificationFilter === "UNVERIFIED") {
-    filteredItems = filteredItems.filter(item => item.verificationStatus === "UNVERIFIED");
-  }
+  let query = wixData.query(COLLECTION);
 
   // Apply search filter
   if (search) {
-    const searchLower = search.toLowerCase();
-    filteredItems = filteredItems.filter(item => 
-      item.fullName?.toLowerCase().includes(searchLower) || 
-      item.email?.toLowerCase().includes(searchLower)
-    );
+    query = query.contains("fullName", search).or(query.contains("email", search));
   }
+
+  // Apply verification filter
+  if (verificationFilter === "VERIFIED") {
+    query = query.eq("verificationStatus", "VERIFIED");
+  } else if (verificationFilter === "UNVERIFIED") {
+    query = query.eq("verificationStatus", "UNVERIFIED");
+  }
+
+  // Get total count before pagination
+  const countResult = await query.find({ suppressAuth: true });
+  const total = countResult.items.length;
 
   // Apply status filter (requires date calculations)
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  let filteredItems = countResult.items;
 
   if (statusFilter === "ONLINE") {
     filteredItems = filteredItems.filter(item => {
@@ -231,9 +215,8 @@ export async function listDirectoryUsers(options = {}) {
  * @returns {Promise<{total: number, verified: number, unverified: number, online: number, inactive: number, disconnected: number}>}
  */
 export async function getStats() {
-  const result = await query(COLLECTION)
-    .find();
-  const itemsList = result.items || [];
+  const result = await wixData.query(COLLECTION).find({ suppressAuth: true });
+  const items = result.items || [];
 
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
@@ -245,7 +228,7 @@ export async function getStats() {
   let inactive = 0;
   let disconnected = 0;
 
-  for (const item of itemsList) {
+  for (const item of items) {
     if (item.verificationStatus === "VERIFIED") {
       verified++;
     } else {
@@ -263,7 +246,7 @@ export async function getStats() {
   }
 
   return {
-    total: itemsList.length,
+    total: items.length,
     verified,
     unverified,
     online,

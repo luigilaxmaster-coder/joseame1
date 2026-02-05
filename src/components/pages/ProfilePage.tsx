@@ -15,7 +15,6 @@ import { createPreviewUrl, isValidImageFile, getUploadErrorMessage } from '@/lib
 import { useSyncUser } from '@/lib/user-sync-hook';
 import { WixMediaService } from '@/lib/wix-media-service';
 import { PortfolioUploaderBasic } from '@/components/PortfolioUploaderBasic';
-import { initializeUserProfile, fetchMyProfile, updateUserProfile } from '@/lib/multi-tenant-profiles-service';
 
 type TabType = 'posts' | 'about' | 'settings';
 
@@ -66,13 +65,6 @@ function ProfilePage() {
 
   useSyncUser();
 
-  // Initialize multi-tenant profile on component mount
-  useEffect(() => {
-    initializeUserProfile().catch(error => {
-      console.error('Failed to initialize multi-tenant profile:', error);
-    });
-  }, []);
-
   const getBackButtonPath = () => {
     if (userRole === 'client') return '/client/dashboard';
     if (userRole === 'joseador') return '/joseador/dashboard';
@@ -84,7 +76,7 @@ function ProfilePage() {
     loadProfileData();
     const intervalId = setInterval(() => {
       loadUserDataFromAdmin();
-    }, 1000); // Poll every 1 second for real-time updates
+    }, 2000);
     return () => clearInterval(intervalId);
   }, [member?.loginEmail]);
 
@@ -153,9 +145,11 @@ function ProfilePage() {
       const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
       const currentUser = users.find(u => u.email === member.loginEmail);
 
-      if (currentUser) {
-        // Use verification status from RegisteredUsers collection (source of truth from admin)
-        const verificationStatusValue = currentUser.verificationStatus || 'Pendiente';
+      if (currentUser && currentUser.userId) {
+        const { items: verificationItems } = await BaseCrudService.getAll<UserVerification>('userverification');
+        const userVerification = verificationItems.find(v => v.joseadorId === currentUser.userId);
+
+        const verificationStatusValue = userVerification?.isVerified ? 'Aprobado' : 'Pendiente';
         setVerificationStatus(verificationStatusValue);
 
         if (currentUser.badges) {
@@ -165,7 +159,6 @@ function ProfilePage() {
           setUserBadges([]);
         }
 
-        // Set the role from RegisteredUsers collection
         setRegisteredUserRole(currentUser.role || '');
       }
     } catch (error) {

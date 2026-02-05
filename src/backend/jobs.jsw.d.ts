@@ -31,32 +31,6 @@ export interface AcceptCompletionParams {
   completionAttemptId: string;
 }
 
-export interface JobContextResult {
-  ok: boolean;
-  message?: string;
-  status: number;
-  job?: {
-    _id: string;
-    clientId: string;
-    joseadorId: string;
-    threadId: string;
-    status: string;
-    activeCompletionAttemptId?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-  };
-  activeAttempt?: {
-    _id: string;
-    proposedByUserId: string;
-    proposedByRole: string;
-    note: string;
-    status: string;
-    createdAt?: Date;
-  } | null;
-  currentUserId?: string;
-  userRole?: 'client' | 'joseador';
-}
-
 export interface BackendResult {
   ok: boolean;
   error?: string;
@@ -65,4 +39,3 @@ export interface BackendResult {
 export function rejectUnified(params: RejectUnifiedParams): Promise<BackendResult>;
 export function proposeCompletion(params: ProposeCompletionParams): Promise<BackendResult>;
 export function acceptCompletion(params: AcceptCompletionParams): Promise<BackendResult>;
-export function getJobContext(threadId: string): Promise<JobContextResult>;

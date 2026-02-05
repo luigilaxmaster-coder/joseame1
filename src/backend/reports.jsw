@@ -1,5 +1,5 @@
 import { getLoggedInMember } from 'wix-members-backend';
-import { query } from 'wix-data';
+import { query, insert } from 'wix-data';
 
 // Rate limiting: max 5 reports per 5 minutes per user
 const RATE_LIMIT_REPORTS = 5;
@@ -28,11 +28,11 @@ async function checkRateLimit(reporterId) {
     const fiveMinutesAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
     
     const recentReports = await query('userreports')
-      .gt('createdAt', fiveMinutesAgo.toISOString())
       .eq('reporterId', reporterId)
+      .gt('createdAt', fiveMinutesAgo)
       .find();
     
-    if (recentReports.items && recentReports.items.length >= RATE_LIMIT_REPORTS) {
+    if (recentReports.items.length >= RATE_LIMIT_REPORTS) {
       throw new Error(`Rate limit exceeded. Maximum ${RATE_LIMIT_REPORTS} reports per 5 minutes.`);
     }
   } catch (error) {
@@ -56,7 +56,7 @@ async function checkDuplicateReport(reporterId, targetUserId, jobOrderId) {
       .eq('status', 'open')
       .find();
     
-    if (duplicateReports.items && duplicateReports.items.length > 0) {
+    if (duplicateReports.items.length > 0) {
       throw new Error('An active report already exists for this user and job order.');
     }
   } catch (error) {
@@ -102,6 +102,7 @@ export async function submitReport(payload) {
     const now = new Date().toISOString();
 
     const reportData = {
+      _id: reportId,
       category: payload.category,
       reasonCode: payload.reasonCode,
       reasonLabelSnapshot: payload.reasonLabelSnapshot || payload.reasonCode,
@@ -120,13 +121,14 @@ export async function submitReport(payload) {
     };
 
     // Insert report
-    await query('userreports')
-      .insert(reportData);
+    await insert('userreports', reportData);
 
     // Insert attachments if provided
     if (payload.attachments && payload.attachments.length > 0) {
       for (const attachment of payload.attachments) {
+        const attachmentId = crypto.randomUUID();
         const attachmentData = {
+          _id: attachmentId,
           fileName: attachment.fileName,
           fileUrl: attachment.fileUrl,
           fileSize: attachment.fileSize || 0,
@@ -134,13 +136,14 @@ export async function submitReport(payload) {
           uploadDate: now,
           isEvidence: true,
         };
-        await query('reportattachments')
-          .insert(attachmentData);
+        await insert('reportattachments', attachmentData);
       }
     }
 
     // Create initial report event
+    const eventId = crypto.randomUUID();
     const eventData = {
+      _id: eventId,
       reportId: reportId,
       actionType: 'created',
       performedByUserId: reporterId,
@@ -149,11 +152,12 @@ export async function submitReport(payload) {
       newValue: 'open',
       comment: 'Report created',
     };
-    await query('reportevents')
-      .insert(eventData);
+    await insert('reportevents', eventData);
 
     // Create audit log entry
+    const auditId = crypto.randomUUID();
     const auditData = {
+      _id: auditId,
       actionType: 'REPORT_CREATED',
       actorId: reporterId,
       targetResourceType: 'Report',
@@ -165,8 +169,7 @@ export async function submitReport(payload) {
         severity: payload.severity,
       }),
     };
-    await query('auditlogs')
-      .insert(auditData);
+    await insert('auditlogs', auditData);
 
     return {
       success: true,
@@ -190,7 +193,7 @@ export async function getReportDetails(reportId) {
       .eq('_id', reportId)
       .find();
     
-    if (!report.items || report.items.length === 0) {
+    if (report.items.length === 0) {
       throw new Error('Report not found');
     }
 
@@ -231,7 +234,9 @@ export async function updateReportStatus(reportId, newStatus, comment) {
       });
 
     // Create event
+    const eventId = crypto.randomUUID();
     const eventData = {
+      _id: eventId,
       reportId: reportId,
       actionType: 'status_changed',
       performedByUserId: member._id,
@@ -240,11 +245,12 @@ export async function updateReportStatus(reportId, newStatus, comment) {
       newValue: newStatus,
       comment: comment || '',
     };
-    await query('reportevents')
-      .insert(eventData);
+    await insert('reportevents', eventData);
 
     // Create audit log
+    const auditId = crypto.randomUUID();
     const auditData = {
+      _id: auditId,
       actionType: 'REPORT_STATUS_UPDATED',
       actorId: member._id,
       targetResourceType: 'Report',
@@ -252,8 +258,7 @@ export async function updateReportStatus(reportId, newStatus, comment) {
       timestamp: now,
       details: JSON.stringify({ newStatus, comment }),
     };
-    await query('auditlogs')
-      .insert(auditData);
+    await insert('auditlogs', auditData);
 
     return { success: true, message: 'Report status updated' };
   } catch (error) {
@@ -288,6 +293,7 @@ export async function applySanction(targetUserId, sanctionType, reason, duration
     }
 
     const sanctionData = {
+      _id: sanctionId,
       sanctionType: sanctionType,
       targetUserId: targetUserId,
       sanctionReason: reason,
@@ -299,11 +305,12 @@ export async function applySanction(targetUserId, sanctionType, reason, duration
       isPermanent: isPermanent,
     };
 
-    await query('usersanctions')
-      .insert(sanctionData);
+    await insert('usersanctions', sanctionData);
 
     // Create audit log
+    const auditId = crypto.randomUUID();
     const auditData = {
+      _id: auditId,
       actionType: 'SANCTION_APPLIED',
       actorId: member._id,
       targetResourceType: 'User',
@@ -311,8 +318,7 @@ export async function applySanction(targetUserId, sanctionType, reason, duration
       timestamp: now.toISOString(),
       details: JSON.stringify({ sanctionType, reason, isPermanent }),
     };
-    await query('auditlogs')
-      .insert(auditData);
+    await insert('auditlogs', auditData);
 
     return { success: true, sanctionId: sanctionId };
   } catch (error) {
