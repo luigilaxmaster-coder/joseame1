@@ -12,7 +12,7 @@ export default defineConfig({
       ...(viteConfig.build || {}),
       rollupOptions: {
         ...(viteConfig.build?.rollupOptions || {}),
-        external: ['wix-data', 'wix-members-backend'],
+        external: ['wix-data', 'wix-members-backend', 'wix-pay-backend'],
       },
     },
   },
