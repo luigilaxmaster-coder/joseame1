@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import wixData from 'wix-data';
-import { getLoggedInMember } from 'wix-members-backend';
+import { BaseCrudService } from '@/integrations';
+import { JobOrders, CompletionAttempts } from '@/entities';
 
 /**
  * GET /api/jobs/context
@@ -10,41 +10,19 @@ export const GET: APIRoute = async ({ url }) => {
   try {
     const threadId = url.searchParams.get('threadId');
     if (!threadId) {
-      return new Response(JSON.stringify({ message: 'threadId is required' }), {
+      return new Response(JSON.stringify({ ok: false, error: 'threadId is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Get current user
-    const member = await getLoggedInMember();
-    if (!member) {
-      return new Response(JSON.stringify({ message: 'UNAUTHORIZED: User not logged in' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const userId = member._id;
-
     // Find job by threadId
-    const jobs = await wixData.query('joborders')
-      .eq('threadId', threadId)
-      .find();
+    const { items: jobs } = await BaseCrudService.getAll<JobOrders>('joborders');
+    const job = jobs.find(j => j.threadId === threadId);
 
-    if (jobs.items.length === 0) {
-      return new Response(JSON.stringify({ message: 'Job not found for this thread' }), {
+    if (!job) {
+      return new Response(JSON.stringify({ ok: false, error: 'Job not found for this thread' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const job = jobs.items[0];
-
-    // Validate user belongs to job
-    if (job.clientId !== userId && job.joseadorId !== userId) {
-      return new Response(JSON.stringify({ message: 'FORBIDDEN: User does not belong to this job' }), {
-        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -52,7 +30,10 @@ export const GET: APIRoute = async ({ url }) => {
     // Get active completion attempt if exists
     let activeAttempt = null;
     if (job.activeCompletionAttemptId) {
-      activeAttempt = await wixData.get('completionattempts', job.activeCompletionAttemptId);
+      activeAttempt = await BaseCrudService.getById<CompletionAttempts>(
+        'completionattempts',
+        job.activeCompletionAttemptId
+      );
     }
 
     return new Response(
@@ -78,8 +59,6 @@ export const GET: APIRoute = async ({ url }) => {
               createdAt: activeAttempt.createdAt,
             }
           : null,
-        currentUserId: userId,
-        userRole: job.clientId === userId ? 'client' : 'joseador',
       }),
       {
         status: 200,
@@ -87,8 +66,8 @@ export const GET: APIRoute = async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Error in /api/jobs/context:', error);
-    return new Response(JSON.stringify({ message: String(error) }), {
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return new Response(JSON.stringify({ ok: false, error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
