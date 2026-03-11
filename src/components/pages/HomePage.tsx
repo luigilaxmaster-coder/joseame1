@@ -417,47 +417,66 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-accent/5 to-white relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+        {/* Features Section - Why Choose JOSEAME - Completely Redesigned */}
+        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-white via-primary/3 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -20, 0],
-                opacity: [0.3, 0.5, 0.3]
+                y: [0, -30, 0],
+                x: [0, 20, 0],
+                opacity: [0.2, 0.4, 0.2]
               }}
-              transition={{ duration: 8, repeat: Infinity }}
-              className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-accent/20 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 12, repeat: Infinity }}
+              className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-gradient-to-br from-primary/30 via-secondary/20 to-transparent rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 30, 0],
+                x: [0, -20, 0],
+                opacity: [0.2, 0.4, 0.2]
+              }}
+              transition={{ duration: 14, repeat: Infinity, delay: 1 }}
+              className="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-gradient-to-tr from-accent/30 via-support/20 to-transparent rounded-full blur-3xl"
             />
           </div>
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="text-center mb-12 md:mb-20">
+            <AnimatedElement className="text-center mb-16 md:mb-24">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20 mb-4 md:mb-8"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/20 to-secondary/20 px-6 py-3 rounded-full border border-primary/30 mb-6 md:mb-8 backdrop-blur-sm"
               >
                 <Sparkles size={18} className="text-primary" />
                 <span className="text-primary font-heading font-semibold text-sm md:text-base">{t.featuresSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.featuresSection.title}</h2>
-              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.featuresSection.description}</p>
+              <h2 className="font-heading text-5xl md:text-7xl font-bold text-foreground mb-6 md:mb-8 leading-tight">{t.featuresSection.title}</h2>
+              <p className="text-lg md:text-2xl text-muted-text max-w-4xl mx-auto font-paragraph leading-relaxed">{t.featuresSection.description}</p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <AnimatedElement key={feature.id} delay={index * 100}>
+                  <AnimatedElement key={feature.id} delay={index * 120}>
                     <motion.div
-                      whileHover={{ y: -8 }}
-                      className="enhanced-card card-hover p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 group shadow-lg hover:shadow-2xl"
+                      whileHover={{ y: -12, scale: 1.02 }}
+                      className="enhanced-card relative group overflow-hidden rounded-3xl p-8 md:p-10 bg-gradient-to-br from-white via-white to-gray-50 border-2 border-gray-100 shadow-xl hover:shadow-2xl transition-all"
                     >
-                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} p-3 md:p-4 mb-4 md:mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
-                        <Icon className="w-full h-full text-white" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-5`}></div>
                       </div>
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{feature.title}</h3>
-                      <p className="text-base md:text-lg text-muted-text leading-relaxed">{feature.description}</p>
+                      <div className="relative z-10">
+                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${feature.color} p-4 md:p-5 mb-6 md:mb-8 group-hover:scale-125 transition-transform duration-500 shadow-xl`}>
+                          <Icon className="w-full h-full text-white" />
+                        </div>
+                        <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5">{feature.title}</h3>
+                        <p className="text-base md:text-lg text-muted-text leading-relaxed font-paragraph">{feature.description}</p>
+                        <div className="mt-6 md:mt-8 flex items-center gap-2 text-primary font-heading font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span>Descubre más</span>
+                          <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                        </div>
+                      </div>
                     </motion.div>
                   </AnimatedElement>
                 );
@@ -466,106 +485,143 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How It Works - Client Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-secondary/5 to-white relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+        {/* How It Works - Client Section - Completely Redesigned */}
+        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-white via-secondary/3 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, 20, 0],
-                opacity: [0.3, 0.5, 0.3]
+                y: [0, 40, 0],
+                opacity: [0.2, 0.4, 0.2]
               }}
-              transition={{ duration: 10, repeat: Infinity }}
-              className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-secondary/20 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 13, repeat: Infinity }}
+              className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-gradient-to-tl from-secondary/35 via-primary/20 to-transparent rounded-full blur-3xl"
             />
           </div>
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="text-center mb-12 md:mb-20">
+            <AnimatedElement className="mb-16 md:mb-24">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-secondary/10 px-6 py-3 rounded-full border border-secondary/20 mb-4 md:mb-8"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary/20 to-primary/20 px-6 py-3 rounded-full border border-secondary/30 mb-6 md:mb-8 backdrop-blur-sm"
               >
                 <Rocket size={18} className="text-secondary" />
                 <span className="text-secondary font-heading font-semibold text-sm md:text-base">{t.clientSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.clientSection.title}</h2>
-              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.clientSection.description}</p>
+              <h2 className="font-heading text-5xl md:text-7xl font-bold text-foreground mb-6 md:mb-8 leading-tight">{t.clientSection.title}</h2>
+              <p className="text-lg md:text-2xl text-muted-text max-w-4xl font-paragraph leading-relaxed">{t.clientSection.description}</p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {clientSteps.map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <AnimatedElement key={step.id} delay={index * 100}>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="enhanced-card relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-secondary/5 border-2 border-secondary/20 hover:border-secondary/50 transition-all group shadow-lg hover:shadow-2xl"
-                    >
-                      <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
-                        {step.step}
-                      </div>
-                      <div className="mt-4 md:mt-6">
-                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-secondary mb-3 md:mb-4" />
-                        <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{step.text}</h3>
-                        <p className="text-base md:text-lg text-muted-text leading-relaxed">{step.subtitle}</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedElement>
-                );
-              })}
+            <div className="relative">
+              {/* Connecting line for desktop */}
+              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-secondary/20 via-secondary/50 to-secondary/20 transform -translate-y-1/2 z-0"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 relative z-10">
+                {clientSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <AnimatedElement key={step.id} delay={index * 130}>
+                      <motion.div
+                        whileHover={{ y: -16, scale: 1.05 }}
+                        className="enhanced-card relative group"
+                      >
+                        <div className="relative">
+                          {/* Step number circle - larger and more prominent */}
+                          <motion.div
+                            whileHover={{ scale: 1.2, rotate: 360 }}
+                            transition={{ duration: 0.6 }}
+                            className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-2xl md:text-3xl shadow-2xl group-hover:shadow-3xl transition-all z-20 border-4 border-white"
+                          >
+                            {step.step}
+                          </motion.div>
+                          
+                          {/* Card content */}
+                          <div className="pt-12 md:pt-16 p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white via-secondary/5 to-white border-2 border-secondary/20 group-hover:border-secondary/60 transition-all shadow-lg hover:shadow-2xl">
+                            <div className="flex justify-center mb-6 md:mb-8">
+                              <div className="p-4 md:p-5 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Icon className="w-8 h-8 md:w-10 md:h-10 text-secondary" />
+                              </div>
+                            </div>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5 text-center">{step.text}</h3>
+                            <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </AnimatedElement>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* How It Works - Joseador Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-accent/5 to-white relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+        {/* How It Works - Joseador Section - Completely Redesigned */}
+        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-white via-accent/3 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -20, 0],
-                opacity: [0.3, 0.5, 0.3]
+                y: [0, -40, 0],
+                x: [0, 30, 0],
+                opacity: [0.2, 0.4, 0.2]
               }}
-              transition={{ duration: 12, repeat: Infinity }}
-              className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 15, repeat: Infinity }}
+              className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-br from-accent/35 via-support/20 to-transparent rounded-full blur-3xl"
             />
           </div>
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="text-center mb-12 md:mb-20">
+            <AnimatedElement className="mb-16 md:mb-24">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-accent/10 px-6 py-3 rounded-full border border-accent/20 mb-4 md:mb-8"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-support/20 px-6 py-3 rounded-full border border-accent/30 mb-6 md:mb-8 backdrop-blur-sm"
               >
                 <Target size={18} className="text-accent" />
                 <span className="text-accent font-heading font-semibold text-sm md:text-base">{t.workerSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.workerSection.title}</h2>
-              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.workerSection.description}</p>
+              <h2 className="font-heading text-5xl md:text-7xl font-bold text-foreground mb-6 md:mb-8 leading-tight">{t.workerSection.title}</h2>
+              <p className="text-lg md:text-2xl text-muted-text max-w-4xl font-paragraph leading-relaxed">{t.workerSection.description}</p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {joseadorSteps.map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <AnimatedElement key={step.id} delay={index * 100}>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="enhanced-card relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-accent/10 to-support/5 border-2 border-accent/20 hover:border-accent/50 transition-all group shadow-lg hover:shadow-2xl"
-                    >
-                      <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
-                        {step.step}
-                      </div>
-                      <div className="mt-4 md:mt-6">
-                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-accent mb-3 md:mb-4" />
-                        <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{step.text}</h3>
-                        <p className="text-base md:text-lg text-muted-text leading-relaxed">{step.subtitle}</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedElement>
-                );
-              })}
+            <div className="relative">
+              {/* Connecting line for desktop */}
+              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-accent/20 via-accent/50 to-accent/20 transform -translate-y-1/2 z-0"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 relative z-10">
+                {joseadorSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <AnimatedElement key={step.id} delay={index * 130}>
+                      <motion.div
+                        whileHover={{ y: -16, scale: 1.05 }}
+                        className="enhanced-card relative group"
+                      >
+                        <div className="relative">
+                          {/* Step number circle - larger and more prominent */}
+                          <motion.div
+                            whileHover={{ scale: 1.2, rotate: 360 }}
+                            transition={{ duration: 0.6 }}
+                            className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center text-white font-heading font-bold text-2xl md:text-3xl shadow-2xl group-hover:shadow-3xl transition-all z-20 border-4 border-white"
+                          >
+                            {step.step}
+                          </motion.div>
+                          
+                          {/* Card content */}
+                          <div className="pt-12 md:pt-16 p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white via-accent/5 to-white border-2 border-accent/20 group-hover:border-accent/60 transition-all shadow-lg hover:shadow-2xl">
+                            <div className="flex justify-center mb-6 md:mb-8">
+                              <div className="p-4 md:p-5 bg-gradient-to-br from-accent/20 to-support/20 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Icon className="w-8 h-8 md:w-10 md:h-10 text-accent" />
+                              </div>
+                            </div>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5 text-center">{step.text}</h3>
+                            <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </AnimatedElement>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
