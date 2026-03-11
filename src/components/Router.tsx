@@ -4,6 +4,8 @@ import { ScrollToTop } from '@/lib/scroll-to-top';
 import ErrorPage from '@/integrations/errorHandlers/ErrorPage';
 import { MemberProtectedRoute } from '@/components/ui/member-protected-route';
 import { useRoleStore } from '@/store/roleStore';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 // Pages
 import HomePage from '@/components/pages/HomePage';
@@ -29,12 +31,14 @@ import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
 import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
 import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
 
-// Layout component that includes ScrollToTop
+// Layout component that includes ScrollToTop, Header and Footer
 function Layout() {
   return (
     <>
       <ScrollToTop />
+      <Header />
       <Outlet />
+      <Footer />
     </>
   );
 }

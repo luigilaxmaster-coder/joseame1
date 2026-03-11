@@ -146,6 +146,19 @@ export const translations = {
       next: 'Siguiente',
       goToStep: 'Ir al paso',
     },
+
+    // Login Page
+    login: {
+      welcome: 'Bienvenido a JOSEAME',
+      welcomeDesc: 'La infraestructura digital del joseo. Conecta con profesionales o encuentra trabajos en minutos.',
+      backToHome: 'Volver al inicio',
+      signIn: 'Iniciar Sesión',
+      signInDesc: 'Accede a tu cuenta de JOSEAME',
+      signInButton: 'Iniciar Sesión',
+      firstTime: '¿Primera vez en JOSEAME?',
+      createAccount: 'Crear Cuenta Nueva',
+      terms: 'Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad',
+    },
   },
   en: {
     // Hero Section
@@ -293,6 +306,19 @@ export const translations = {
       previous: 'Previous',
       next: 'Next',
       goToStep: 'Go to step',
+    },
+
+    // Login Page
+    login: {
+      welcome: 'Welcome to JOSEAME',
+      welcomeDesc: 'The digital infrastructure of work. Connect with professionals or find jobs in minutes.',
+      backToHome: 'Back to Home',
+      signIn: 'Sign In',
+      signInDesc: 'Access your JOSEAME account',
+      signInButton: 'Sign In',
+      firstTime: 'First time on JOSEAME?',
+      createAccount: 'Create New Account',
+      terms: 'By continuing, you accept our Terms of Service and Privacy Policy',
     },
   },
 };
