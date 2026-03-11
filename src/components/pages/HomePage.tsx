@@ -528,7 +528,7 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Client Section - Completely Redesigned */}
-        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-secondary/5 to-white">
           {/* Ultra vibrant animated background */}
           <div className="absolute inset-0 pointer-events-none">
             <motion.div
@@ -550,10 +550,9 @@ export default function HomePage() {
               className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-gradient-to-br from-primary/40 via-secondary/30 to-transparent rounded-full blur-3xl"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
           
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="mb-20 md:mb-32">
+            <AnimatedElement className="text-center mb-20 md:mb-32">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
@@ -569,54 +568,67 @@ export default function HomePage() {
               <p className="text-xl md:text-3xl text-foreground max-w-5xl mx-auto font-paragraph leading-relaxed font-semibold">{t.clientSection.description}</p>
             </AnimatedElement>
 
-            <div className="relative">
-              {/* Connecting line for desktop - more vibrant */}
-              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-3 bg-gradient-to-r from-secondary/20 via-secondary/80 to-secondary/20 transform -translate-y-1/2 z-0 rounded-full shadow-2xl"></div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 relative z-10">
-                {clientSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <AnimatedElement key={step.id} delay={index * 100}>
-                      <motion.div
-                        whileHover={{ y: -24, scale: 1.08 }}
-                        className="enhanced-card relative group"
-                      >
-                        <div className="relative">
-                          {/* Step number circle - larger and more prominent */}
-                          <motion.div
-                            whileHover={{ scale: 1.3, rotate: 360 }}
-                            transition={{ duration: 0.7 }}
-                            className="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-32 md:h-32 bg-gradient-to-br from-secondary via-primary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-4xl md:text-5xl shadow-3xl group-hover:shadow-4xl transition-all z-20 border-4 border-white"
-                          >
-                            {step.step}
-                          </motion.div>
-                          
-                          {/* Card content */}
-                          <div className="pt-20 md:pt-24 p-10 md:p-12 rounded-3xl bg-gradient-to-br from-white via-secondary/10 to-white border-2 border-secondary/40 group-hover:border-secondary/80 transition-all shadow-2xl hover:shadow-3xl">
+            {/* Vertical centered layout with connecting elements */}
+            <div className="flex flex-col items-center gap-8 md:gap-12 max-w-4xl mx-auto">
+              {clientSteps.map((step, index) => {
+                const Icon = step.icon;
+                const isEven = index % 2 === 0;
+                
+                return (
+                  <div key={step.id} className="w-full">
+                    <AnimatedElement delay={index * 100}>
+                      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                        {/* Left content - alternates position */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          className={`flex-1 ${isEven ? 'md:order-1' : 'md:order-2'}`}
+                        >
+                          <div className="enhanced-card relative group rounded-3xl p-10 md:p-12 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border-2 border-secondary/40 group-hover:border-secondary/80 shadow-2xl hover:shadow-3xl transition-all">
                             <div className="flex justify-center mb-8 md:mb-10">
                               <motion.div 
-                                whileHover={{ scale: 1.25, rotate: 15 }}
-                                className="p-5 md:p-6 bg-gradient-to-br from-secondary/40 to-primary/40 rounded-2xl group-hover:shadow-2xl transition-all"
+                                whileHover={{ scale: 1.3, rotate: 15 }}
+                                className="p-6 md:p-8 bg-gradient-to-br from-secondary/40 to-primary/40 rounded-3xl group-hover:shadow-2xl transition-all"
                               >
-                                <Icon className="w-10 h-10 md:w-12 md:h-12 text-secondary" />
+                                <Icon className="w-12 h-12 md:w-16 md:h-16 text-secondary" />
                               </motion.div>
                             </div>
-                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-5 md:mb-6 text-center">{step.text}</h3>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-6 text-center">{step.text}</h3>
                             <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
                           </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+
+                        {/* Center step number */}
+                        <motion.div
+                          whileHover={{ scale: 1.2, rotate: 360 }}
+                          transition={{ duration: 0.7 }}
+                          className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-secondary via-primary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-3xl md:text-4xl shadow-3xl border-4 border-white z-10 relative"
+                        >
+                          {step.step}
+                        </motion.div>
+
+                        {/* Right content - empty on desktop for alternating layout */}
+                        <div className={`flex-1 ${isEven ? 'md:order-2' : 'md:order-1'} hidden md:block`}></div>
+                      </div>
                     </AnimatedElement>
-                  );
-                })}
-              </div>
+
+                    {/* Connecting line between steps */}
+                    {index < clientSteps.length - 1 && (
+                      <motion.div
+                        initial={{ scaleY: 0 }}
+                        whileInView={{ scaleY: 1 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="h-12 md:h-16 w-1 bg-gradient-to-b from-secondary/80 to-secondary/20 mx-auto my-4 md:my-6 origin-top"
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* How It Works - Joseador Section - Completely Redesigned */}
-        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-accent/5 to-white">
           {/* Ultra vibrant animated background */}
           <div className="absolute inset-0 pointer-events-none">
             <motion.div
@@ -638,10 +650,9 @@ export default function HomePage() {
               className="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-gradient-to-tl from-support/40 via-accent/30 to-transparent rounded-full blur-3xl"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
           
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="mb-20 md:mb-32">
+            <AnimatedElement className="text-center mb-20 md:mb-32">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
@@ -657,48 +668,61 @@ export default function HomePage() {
               <p className="text-xl md:text-3xl text-foreground max-w-5xl mx-auto font-paragraph leading-relaxed font-semibold">{t.workerSection.description}</p>
             </AnimatedElement>
 
-            <div className="relative">
-              {/* Connecting line for desktop - more vibrant */}
-              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-3 bg-gradient-to-r from-accent/20 via-accent/80 to-accent/20 transform -translate-y-1/2 z-0 rounded-full shadow-2xl"></div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 relative z-10">
-                {joseadorSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <AnimatedElement key={step.id} delay={index * 100}>
-                      <motion.div
-                        whileHover={{ y: -24, scale: 1.08 }}
-                        className="enhanced-card relative group"
-                      >
-                        <div className="relative">
-                          {/* Step number circle - larger and more prominent */}
-                          <motion.div
-                            whileHover={{ scale: 1.3, rotate: 360 }}
-                            transition={{ duration: 0.7 }}
-                            className="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-32 md:h-32 bg-gradient-to-br from-accent via-support to-secondary rounded-full flex items-center justify-center text-white font-heading font-bold text-4xl md:text-5xl shadow-3xl group-hover:shadow-4xl transition-all z-20 border-4 border-white"
-                          >
-                            {step.step}
-                          </motion.div>
-                          
-                          {/* Card content */}
-                          <div className="pt-20 md:pt-24 p-10 md:p-12 rounded-3xl bg-gradient-to-br from-white via-accent/10 to-white border-2 border-accent/40 group-hover:border-accent/80 transition-all shadow-2xl hover:shadow-3xl">
+            {/* Vertical centered layout with connecting elements */}
+            <div className="flex flex-col items-center gap-8 md:gap-12 max-w-4xl mx-auto">
+              {joseadorSteps.map((step, index) => {
+                const Icon = step.icon;
+                const isEven = index % 2 === 0;
+                
+                return (
+                  <div key={step.id} className="w-full">
+                    <AnimatedElement delay={index * 100}>
+                      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                        {/* Left content - alternates position */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          className={`flex-1 ${isEven ? 'md:order-1' : 'md:order-2'}`}
+                        >
+                          <div className="enhanced-card relative group rounded-3xl p-10 md:p-12 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border-2 border-accent/40 group-hover:border-accent/80 shadow-2xl hover:shadow-3xl transition-all">
                             <div className="flex justify-center mb-8 md:mb-10">
                               <motion.div 
-                                whileHover={{ scale: 1.25, rotate: -15 }}
-                                className="p-5 md:p-6 bg-gradient-to-br from-accent/40 to-support/40 rounded-2xl group-hover:shadow-2xl transition-all"
+                                whileHover={{ scale: 1.3, rotate: -15 }}
+                                className="p-6 md:p-8 bg-gradient-to-br from-accent/40 to-support/40 rounded-3xl group-hover:shadow-2xl transition-all"
                               >
-                                <Icon className="w-10 h-10 md:w-12 md:h-12 text-accent" />
+                                <Icon className="w-12 h-12 md:w-16 md:h-16 text-accent" />
                               </motion.div>
                             </div>
-                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-5 md:mb-6 text-center">{step.text}</h3>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-6 text-center">{step.text}</h3>
                             <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
                           </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+
+                        {/* Center step number */}
+                        <motion.div
+                          whileHover={{ scale: 1.2, rotate: 360 }}
+                          transition={{ duration: 0.7 }}
+                          className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-accent via-support to-secondary rounded-full flex items-center justify-center text-white font-heading font-bold text-3xl md:text-4xl shadow-3xl border-4 border-white z-10 relative"
+                        >
+                          {step.step}
+                        </motion.div>
+
+                        {/* Right content - empty on desktop for alternating layout */}
+                        <div className={`flex-1 ${isEven ? 'md:order-2' : 'md:order-1'} hidden md:block`}></div>
+                      </div>
                     </AnimatedElement>
-                  );
-                })}
-              </div>
+
+                    {/* Connecting line between steps */}
+                    {index < joseadorSteps.length - 1 && (
+                      <motion.div
+                        initial={{ scaleY: 0 }}
+                        whileInView={{ scaleY: 1 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="h-12 md:h-16 w-1 bg-gradient-to-b from-accent/80 to-accent/20 mx-auto my-4 md:my-6 origin-top"
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
