@@ -41,6 +41,11 @@ export const translations = {
     // Features Section
     platformTitle: 'La plataforma del joseador moderno.',
     platformDescription: 'Todo lo que necesitas para contratar o trabajar. Eficiente, seguro y 100% dominicano.',
+    featuresSection: {
+      badge: 'Características Principales',
+      title: 'Por qué elegir JOSEAME',
+      description: 'Tenemos todo lo que necesitas para conectar con profesionales o encontrar tu próximo trabajo.',
+    },
     features: {
       fast: 'Rápido y Fácil',
       fastDesc: 'Publica trabajos o aplica a oportunidades en minutos con nuestra interfaz intuitiva.',
@@ -50,6 +55,34 @@ export const translations = {
       communityDesc: 'Conecta con el talento y los clientes de tu propia comunidad en República Dominicana.',
       services: 'Múltiples Servicios',
       servicesDesc: 'Desde reparaciones del hogar y tecnología hasta consultoría profesional y creativa.',
+    },
+    
+    // Client Section
+    clientSection: {
+      badge: 'Para Clientes',
+      title: 'Cómo Funciona para Clientes',
+      description: 'Un proceso simple y directo para encontrar el profesional perfecto para tu proyecto.',
+    },
+    
+    // Worker Section
+    workerSection: {
+      badge: 'Para Joseadores',
+      title: 'Cómo Funciona para Joseadores',
+      description: 'Accede a oportunidades de trabajo y gana dinero haciendo lo que mejor sabes hacer.',
+    },
+    
+    // Categories Section
+    categoriesSection: {
+      badge: 'Categorías Populares',
+      title: 'Encuentra el Talento que Necesitas',
+      description: 'Desde tareas rápidas hasta proyectos complejos. Conecta con profesionales en múltiples categorías.',
+    },
+    
+    // Testimonials Section
+    testimonials: {
+      badge: 'Lo que Dicen Nuestros Usuarios',
+      title: 'Historias de Éxito',
+      description: 'Descubre cómo JOSEAME ha transformado la forma en que trabajan dominicanos.',
     },
 
     // Workflow Section
@@ -144,6 +177,11 @@ export const translations = {
     // Features Section
     platformTitle: 'The modern worker platform.',
     platformDescription: 'Everything you need to hire or work. Efficient, secure and 100% Dominican.',
+    featuresSection: {
+      badge: 'Key Features',
+      title: 'Why Choose JOSEAME',
+      description: 'We have everything you need to connect with professionals or find your next job.',
+    },
     features: {
       fast: 'Fast and Easy',
       fastDesc: 'Post jobs or apply to opportunities in minutes with our intuitive interface.',
@@ -153,6 +191,34 @@ export const translations = {
       communityDesc: 'Connect with talent and clients from your own community in the Dominican Republic.',
       services: 'Multiple Services',
       servicesDesc: 'From home repairs and technology to professional and creative consulting.',
+    },
+    
+    // Client Section
+    clientSection: {
+      badge: 'For Clients',
+      title: 'How It Works for Clients',
+      description: 'A simple and direct process to find the perfect professional for your project.',
+    },
+    
+    // Worker Section
+    workerSection: {
+      badge: 'For Workers',
+      title: 'How It Works for Workers',
+      description: 'Access work opportunities and earn money doing what you do best.',
+    },
+    
+    // Categories Section
+    categoriesSection: {
+      badge: 'Popular Categories',
+      title: 'Find the Talent You Need',
+      description: 'From quick tasks to complex projects. Connect with professionals in multiple categories.',
+    },
+    
+    // Testimonials Section
+    testimonials: {
+      badge: 'What Our Users Say',
+      title: 'Success Stories',
+      description: 'Discover how JOSEAME has transformed the way Dominicans work.',
     },
 
     // Workflow Section

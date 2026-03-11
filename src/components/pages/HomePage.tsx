@@ -338,9 +338,189 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ... rest of the sections remain the same with translations ... */}
-        {/* For brevity, I'll add a placeholder - the full page would continue with all sections using the `t` object for translations */}
-        
+        {/* Features Section */}
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-white relative overflow-hidden">
+          <div className="max-w-[120rem] mx-auto">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20 mb-4 md:mb-8"
+              >
+                <Sparkles size={18} className="text-primary" />
+                <span className="text-primary font-heading font-semibold text-sm md:text-base">{t.featuresSection.badge}</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.featuresSection.title}</h2>
+              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.featuresSection.description}</p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <AnimatedElement key={feature.id} delay={index * 100}>
+                    <motion.div
+                      whileHover={{ y: -8 }}
+                      className="card-hover p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 group"
+                    >
+                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} p-3 md:p-4 mb-4 md:mb-6 group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-full h-full text-white" />
+                      </div>
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{feature.title}</h3>
+                      <p className="text-base md:text-lg text-muted-text leading-relaxed">{feature.description}</p>
+                    </motion.div>
+                  </AnimatedElement>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works - Client Section */}
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-background to-white">
+          <div className="max-w-[120rem] mx-auto">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-secondary/10 px-6 py-3 rounded-full border border-secondary/20 mb-4 md:mb-8"
+              >
+                <Rocket size={18} className="text-secondary" />
+                <span className="text-secondary font-heading font-semibold text-sm md:text-base">{t.clientSection.badge}</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.clientSection.title}</h2>
+              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.clientSection.description}</p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {clientSteps.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <AnimatedElement key={step.id} delay={index * 100}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="relative p-6 md:p-8 rounded-2xl bg-white border-2 border-secondary/20 hover:border-secondary/50 transition-all group"
+                    >
+                      <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
+                        {step.step}
+                      </div>
+                      <div className="mt-4 md:mt-6">
+                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-secondary mb-3 md:mb-4" />
+                        <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{step.text}</h3>
+                        <p className="text-base md:text-lg text-muted-text leading-relaxed">{step.subtitle}</p>
+                      </div>
+                    </motion.div>
+                  </AnimatedElement>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works - Joseador Section */}
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-white">
+          <div className="max-w-[120rem] mx-auto">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-accent/10 px-6 py-3 rounded-full border border-accent/20 mb-4 md:mb-8"
+              >
+                <Target size={18} className="text-accent" />
+                <span className="text-accent font-heading font-semibold text-sm md:text-base">{t.workerSection.badge}</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.workerSection.title}</h2>
+              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.workerSection.description}</p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {joseadorSteps.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <AnimatedElement key={step.id} delay={index * 100}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-accent/5 to-support/5 border-2 border-accent/20 hover:border-accent/50 transition-all group"
+                    >
+                      <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
+                        {step.step}
+                      </div>
+                      <div className="mt-4 md:mt-6">
+                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-accent mb-3 md:mb-4" />
+                        <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{step.text}</h3>
+                        <p className="text-base md:text-lg text-muted-text leading-relaxed">{step.subtitle}</p>
+                      </div>
+                    </motion.div>
+                  </AnimatedElement>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Popular Categories Section */}
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white to-background">
+          <div className="max-w-[120rem] mx-auto">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20 mb-4 md:mb-8"
+              >
+                <Briefcase size={18} className="text-primary" />
+                <span className="text-primary font-heading font-semibold text-sm md:text-base">{t.categoriesSection.badge}</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.categoriesSection.title}</h2>
+              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.categoriesSection.description}</p>
+            </AnimatedElement>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {popularCategories.map((category, index) => (
+                <AnimatedElement key={category.id} delay={index * 50}>
+                  <motion.div
+                    whileHover={{ y: -12, scale: 1.05 }}
+                    className="card-hover relative group overflow-hidden rounded-2xl h-48 md:h-56 cursor-pointer"
+                  >
+                    <Image 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      width={320}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-4 md:p-6">
+                      <h3 className="font-heading text-lg md:text-xl font-bold text-white group-hover:translate-y(-2px) transition-transform">{category.name}</h3>
+                    </div>
+                  </motion.div>
+                </AnimatedElement>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 3D Carousel Section */}
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-white">
+          <div className="max-w-[120rem] mx-auto">
+            <AnimatedElement className="text-center mb-12 md:mb-20">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-secondary/10 px-6 py-3 rounded-full border border-secondary/20 mb-4 md:mb-8"
+              >
+                <Heart size={18} className="text-secondary" />
+                <span className="text-secondary font-heading font-semibold text-sm md:text-base">{t.testimonials.badge}</span>
+              </motion.div>
+              <h2 className="font-heading text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-6">{t.testimonials.title}</h2>
+              <p className="text-lg md:text-xl text-muted-text max-w-3xl mx-auto">{t.testimonials.description}</p>
+            </AnimatedElement>
+            <Flow3DCarousel />
+          </div>
+        </section>
+
         {/* CTA Section - Ultra Dynamic */}
         <section className="py-12 md:py-32 px-4 md:px-12">
           <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
