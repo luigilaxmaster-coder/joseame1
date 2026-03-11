@@ -134,6 +134,18 @@ export const translations = {
     ctaTitle: '¿Listo para josear?',
     ctaDescription: 'Únete a dominicanos transformando la forma en que trabajan.',
     ctaButton: 'Crear Cuenta Gratis',
+
+    // Carousel Section
+    carousel: {
+      clickForDetails: 'Click para ver detalles',
+      stepDetails: 'Detalles del Paso',
+      processFlow: 'Flujo del Proceso',
+      stepCounter: 'Paso',
+      of: 'de',
+      previous: 'Anterior',
+      next: 'Siguiente',
+      goToStep: 'Ir al paso',
+    },
   },
   en: {
     // Hero Section
@@ -270,6 +282,18 @@ export const translations = {
     ctaTitle: 'Ready to work?',
     ctaDescription: 'Join Dominicans transforming the way they work.',
     ctaButton: 'Create Free Account',
+
+    // Carousel Section
+    carousel: {
+      clickForDetails: 'Click to see details',
+      stepDetails: 'Step Details',
+      processFlow: 'Process Flow',
+      stepCounter: 'Step',
+      of: 'of',
+      previous: 'Previous',
+      next: 'Next',
+      goToStep: 'Go to step',
+    },
   },
 };
 
