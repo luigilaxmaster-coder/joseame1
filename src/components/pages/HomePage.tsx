@@ -57,45 +57,72 @@ const FloatingOrbs = () => {
       {/* Primary Orb - Large, flowing movement */}
       <motion.div
         animate={{ 
-          y: [0, -50, 20, -30, 0], 
-          x: [0, 40, -20, 30, 0],
-          scale: [1, 1.1, 0.95, 1.05, 1]
+          y: [0, -80, 40, -50, 20, 0], 
+          x: [0, 60, -40, 50, -20, 0],
+          scale: [1, 1.15, 0.9, 1.1, 0.95, 1],
+          rotate: [0, 90, 180, 270, 360]
         }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/20 rounded-full blur-3xl"
+        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/50 via-secondary/40 to-accent/30 rounded-full blur-3xl shadow-2xl"
       />
       
       {/* Secondary Orb - Accent colors */}
       <motion.div
         animate={{ 
-          y: [0, 40, -30, 20, 0], 
-          x: [0, -40, 30, -20, 0],
-          scale: [1, 0.95, 1.1, 0.98, 1]
+          y: [0, 60, -40, 30, -20, 0], 
+          x: [0, -60, 40, -30, 25, 0],
+          scale: [1, 0.9, 1.2, 0.95, 1.05, 1],
+          rotate: [360, 270, 180, 90, 0]
         }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 via-support/30 to-primary/20 rounded-full blur-3xl"
+        transition={{ duration: 32, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/50 via-support/40 to-primary/30 rounded-full blur-3xl shadow-2xl"
       />
       
       {/* Tertiary Orb - Support colors */}
       <motion.div
         animate={{ 
-          y: [0, -25, 35, -15, 0], 
-          x: [0, 50, -30, 25, 0],
-          scale: [1, 1.05, 0.9, 1.08, 1]
+          y: [0, -40, 50, -25, 35, 0], 
+          x: [0, 70, -50, 40, -30, 0],
+          scale: [1, 1.1, 0.85, 1.15, 0.9, 1],
+          rotate: [0, 180, 360, 180, 0]
         }}
-        transition={{ duration: 35, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/35 via-accent/25 to-support/20 rounded-full blur-3xl"
+        transition={{ duration: 38, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
+        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/45 via-accent/35 to-support/25 rounded-full blur-3xl shadow-2xl"
       />
       
       {/* Additional Orb - Light accent */}
       <motion.div
         animate={{ 
-          y: [0, 30, -40, 25, 0], 
-          x: [0, -30, 40, -25, 0],
-          scale: [1, 0.98, 1.08, 0.95, 1]
+          y: [0, 50, -60, 40, -25, 0], 
+          x: [0, -50, 60, -40, 30, 0],
+          scale: [1, 1.05, 0.95, 1.12, 0.88, 1],
+          rotate: [360, 180, 0, 180, 360]
         }}
-        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-br from-support/30 via-primary/25 to-secondary/15 rounded-full blur-3xl"
+        transition={{ duration: 35, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-br from-support/40 via-primary/30 to-secondary/20 rounded-full blur-3xl shadow-2xl"
+      />
+
+      {/* Extra Orb - Dynamic accent */}
+      <motion.div
+        animate={{ 
+          y: [0, -70, 30, -40, 50, 0], 
+          x: [0, 80, -60, 70, -50, 0],
+          scale: [1, 1.2, 0.8, 1.08, 0.92, 1],
+          opacity: [0.3, 0.6, 0.4, 0.7, 0.35, 0.3]
+        }}
+        transition={{ duration: 40, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-primary/35 via-accent/25 to-support/15 rounded-full blur-3xl shadow-xl"
+      />
+
+      {/* Micro Orb - Fast movement */}
+      <motion.div
+        animate={{ 
+          y: [0, -100, 60, -80, 40, 0], 
+          x: [0, 100, -80, 90, -60, 0],
+          scale: [0.8, 1.3, 0.7, 1.2, 0.75, 0.8]
+        }}
+        transition={{ duration: 45, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute top-1/4 right-1/3 w-64 h-64 bg-gradient-to-bl from-secondary/30 via-support/20 to-primary/15 rounded-full blur-3xl opacity-40"
       />
     </div>
   );
@@ -306,11 +333,122 @@ export default function HomePage() {
           0% { left: -100%; }
           100% { left: 100%; }
         }
+
+        /* Ultra dynamic background animations */
+        @keyframes float-up {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        @keyframes float-down {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(30px) rotate(-180deg); }
+        }
+
+        @keyframes rotate-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-expand {
+          0%, 100% { transform: scale(1); opacity: 0.4; }
+          50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .dynamic-bg-element {
+          animation: float-up 6s ease-in-out infinite;
+        }
+
+        .dynamic-bg-element-alt {
+          animation: float-down 7s ease-in-out infinite;
+        }
+
+        .rotating-element {
+          animation: rotate-slow 20s linear infinite;
+        }
+
+        .pulsing-element {
+          animation: pulse-expand 4s ease-in-out infinite;
+        }
+
+        /* Gradient mesh background */
+        .gradient-mesh {
+          background: linear-gradient(135deg, 
+            rgba(14, 159, 168, 0.1) 0%,
+            rgba(58, 182, 137, 0.08) 25%,
+            rgba(113, 210, 97, 0.1) 50%,
+            rgba(85, 195, 118, 0.08) 75%,
+            rgba(14, 159, 168, 0.1) 100%);
+          animation: gradient-shift 8s ease infinite;
+        }
+
+        /* Animated border glow */
+        .border-glow {
+          position: relative;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+          animation: border-glow-animation 3s ease-in-out infinite;
+        }
+
+        @keyframes border-glow-animation {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(113, 210, 97, 0.3), inset 0 0 20px rgba(14, 159, 168, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(113, 210, 97, 0.6), inset 0 0 30px rgba(14, 159, 168, 0.2);
+          }
+        }
+
+        /* Flowing gradient animation */
+        .flowing-gradient {
+          background: linear-gradient(90deg, 
+            #0E9FA8 0%, 
+            #3AB689 25%, 
+            #71D261 50%, 
+            #55C376 75%, 
+            #0E9FA8 100%);
+          background-size: 200% 100%;
+          animation: flowing 8s ease infinite;
+        }
+
+        @keyframes flowing {
+          0% { background-position: 0% 0%; }
+          50% { background-position: 100% 0%; }
+          100% { background-position: 0% 0%; }
+        }
       `}</style>
-      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
+      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip relative">
+        {/* Dynamic animated background layer */}
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <motion.div
+            animate={{ 
+              y: [0, -100, 0],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-primary/15 via-secondary/10 to-transparent rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ 
+              y: [0, 100, 0],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-0 right-1/4 w-[700px] h-[700px] bg-gradient-to-tl from-accent/15 via-support/10 to-transparent rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ 
+              x: [0, 50, 0],
+              y: [0, -50, 0],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-gradient-to-l from-secondary/12 via-primary/8 to-transparent rounded-full blur-3xl"
+          />
+        </div>
         
         {/* Hero Section - Ultra Dynamic */}
-        <section className="relative h-screen md:min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20">
+        <section className="relative h-screen md:min-h-screen flex items-center justify-center w-full overflow-hidden pt-12 md:pt-20 z-10">
           <FloatingOrbs />
           {/* Language Switcher - Top Right */}
           <div className="absolute top-6 right-6 z-50">
@@ -418,38 +556,51 @@ export default function HomePage() {
         </section>
 
         {/* Features Section - Why Choose JOSEAME - Completely Redesigned */}
-        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow z-10">
           {/* Ultra vibrant animated background */}
           <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -60, 0],
-                x: [0, 50, 0],
-                scale: [1, 1.2, 1]
+                y: [0, -80, 0],
+                x: [0, 60, 0],
+                scale: [1, 1.25, 1],
+                rotate: [0, 180, 360]
               }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-60 -right-60 w-[800px] h-[800px] bg-gradient-to-br from-primary/50 via-secondary/40 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-60 -right-60 w-[900px] h-[900px] bg-gradient-to-br from-primary/60 via-secondary/50 to-transparent rounded-full blur-3xl shadow-2xl"
             />
             <motion.div
               animate={{ 
-                y: [0, 60, 0],
+                y: [0, 80, 0],
+                x: [0, -60, 0],
+                scale: [1, 1.2, 1],
+                rotate: [360, 180, 0]
+              }}
+              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute -bottom-60 -left-60 w-[900px] h-[900px] bg-gradient-to-tr from-accent/60 via-support/50 to-transparent rounded-full blur-3xl shadow-2xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 50, 0],
                 x: [0, -50, 0],
-                scale: [1, 1.15, 1]
+                scale: [1, 1.15, 1],
+                rotate: [0, 180, 360]
               }}
-              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-60 -left-60 w-[800px] h-[800px] bg-gradient-to-tr from-accent/50 via-support/40 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 24, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
+              className="absolute top-1/2 right-1/4 w-[700px] h-[700px] bg-gradient-to-bl from-secondary/50 via-primary/40 to-transparent rounded-full blur-3xl shadow-xl"
             />
             <motion.div
               animate={{ 
-                y: [0, 40, 0],
-                x: [0, -40, 0],
-                scale: [1, 1.1, 1]
+                y: [0, -60, 0],
+                x: [0, 70, 0],
+                scale: [1, 1.18, 1],
+                opacity: [0.4, 0.7, 0.4]
               }}
-              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-              className="absolute top-1/2 right-1/4 w-[600px] h-[600px] bg-gradient-to-bl from-secondary/40 via-primary/30 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 26, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-support/40 via-accent/30 to-transparent rounded-full blur-3xl"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/30 pointer-events-none"></div>
           
           <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-20 md:mb-32">
@@ -528,26 +679,38 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Client Section - Completely Redesigned */}
-        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-secondary/5 to-white">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-secondary/5 to-white z-10">
           {/* Ultra vibrant animated background */}
           <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, 50, 0],
-                x: [0, -60, 0],
-                scale: [1, 1.2, 1]
+                y: [0, 70, 0],
+                x: [0, -70, 0],
+                scale: [1, 1.25, 1],
+                rotate: [0, 180, 360]
               }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-gradient-to-tl from-secondary/50 via-primary/40 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-40 -right-40 w-[900px] h-[900px] bg-gradient-to-tl from-secondary/60 via-primary/50 to-transparent rounded-full blur-3xl shadow-2xl"
             />
             <motion.div
               animate={{ 
-                y: [0, -40, 0],
-                x: [0, 50, 0],
-                scale: [1, 1.15, 1]
+                y: [0, -60, 0],
+                x: [0, 60, 0],
+                scale: [1, 1.2, 1],
+                rotate: [360, 180, 0]
               }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-              className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-gradient-to-br from-primary/40 via-secondary/30 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute -top-40 -left-40 w-[800px] h-[800px] bg-gradient-to-br from-primary/50 via-secondary/40 to-transparent rounded-full blur-3xl shadow-xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 50, 0],
+                x: [0, 50, 0],
+                scale: [1, 1.15, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              className="absolute top-1/4 right-1/3 w-[600px] h-[600px] bg-gradient-to-bl from-secondary/40 via-primary/30 to-transparent rounded-full blur-3xl"
             />
           </div>
           
@@ -666,26 +829,38 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Joseador Section - Completely Redesigned */}
-        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-accent/5 to-white">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow bg-gradient-to-b from-white via-accent/5 to-white z-10">
           {/* Ultra vibrant animated background */}
           <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -60, 0],
-                x: [0, 60, 0],
-                scale: [1, 1.2, 1]
+                y: [0, -80, 0],
+                x: [0, 80, 0],
+                scale: [1, 1.25, 1],
+                rotate: [0, 180, 360]
               }}
-              transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-40 -left-40 w-[800px] h-[800px] bg-gradient-to-br from-accent/50 via-support/40 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-40 -left-40 w-[900px] h-[900px] bg-gradient-to-br from-accent/60 via-support/50 to-transparent rounded-full blur-3xl shadow-2xl"
             />
             <motion.div
               animate={{ 
-                y: [0, 40, 0],
-                x: [0, -60, 0],
-                scale: [1, 1.15, 1]
+                y: [0, 70, 0],
+                x: [0, -80, 0],
+                scale: [1, 1.2, 1],
+                rotate: [360, 180, 0]
               }}
-              transition={{ duration: 19, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-              className="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-gradient-to-tl from-support/40 via-accent/30 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 21, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-gradient-to-tl from-support/50 via-accent/40 to-transparent rounded-full blur-3xl shadow-xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 60, 0],
+                x: [0, -60, 0],
+                scale: [1, 1.18, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ duration: 23, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute top-1/3 right-1/4 w-[700px] h-[700px] bg-gradient-to-bl from-accent/45 via-support/35 to-transparent rounded-full blur-3xl"
             />
           </div>
           
@@ -804,15 +979,27 @@ export default function HomePage() {
         </section>
 
         {/* Popular Categories Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-primary/5 to-background relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-primary/5 to-background relative overflow-hidden section-glow z-10">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, 25, 0],
+                y: [0, 40, 0],
+                x: [0, -40, 0],
+                scale: [1, 1.2, 1],
+                rotate: [0, 180, 360]
+              }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, -40, 0],
+                x: [0, 40, 0],
+                scale: [1, 1.15, 1],
                 opacity: [0.3, 0.5, 0.3]
               }}
-              transition={{ duration: 14, repeat: Infinity }}
-              className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-l from-secondary/20 to-transparent rounded-full blur-3xl"
             />
           </div>
           <div className="max-w-[120rem] mx-auto relative z-10">
@@ -854,15 +1041,27 @@ export default function HomePage() {
         </section>
 
         {/* 3D Carousel Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-background via-white to-white relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-background via-white to-white relative overflow-hidden section-glow z-10">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -25, 0],
+                y: [0, -40, 0],
+                x: [0, 50, 0],
+                scale: [1, 1.2, 1],
+                rotate: [0, 180, 360]
+              }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/2 right-0 w-96 h-96 bg-gradient-to-l from-secondary/30 to-transparent rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 40, 0],
+                x: [0, -50, 0],
+                scale: [1, 1.15, 1],
                 opacity: [0.3, 0.5, 0.3]
               }}
-              transition={{ duration: 16, repeat: Infinity }}
-              className="absolute top-1/2 right-0 w-96 h-96 bg-gradient-to-l from-secondary/20 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-3xl"
             />
           </div>
           <div className="max-w-[120rem] mx-auto relative z-10">
@@ -884,21 +1083,32 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section - Ultra Dynamic */}
-        <section className="py-12 md:py-32 px-4 md:px-12 relative overflow-hidden">
+        <section className="py-12 md:py-32 px-4 md:px-12 relative overflow-hidden z-10">
           <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
             <FloatingOrbs />
             {/* Enhanced animated background pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div className="absolute inset-0 opacity-15 pointer-events-none">
               <motion.div
                 animate={{ 
                   rotate: [0, 360],
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.15, 1]
                 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"
               />
             </div>
-            <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
+            <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-8 -rotate-45"></div>
+            
+            {/* Additional animated gradient overlays */}
+            <motion.div
+              animate={{ 
+                opacity: [0.1, 0.3, 0.1],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/10 pointer-events-none"
+            />
+            
             <AnimatedElement className="relative z-10">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
