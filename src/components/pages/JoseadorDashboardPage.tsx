@@ -4,8 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMember } from '@/integrations';
 import { BaseCrudService } from '@/integrations';
 import { useRoleStore } from '@/store/roleStore';
-import { useLanguageStore } from '@/store/languageStore';
-import { getTranslation } from '@/lib/translations';
 import { TrabajosdeServicio } from '@/entities';
 import { Wallet, MapPin, Search, LogOut, User, Briefcase, MessageSquare, ShoppingCart, RefreshCw, TrendingUp, Zap, DollarSign, Eye, Flame, Sparkles } from 'lucide-react';
 import { Image } from '@/components/ui/image';
@@ -17,8 +15,6 @@ function JoseadorDashboardContent() {
   const { member, actions } = useMember();
   const navigate = useNavigate();
   const { setUserRole } = useRoleStore();
-  const { language } = useLanguageStore();
-  const t = (key: string) => getTranslation(key, language);
   const [jobs, setJobs] = useState<TrabajosdeServicio[]>([]);
   const [newJobIds, setNewJobIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,7 +75,7 @@ function JoseadorDashboardContent() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = language === 'es' ? [
+  const categories = [
     'Plomería',
     'Electricidad',
     'Limpieza',
@@ -112,39 +108,6 @@ function JoseadorDashboardContent() {
     'Reparación de Calefacción',
     'Servicios de Consultoría Técnica',
     'Otro'
-  ] : [
-    'Plumbing',
-    'Electrical',
-    'Cleaning',
-    'Construction',
-    'Gardening',
-    'Technology',
-    'Painting',
-    'Carpentry',
-    'Appliance Repair',
-    'Air Conditioning',
-    'Locksmith',
-    'Masonry',
-    'Door and Window Installation',
-    'Roof Repair',
-    'Moving Services',
-    'Carpet Cleaning',
-    'Furniture Repair',
-    'Advanced Plumbing',
-    'Security System Installation',
-    'Elevator Repair',
-    'Decoration Services',
-    'Pool Repair',
-    'Commercial Cleaning',
-    'Flooring and Tile Installation',
-    'Garage Door Repair',
-    'Disinfection Services',
-    'Blind Repair',
-    'Advanced Gardening',
-    'Irrigation System Installation',
-    'Heating Repair',
-    'Technical Consulting',
-    'Other'
   ];
 
   const containerVariants = {
@@ -173,6 +136,70 @@ function JoseadorDashboardContent() {
       <div className="absolute top-0 left-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-2xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-2xl -z-10" />
       <div className="absolute top-1/2 right-0 w-80 h-80 bg-support/5 rounded-full blur-2xl -z-10" />
+      
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-2 md:py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="font-heading text-lg md:text-2xl bg-gradient-to-r from-secondary via-accent to-support bg-clip-text text-transparent tracking-tight font-bold not-italic">
+              JOSEAME
+            </Link>
+            <nav className="hidden md:flex items-center gap-8">
+              <Link to="/joseador/dashboard" className="font-paragraph text-foreground font-semibold hover:text-secondary transition-colors relative group">
+                Inicio
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
+              </Link>
+              <Link to="/joseador/my-applications" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+                Mis Aplicaciones
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
+              </Link>
+              <Link to="/joseador/wallet" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+                Wallet
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
+              </Link>
+              <Link to="/joseador/inbox" className="font-paragraph text-foreground hover:text-secondary transition-colors relative group">
+                Mensajes
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-secondary to-accent group-hover:w-full transition-all duration-300" />
+              </Link>
+            </nav>
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center gap-1 md:gap-2">
+                <span className="font-paragraph text-xs text-muted-text font-medium hidden md:block">Joseador</span>
+                <motion.button
+                  whileHover={{ scale: 1.05, rotate: 180 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setUserRole('client');
+                    navigate('/client/dashboard');
+                  }}
+                  className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-gradient-to-r from-secondary via-accent to-support hover:shadow-lg transition-all text-white"
+                  title="Cambiar a Cliente"
+                >
+                  <RefreshCw size={16} />
+                </motion.button>
+              </div>
+              <Link to="/profile">
+                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl hover:bg-background transition-colors">
+                  <User size={16} className="text-muted-text" />
+                  <span className="font-paragraph text-xs md:text-sm text-foreground hidden md:block">
+                    {member?.profile?.nickname || 'Perfil'}
+                  </span>
+                </button>
+              </Link>
+              <button
+                onClick={() => {
+                  const { clearAllUserData } = useRoleStore.getState();
+                  clearAllUserData();
+                  actions.logout();
+                }}
+                className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-muted-text hover:text-foreground transition-colors"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <div className="max-w-[100rem] mx-auto px-3 md:px-6 py-6 md:py-12 relative z-10">
