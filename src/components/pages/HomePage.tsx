@@ -50,33 +50,52 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-// Optimized Floating Orbs - Smooth animations
+// Enhanced Floating Orbs with more dynamic animations
 const FloatingOrbs = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Primary Orb - Large, flowing movement */}
       <motion.div
         animate={{ 
-          y: [0, -30, 0], 
-          x: [0, 20, 0]
+          y: [0, -50, 20, -30, 0], 
+          x: [0, 40, -20, 30, 0],
+          scale: [1, 1.1, 0.95, 1.05, 1]
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full blur-3xl"
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/20 rounded-full blur-3xl"
       />
+      
+      {/* Secondary Orb - Accent colors */}
       <motion.div
         animate={{ 
-          y: [0, 30, 0], 
-          x: [0, -20, 0]
+          y: [0, 40, -30, 20, 0], 
+          x: [0, -40, 30, -20, 0],
+          scale: [1, 0.95, 1.1, 0.98, 1]
         }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/30 to-support/20 rounded-full blur-3xl"
+        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-20 right-10 w-[32rem] h-[32rem] bg-gradient-to-br from-accent/40 via-support/30 to-primary/20 rounded-full blur-3xl"
       />
+      
+      {/* Tertiary Orb - Support colors */}
       <motion.div
         animate={{ 
-          y: [0, 20, 0], 
-          x: [0, 30, 0]
+          y: [0, -25, 35, -15, 0], 
+          x: [0, 50, -30, 25, 0],
+          scale: [1, 1.05, 0.9, 1.08, 1]
         }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/20 to-accent/15 rounded-full blur-3xl"
+        transition={{ duration: 35, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-br from-secondary/35 via-accent/25 to-support/20 rounded-full blur-3xl"
+      />
+      
+      {/* Additional Orb - Light accent */}
+      <motion.div
+        animate={{ 
+          y: [0, 30, -40, 25, 0], 
+          x: [0, -30, 40, -25, 0],
+          scale: [1, 0.98, 1.08, 0.95, 1]
+        }}
+        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-br from-support/30 via-primary/25 to-secondary/15 rounded-full blur-3xl"
       />
     </div>
   );
@@ -227,6 +246,66 @@ export default function HomePage() {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-15px); }
         }
+        
+        /* Enhanced animated background gradients */
+        .animated-gradient-bg {
+          background: linear-gradient(-45deg, #0E9FA8, #3AB689, #71D261, #55C376, #0E9FA8);
+          background-size: 400% 400%;
+          animation: gradient-animation 15s ease infinite;
+        }
+        @keyframes gradient-animation {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        
+        /* Floating particles effect */
+        .particle {
+          position: absolute;
+          pointer-events: none;
+        }
+        .particle::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+          border-radius: 50%;
+        }
+        
+        /* Glow effect for sections */
+        .section-glow {
+          position: relative;
+        }
+        .section-glow::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(113, 210, 97, 0.5), transparent);
+        }
+        
+        /* Enhanced card animations */
+        .enhanced-card {
+          position: relative;
+          overflow: hidden;
+        }
+        .enhanced-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          animation: card-shine 3s infinite;
+        }
+        @keyframes card-shine {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
       `}</style>
       <div className="min-h-screen bg-gradient-to-b from-background via-white to-background text-foreground font-paragraph overflow-clip">
         
@@ -339,8 +418,18 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-white relative overflow-hidden">
-          <div className="max-w-[120rem] mx-auto">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-accent/5 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, -20, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 8, repeat: Infinity }}
+              className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-accent/20 to-transparent rounded-full blur-3xl"
+            />
+          </div>
+          <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -362,9 +451,9 @@ export default function HomePage() {
                   <AnimatedElement key={feature.id} delay={index * 100}>
                     <motion.div
                       whileHover={{ y: -8 }}
-                      className="card-hover p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 group"
+                      className="enhanced-card card-hover p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 group shadow-lg hover:shadow-2xl"
                     >
-                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} p-3 md:p-4 mb-4 md:mb-6 group-hover:scale-110 transition-transform`}>
+                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} p-3 md:p-4 mb-4 md:mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
                         <Icon className="w-full h-full text-white" />
                       </div>
                       <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">{feature.title}</h3>
@@ -378,8 +467,18 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Client Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-background to-white">
-          <div className="max-w-[120rem] mx-auto">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-secondary/5 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, 20, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 10, repeat: Infinity }}
+              className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-secondary/20 to-transparent rounded-full blur-3xl"
+            />
+          </div>
+          <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -401,7 +500,7 @@ export default function HomePage() {
                   <AnimatedElement key={step.id} delay={index * 100}>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="relative p-6 md:p-8 rounded-2xl bg-white border-2 border-secondary/20 hover:border-secondary/50 transition-all group"
+                      className="enhanced-card relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white to-secondary/5 border-2 border-secondary/20 hover:border-secondary/50 transition-all group shadow-lg hover:shadow-2xl"
                     >
                       <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
                         {step.step}
@@ -420,8 +519,18 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Joseador Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-white">
-          <div className="max-w-[120rem] mx-auto">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-accent/5 to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, -20, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 12, repeat: Infinity }}
+              className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-3xl"
+            />
+          </div>
+          <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -443,7 +552,7 @@ export default function HomePage() {
                   <AnimatedElement key={step.id} delay={index * 100}>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-accent/5 to-support/5 border-2 border-accent/20 hover:border-accent/50 transition-all group"
+                      className="enhanced-card relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-accent/10 to-support/5 border-2 border-accent/20 hover:border-accent/50 transition-all group shadow-lg hover:shadow-2xl"
                     >
                       <div className="absolute -top-4 -left-4 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-accent to-support rounded-full flex items-center justify-center text-white font-heading font-bold text-lg md:text-xl shadow-lg group-hover:scale-110 transition-transform">
                         {step.step}
@@ -462,8 +571,18 @@ export default function HomePage() {
         </section>
 
         {/* Popular Categories Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white to-background">
-          <div className="max-w-[120rem] mx-auto">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-white via-primary/5 to-background relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, 25, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 14, repeat: Infinity }}
+              className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-3xl"
+            />
+          </div>
+          <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -483,7 +602,7 @@ export default function HomePage() {
                 <AnimatedElement key={category.id} delay={index * 50}>
                   <motion.div
                     whileHover={{ y: -12, scale: 1.05 }}
-                    className="card-hover relative group overflow-hidden rounded-2xl h-48 md:h-56 cursor-pointer"
+                    className="enhanced-card card-hover relative group overflow-hidden rounded-2xl h-48 md:h-56 cursor-pointer shadow-lg hover:shadow-2xl"
                   >
                     <Image 
                       src={category.image} 
@@ -502,8 +621,18 @@ export default function HomePage() {
         </section>
 
         {/* 3D Carousel Section */}
-        <section className="py-12 md:py-32 px-4 md:px-12 bg-white">
-          <div className="max-w-[120rem] mx-auto">
+        <section className="py-12 md:py-32 px-4 md:px-12 bg-gradient-to-b from-background via-white to-white relative overflow-hidden section-glow">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <motion.div
+              animate={{ 
+                y: [0, -25, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 16, repeat: Infinity }}
+              className="absolute top-1/2 right-0 w-96 h-96 bg-gradient-to-l from-secondary/20 to-transparent rounded-full blur-3xl"
+            />
+          </div>
+          <div className="max-w-[120rem] mx-auto relative z-10">
             <AnimatedElement className="text-center mb-12 md:mb-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -522,9 +651,20 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section - Ultra Dynamic */}
-        <section className="py-12 md:py-32 px-4 md:px-12">
+        <section className="py-12 md:py-32 px-4 md:px-12 relative overflow-hidden">
           <div className="max-w-[120rem] mx-auto rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent p-8 md:p-20 text-center relative overflow-hidden shadow-2xl">
             <FloatingOrbs />
+            {/* Enhanced animated background pattern */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"
+              />
+            </div>
             <div className="absolute -top-1/2 -left-1/4 w-full h-[200%] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -rotate-45"></div>
             <AnimatedElement className="relative z-10">
               <motion.div
