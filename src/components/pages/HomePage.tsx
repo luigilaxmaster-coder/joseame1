@@ -418,78 +418,105 @@ export default function HomePage() {
         </section>
 
         {/* Features Section - Why Choose JOSEAME - Completely Redesigned */}
-        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-white via-white to-background relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-50 pointer-events-none">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+          {/* Ultra vibrant animated background */}
+          <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -40, 0],
-                x: [0, 30, 0],
-                opacity: [0.15, 0.35, 0.15]
+                y: [0, -60, 0],
+                x: [0, 50, 0],
+                scale: [1, 1.2, 1]
               }}
-              transition={{ duration: 12, repeat: Infinity }}
-              className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/20 rounded-full blur-3xl"
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-60 -right-60 w-[800px] h-[800px] bg-gradient-to-br from-primary/50 via-secondary/40 to-transparent rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ 
+                y: [0, 60, 0],
+                x: [0, -50, 0],
+                scale: [1, 1.15, 1]
+              }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-60 -left-60 w-[800px] h-[800px] bg-gradient-to-tr from-accent/50 via-support/40 to-transparent rounded-full blur-3xl"
             />
             <motion.div
               animate={{ 
                 y: [0, 40, 0],
-                x: [0, -30, 0],
-                opacity: [0.15, 0.35, 0.15]
+                x: [0, -40, 0],
+                scale: [1, 1.1, 1]
               }}
-              transition={{ duration: 14, repeat: Infinity, delay: 1 }}
-              className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-gradient-to-tr from-accent/40 via-support/30 to-primary/20 rounded-full blur-3xl"
+              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              className="absolute top-1/2 right-1/4 w-[600px] h-[600px] bg-gradient-to-bl from-secondary/40 via-primary/30 to-transparent rounded-full blur-3xl"
             />
           </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
+          
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="text-center mb-16 md:mb-24">
+            <AnimatedElement className="text-center mb-20 md:mb-32">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/30 to-secondary/30 px-6 py-3 rounded-full border border-primary/40 mb-6 md:mb-8 backdrop-blur-sm shadow-lg"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/40 to-secondary/40 px-8 py-4 rounded-full border-2 border-primary/60 mb-8 md:mb-12 backdrop-blur-md shadow-2xl"
               >
-                <Sparkles size={18} className="text-primary animate-spin" />
-                <span className="text-primary font-heading font-semibold text-sm md:text-base">{t.featuresSection.badge}</span>
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
+                  <Sparkles size={20} className="text-primary" />
+                </motion.div>
+                <span className="text-primary font-heading font-bold text-base md:text-lg">{t.featuresSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-6 md:mb-8 leading-tight">{t.featuresSection.title}</h2>
-              <p className="text-lg md:text-2xl text-muted-text max-w-4xl mx-auto font-paragraph leading-relaxed">{t.featuresSection.description}</p>
+              <h2 className="font-heading text-6xl md:text-8xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-8 md:mb-10 leading-tight drop-shadow-lg">{t.featuresSection.title}</h2>
+              <p className="text-xl md:text-3xl text-foreground max-w-5xl mx-auto font-paragraph leading-relaxed font-semibold">{t.featuresSection.description}</p>
             </AnimatedElement>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 lg:gap-16">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
-                const colors = [
-                  { bg: 'from-primary to-secondary', light: 'from-primary/20 to-secondary/20', icon: 'text-primary' },
-                  { bg: 'from-secondary to-accent', light: 'from-secondary/20 to-accent/20', icon: 'text-secondary' },
-                  { bg: 'from-accent to-support', light: 'from-accent/20 to-support/20', icon: 'text-accent' },
-                  { bg: 'from-support to-primary', light: 'from-support/20 to-primary/20', icon: 'text-support' }
+                const gradients = [
+                  { bg: 'from-primary to-secondary', light: 'from-primary/25 to-secondary/25', icon: 'text-white', border: 'border-primary/40', hover: 'hover:border-primary/80' },
+                  { bg: 'from-secondary to-accent', light: 'from-secondary/25 to-accent/25', icon: 'text-white', border: 'border-secondary/40', hover: 'hover:border-secondary/80' },
+                  { bg: 'from-accent to-support', light: 'from-accent/25 to-support/25', icon: 'text-white', border: 'border-accent/40', hover: 'hover:border-accent/80' },
+                  { bg: 'from-support to-primary', light: 'from-support/25 to-primary/25', icon: 'text-white', border: 'border-support/40', hover: 'hover:border-support/80' }
                 ];
-                const colorSet = colors[index % colors.length];
+                const colorSet = gradients[index % gradients.length];
                 
                 return (
-                  <AnimatedElement key={feature.id} delay={index * 120}>
+                  <AnimatedElement key={feature.id} delay={index * 100}>
                     <motion.div
-                      whileHover={{ y: -16, scale: 1.05 }}
-                      className="enhanced-card relative group overflow-hidden rounded-3xl p-8 md:p-10 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 shadow-xl hover:shadow-2xl transition-all"
+                      whileHover={{ y: -24, scale: 1.06 }}
+                      transition={{ duration: 0.4 }}
+                      className={`enhanced-card relative group overflow-hidden rounded-3xl p-10 md:p-14 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border-2 ${colorSet.border} ${colorSet.hover} shadow-2xl hover:shadow-3xl transition-all duration-500`}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div className={`absolute inset-0 bg-gradient-to-br ${colorSet.bg} opacity-8`}></div>
+                      {/* Animated gradient overlay on hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${colorSet.bg} opacity-5`}></div>
                       </div>
+                      
+                      {/* Animated background particles */}
+                      <motion.div
+                        animate={{ 
+                          y: [0, -20, 0],
+                          opacity: [0.3, 0.6, 0.3]
+                        }}
+                        transition={{ duration: 6, repeat: Infinity }}
+                        className={`absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br ${colorSet.bg} rounded-full blur-2xl opacity-10 group-hover:opacity-20 transition-opacity`}
+                      />
+                      
                       <div className="relative z-10">
                         <motion.div
-                          whileHover={{ scale: 1.15, rotate: 10 }}
-                          transition={{ duration: 0.4 }}
-                          className={`w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br ${colorSet.bg} p-5 md:p-6 mb-6 md:mb-8 group-hover:shadow-2xl transition-all shadow-xl flex items-center justify-center`}
+                          whileHover={{ scale: 1.2, rotate: 15 }}
+                          transition={{ duration: 0.5 }}
+                          className={`w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br ${colorSet.bg} p-6 md:p-8 mb-8 md:mb-10 group-hover:shadow-3xl transition-all shadow-2xl flex items-center justify-center`}
                         >
                           <Icon className="w-full h-full text-white" />
                         </motion.div>
-                        <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5">{feature.title}</h3>
-                        <p className="text-base md:text-lg text-muted-text leading-relaxed font-paragraph mb-6">{feature.description}</p>
+                        <h3 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-5 md:mb-6">{feature.title}</h3>
+                        <p className="text-lg md:text-xl text-muted-text leading-relaxed font-paragraph mb-8 md:mb-10">{feature.description}</p>
                         <motion.div 
-                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${colorSet.light} border border-gray-200 group-hover:border-gray-300 transition-all`}
-                          whileHover={{ x: 4 }}
+                          className={`inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r ${colorSet.light} border-2 ${colorSet.border} group-hover:shadow-xl transition-all`}
+                          whileHover={{ x: 6 }}
                         >
-                          <span className={`font-heading font-semibold text-sm ${colorSet.icon}`}>Descubre más</span>
-                          <ArrowRight size={16} className={`${colorSet.icon} group-hover:translate-x-1 transition-transform`} />
+                          <span className={`font-heading font-bold text-base ${colorSet.icon === 'text-white' ? 'text-primary' : colorSet.icon}`}>Descubre más</span>
+                          <ArrowRight size={18} className={`${colorSet.icon === 'text-white' ? 'text-primary' : colorSet.icon} group-hover:translate-x-1 transition-transform`} />
                         </motion.div>
                       </div>
                     </motion.div>
@@ -501,76 +528,81 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Client Section - Completely Redesigned */}
-        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-background via-white to-white relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-50 pointer-events-none">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+          {/* Ultra vibrant animated background */}
+          <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
                 y: [0, 50, 0],
-                x: [0, -40, 0],
-                opacity: [0.15, 0.35, 0.15]
+                x: [0, -60, 0],
+                scale: [1, 1.2, 1]
               }}
-              transition={{ duration: 13, repeat: Infinity }}
-              className="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-gradient-to-tl from-secondary/45 via-primary/30 to-accent/20 rounded-full blur-3xl"
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-gradient-to-tl from-secondary/50 via-primary/40 to-transparent rounded-full blur-3xl"
             />
             <motion.div
               animate={{ 
-                y: [0, -30, 0],
-                x: [0, 30, 0],
-                opacity: [0.15, 0.35, 0.15]
+                y: [0, -40, 0],
+                x: [0, 50, 0],
+                scale: [1, 1.15, 1]
               }}
-              transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-              className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/35 via-secondary/25 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-gradient-to-br from-primary/40 via-secondary/30 to-transparent rounded-full blur-3xl"
             />
           </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
+          
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="mb-16 md:mb-24">
+            <AnimatedElement className="mb-20 md:mb-32">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary/30 to-primary/30 px-6 py-3 rounded-full border border-secondary/40 mb-6 md:mb-8 backdrop-blur-sm shadow-lg"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary/40 to-primary/40 px-8 py-4 rounded-full border-2 border-secondary/60 mb-8 md:mb-12 backdrop-blur-md shadow-2xl"
               >
-                <Rocket size={18} className="text-secondary animate-bounce" />
-                <span className="text-secondary font-heading font-semibold text-sm md:text-base">{t.clientSection.badge}</span>
+                <motion.div animate={{ bounce: [0, -10, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                  <Rocket size={20} className="text-secondary" />
+                </motion.div>
+                <span className="text-secondary font-heading font-bold text-base md:text-lg">{t.clientSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-5xl md:text-7xl font-bold bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent mb-6 md:mb-8 leading-tight">{t.clientSection.title}</h2>
-              <p className="text-lg md:text-2xl text-muted-text max-w-4xl font-paragraph leading-relaxed">{t.clientSection.description}</p>
+              <h2 className="font-heading text-6xl md:text-8xl font-bold bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent mb-8 md:mb-10 leading-tight">{t.clientSection.title}</h2>
+              <p className="text-xl md:text-3xl text-foreground max-w-5xl mx-auto font-paragraph leading-relaxed font-semibold">{t.clientSection.description}</p>
             </AnimatedElement>
 
             <div className="relative">
               {/* Connecting line for desktop - more vibrant */}
-              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-2 bg-gradient-to-r from-secondary/10 via-secondary/60 to-secondary/10 transform -translate-y-1/2 z-0 rounded-full shadow-lg"></div>
+              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-3 bg-gradient-to-r from-secondary/20 via-secondary/80 to-secondary/20 transform -translate-y-1/2 z-0 rounded-full shadow-2xl"></div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 relative z-10">
                 {clientSteps.map((step, index) => {
                   const Icon = step.icon;
                   return (
-                    <AnimatedElement key={step.id} delay={index * 130}>
+                    <AnimatedElement key={step.id} delay={index * 100}>
                       <motion.div
-                        whileHover={{ y: -20, scale: 1.08 }}
+                        whileHover={{ y: -24, scale: 1.08 }}
                         className="enhanced-card relative group"
                       >
                         <div className="relative">
                           {/* Step number circle - larger and more prominent */}
                           <motion.div
-                            whileHover={{ scale: 1.25, rotate: 360 }}
-                            transition={{ duration: 0.6 }}
-                            className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-secondary via-primary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-3xl md:text-4xl shadow-2xl group-hover:shadow-3xl transition-all z-20 border-4 border-white"
+                            whileHover={{ scale: 1.3, rotate: 360 }}
+                            transition={{ duration: 0.7 }}
+                            className="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-32 md:h-32 bg-gradient-to-br from-secondary via-primary to-accent rounded-full flex items-center justify-center text-white font-heading font-bold text-4xl md:text-5xl shadow-3xl group-hover:shadow-4xl transition-all z-20 border-4 border-white"
                           >
                             {step.step}
                           </motion.div>
                           
                           {/* Card content */}
-                          <div className="pt-14 md:pt-20 p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white via-secondary/8 to-white border-2 border-secondary/30 group-hover:border-secondary/70 transition-all shadow-lg hover:shadow-2xl">
-                            <div className="flex justify-center mb-6 md:mb-8">
+                          <div className="pt-20 md:pt-24 p-10 md:p-12 rounded-3xl bg-gradient-to-br from-white via-secondary/10 to-white border-2 border-secondary/40 group-hover:border-secondary/80 transition-all shadow-2xl hover:shadow-3xl">
+                            <div className="flex justify-center mb-8 md:mb-10">
                               <motion.div 
-                                whileHover={{ scale: 1.2, rotate: 10 }}
-                                className="p-4 md:p-5 bg-gradient-to-br from-secondary/30 to-primary/30 rounded-2xl group-hover:shadow-xl transition-all"
+                                whileHover={{ scale: 1.25, rotate: 15 }}
+                                className="p-5 md:p-6 bg-gradient-to-br from-secondary/40 to-primary/40 rounded-2xl group-hover:shadow-2xl transition-all"
                               >
-                                <Icon className="w-8 h-8 md:w-10 md:h-10 text-secondary" />
+                                <Icon className="w-10 h-10 md:w-12 md:h-12 text-secondary" />
                               </motion.div>
                             </div>
-                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5 text-center">{step.text}</h3>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-5 md:mb-6 text-center">{step.text}</h3>
                             <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
                           </div>
                         </div>
@@ -584,76 +616,81 @@ export default function HomePage() {
         </section>
 
         {/* How It Works - Joseador Section - Completely Redesigned */}
-        <section className="py-16 md:py-40 px-4 md:px-12 bg-gradient-to-b from-white via-white to-background relative overflow-hidden section-glow">
-          <div className="absolute inset-0 opacity-50 pointer-events-none">
+        <section className="py-20 md:py-48 px-4 md:px-12 relative overflow-hidden section-glow">
+          {/* Ultra vibrant animated background */}
+          <div className="absolute inset-0 pointer-events-none">
             <motion.div
               animate={{ 
-                y: [0, -50, 0],
-                x: [0, 40, 0],
-                opacity: [0.15, 0.35, 0.15]
+                y: [0, -60, 0],
+                x: [0, 60, 0],
+                scale: [1, 1.2, 1]
               }}
-              transition={{ duration: 15, repeat: Infinity }}
-              className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-gradient-to-br from-accent/45 via-support/30 to-primary/20 rounded-full blur-3xl"
+              transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-40 -left-40 w-[800px] h-[800px] bg-gradient-to-br from-accent/50 via-support/40 to-transparent rounded-full blur-3xl"
             />
             <motion.div
               animate={{ 
-                y: [0, 30, 0],
-                x: [0, -40, 0],
-                opacity: [0.15, 0.35, 0.15]
+                y: [0, 40, 0],
+                x: [0, -60, 0],
+                scale: [1, 1.15, 1]
               }}
-              transition={{ duration: 16, repeat: Infinity, delay: 1.5 }}
-              className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-gradient-to-tl from-support/35 via-accent/25 to-transparent rounded-full blur-3xl"
+              transition={{ duration: 19, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              className="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-gradient-to-tl from-support/40 via-accent/30 to-transparent rounded-full blur-3xl"
             />
           </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 pointer-events-none"></div>
+          
           <div className="max-w-[120rem] mx-auto relative z-10">
-            <AnimatedElement className="mb-16 md:mb-24">
+            <AnimatedElement className="mb-20 md:mb-32">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-accent/30 to-support/30 px-6 py-3 rounded-full border border-accent/40 mb-6 md:mb-8 backdrop-blur-sm shadow-lg"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-accent/40 to-support/40 px-8 py-4 rounded-full border-2 border-accent/60 mb-8 md:mb-12 backdrop-blur-md shadow-2xl"
               >
-                <Target size={18} className="text-accent animate-pulse" />
-                <span className="text-accent font-heading font-semibold text-sm md:text-base">{t.workerSection.badge}</span>
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <Target size={20} className="text-accent" />
+                </motion.div>
+                <span className="text-accent font-heading font-bold text-base md:text-lg">{t.workerSection.badge}</span>
               </motion.div>
-              <h2 className="font-heading text-5xl md:text-7xl font-bold bg-gradient-to-r from-accent via-support to-secondary bg-clip-text text-transparent mb-6 md:mb-8 leading-tight">{t.workerSection.title}</h2>
-              <p className="text-lg md:text-2xl text-muted-text max-w-4xl font-paragraph leading-relaxed">{t.workerSection.description}</p>
+              <h2 className="font-heading text-6xl md:text-8xl font-bold bg-gradient-to-r from-accent via-support to-secondary bg-clip-text text-transparent mb-8 md:mb-10 leading-tight">{t.workerSection.title}</h2>
+              <p className="text-xl md:text-3xl text-foreground max-w-5xl mx-auto font-paragraph leading-relaxed font-semibold">{t.workerSection.description}</p>
             </AnimatedElement>
 
             <div className="relative">
               {/* Connecting line for desktop - more vibrant */}
-              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-2 bg-gradient-to-r from-accent/10 via-accent/60 to-accent/10 transform -translate-y-1/2 z-0 rounded-full shadow-lg"></div>
+              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-3 bg-gradient-to-r from-accent/20 via-accent/80 to-accent/20 transform -translate-y-1/2 z-0 rounded-full shadow-2xl"></div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 relative z-10">
                 {joseadorSteps.map((step, index) => {
                   const Icon = step.icon;
                   return (
-                    <AnimatedElement key={step.id} delay={index * 130}>
+                    <AnimatedElement key={step.id} delay={index * 100}>
                       <motion.div
-                        whileHover={{ y: -20, scale: 1.08 }}
+                        whileHover={{ y: -24, scale: 1.08 }}
                         className="enhanced-card relative group"
                       >
                         <div className="relative">
                           {/* Step number circle - larger and more prominent */}
                           <motion.div
-                            whileHover={{ scale: 1.25, rotate: 360 }}
-                            transition={{ duration: 0.6 }}
-                            className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-accent via-support to-secondary rounded-full flex items-center justify-center text-white font-heading font-bold text-3xl md:text-4xl shadow-2xl group-hover:shadow-3xl transition-all z-20 border-4 border-white"
+                            whileHover={{ scale: 1.3, rotate: 360 }}
+                            transition={{ duration: 0.7 }}
+                            className="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-32 md:h-32 bg-gradient-to-br from-accent via-support to-secondary rounded-full flex items-center justify-center text-white font-heading font-bold text-4xl md:text-5xl shadow-3xl group-hover:shadow-4xl transition-all z-20 border-4 border-white"
                           >
                             {step.step}
                           </motion.div>
                           
                           {/* Card content */}
-                          <div className="pt-14 md:pt-20 p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white via-accent/8 to-white border-2 border-accent/30 group-hover:border-accent/70 transition-all shadow-lg hover:shadow-2xl">
-                            <div className="flex justify-center mb-6 md:mb-8">
+                          <div className="pt-20 md:pt-24 p-10 md:p-12 rounded-3xl bg-gradient-to-br from-white via-accent/10 to-white border-2 border-accent/40 group-hover:border-accent/80 transition-all shadow-2xl hover:shadow-3xl">
+                            <div className="flex justify-center mb-8 md:mb-10">
                               <motion.div 
-                                whileHover={{ scale: 1.2, rotate: -10 }}
-                                className="p-4 md:p-5 bg-gradient-to-br from-accent/30 to-support/30 rounded-2xl group-hover:shadow-xl transition-all"
+                                whileHover={{ scale: 1.25, rotate: -15 }}
+                                className="p-5 md:p-6 bg-gradient-to-br from-accent/40 to-support/40 rounded-2xl group-hover:shadow-2xl transition-all"
                               >
-                                <Icon className="w-8 h-8 md:w-10 md:h-10 text-accent" />
+                                <Icon className="w-10 h-10 md:w-12 md:h-12 text-accent" />
                               </motion.div>
                             </div>
-                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-5 text-center">{step.text}</h3>
+                            <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-5 md:mb-6 text-center">{step.text}</h3>
                             <p className="text-base md:text-lg text-muted-text leading-relaxed text-center font-paragraph">{step.subtitle}</p>
                           </div>
                         </div>
