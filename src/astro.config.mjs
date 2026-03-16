@@ -8,12 +8,18 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     ...viteConfig,
+    ssr: {
+      external: ['wix-data', 'wix-members-backend', 'wix-pay-backend'],
+    },
     build: {
       ...(viteConfig.build || {}),
       rollupOptions: {
         ...(viteConfig.build?.rollupOptions || {}),
         external: ['wix-data', 'wix-members-backend', 'wix-pay-backend'],
       },
+    },
+    optimizeDeps: {
+      include: ['@astrojs/react/client'],
     },
   },
 });
