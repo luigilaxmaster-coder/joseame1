@@ -20,6 +20,7 @@ export default defineConfig({
     },
     optimizeDeps: {
       include: ['@astrojs/react/client'],
+      exclude: ['@astrojs/react'],
     },
   },
 });
