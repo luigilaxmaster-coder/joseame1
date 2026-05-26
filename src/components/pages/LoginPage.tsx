@@ -68,7 +68,7 @@ export default function LoginPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={actions.login}
+              onClick={() => actions.login()}
               className="w-full px-6 py-4 bg-gradient-to-r from-primary via-secondary to-accent text-white font-heading font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3"
             >
               <LogIn size={24} />
@@ -89,7 +89,7 @@ export default function LoginPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={actions.login}
+              onClick={() => actions.login()}
               className="w-full px-6 py-4 bg-transparent text-primary font-heading font-semibold rounded-xl border-2 border-primary hover:bg-primary/5 transition-colors"
             >
               Crear Cuenta Nueva
