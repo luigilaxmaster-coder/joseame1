@@ -6,7 +6,8 @@ import { BaseCrudService } from '@/integrations';
 import {
   ArrowLeft, User, Mail, Calendar, Star, Upload, Trash2, Edit2, Check, AlertCircle,
   CheckCircle, Award, Clock, Phone, MapPin, Briefcase, FileText, Settings,
-  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield, Send, X
+  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield, Send, X,
+  Zap, TrendingUp, Users, Eye
 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
@@ -16,7 +17,7 @@ import { useSyncUser } from '@/lib/user-sync-hook';
 import { WixMediaService } from '@/lib/wix-media-service';
 import { PortfolioUploaderBasic } from '@/components/PortfolioUploaderBasic';
 
-type TabType = 'posts' | 'about' | 'settings';
+type TabType = 'portfolio' | 'about' | 'settings';
 
 interface PhotoComment {
   id: string;
@@ -414,24 +415,24 @@ function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-background via-white to-background">
       {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
+      <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
           <button
             onClick={() => navigate(getBackButtonPath())}
-            className="inline-flex items-center gap-2 transition-colors font-paragraph font-semibold text-sm md:text-base h-10 px-3 rounded-lg text-muted-text hover:text-primary hover:bg-background"
+            className="inline-flex items-center gap-2 transition-all font-paragraph font-semibold text-sm md:text-base h-10 px-3 rounded-lg text-muted-text hover:text-primary hover:bg-primary/10"
           >
             <ArrowLeft size={18} className="md:w-5 md:h-5" />
             <span className="hidden sm:inline">Volver</span>
           </button>
 
-          <h1 className="font-heading font-bold text-lg md:text-xl text-foreground">Perfil</h1>
+          <h1 className="font-heading font-bold text-lg md:text-xl text-foreground">Mi Perfil</h1>
 
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 hover:bg-background rounded-lg transition-colors"
+            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
           >
             <MoreHorizontal size={20} className="text-foreground" />
           </motion.button>
@@ -446,88 +447,121 @@ function ProfilePage() {
           transition={{ duration: 0.6 }}
           className="space-y-0"
         >
-          {/* Profile Header - Instagram Style */}
-          <div className="border-b border-border">
-            <div className="px-4 md:px-6 py-8 md:py-12">
-              <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start md:items-center">
-                {/* Profile Picture */}
-                <motion.div whileHover={{ scale: 1.05 }} className="flex-shrink-0">
-                  {member?.profile?.photo?.url ? (
-                    <Image
-                      src={member.profile.photo.url}
-                      alt={member.profile.nickname || 'Usuario'}
-                      className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-primary/20 shadow-lg"
-                      width={160}
-                    />
-                  ) : (
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center shadow-lg border-4 border-primary/20">
-                      <User size={60} className="md:w-20 md:h-20 text-primary" />
-                    </div>
-                  )}
+          {/* Profile Header - Enhanced Design */}
+          <div className="relative overflow-hidden">
+            {/* Background Gradient */}
+            <div className="absolute inset-0 h-32 md:h-48 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 pointer-events-none" />
+            
+            <div className="relative px-4 md:px-6 py-8 md:py-12">
+              <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start md:items-end">
+                {/* Profile Picture with Badge */}
+                <motion.div 
+                  whileHover={{ scale: 1.05 }} 
+                  className="flex-shrink-0 relative"
+                >
+                  <div className="relative">
+                    {member?.profile?.photo?.url ? (
+                      <Image
+                        src={member.profile.photo.url}
+                        alt={member.profile.nickname || 'Usuario'}
+                        className="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-cover border-4 border-white shadow-2xl"
+                        width={192}
+                      />
+                    ) : (
+                      <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center shadow-2xl border-4 border-white">
+                        <User size={80} className="md:w-32 md:h-32 text-primary" />
+                      </div>
+                    )}
+                    {verificationStatus === 'Aprobado' && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -bottom-2 -right-2 bg-accent rounded-full p-2 border-4 border-white shadow-lg"
+                      >
+                        <CheckCircle size={24} className="text-white" />
+                      </motion.div>
+                    )}
+                  </div>
                 </motion.div>
 
                 {/* Profile Info */}
                 <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-                    <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-                      {member?.profile?.nickname || member?.contact?.firstName || 'Usuario'}
-                    </h1>
-                    {!isEditingOverview && (
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setIsEditingOverview(true)}
-                        className="w-fit px-6 py-2 border-2 border-foreground text-foreground font-paragraph font-bold rounded-lg hover:bg-foreground hover:text-white transition-all"
-                      >
-                        Editar Perfil
-                      </motion.button>
+                  <div className="flex flex-col gap-3 mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                      <h1 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
+                        {member?.profile?.nickname || member?.contact?.firstName || 'Usuario'}
+                      </h1>
+                      {!isEditingOverview && (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setIsEditingOverview(true)}
+                          className="w-fit px-6 py-2 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                        >
+                          <Edit2 size={16} />
+                          Editar
+                        </motion.button>
+                      )}
+                    </div>
+
+                    {member?.profile?.title && (
+                      <p className="font-paragraph text-base md:text-lg text-secondary font-semibold">
+                        {member.profile.title}
+                      </p>
                     )}
                   </div>
 
-                  {member?.profile?.title && (
-                    <p className="font-paragraph text-base md:text-lg text-muted-text mb-4">
-                      {member.profile.title}
-                    </p>
-                  )}
-
-                  {/* Stats */}
-                  <div className="flex gap-8 md:gap-12 mb-6">
-                    <div className="text-center md:text-left">
-                      <p className="font-heading font-bold text-2xl md:text-3xl text-foreground">
+                  {/* Stats - Enhanced */}
+                  <div className="grid grid-cols-3 gap-4 md:gap-6">
+                    <motion.div 
+                      whileHover={{ y: -4 }}
+                      className="p-3 md:p-4 bg-white rounded-xl border border-border shadow-sm hover:shadow-md transition-all"
+                    >
+                      <p className="font-heading font-bold text-2xl md:text-3xl text-primary">
                         {userPhotos.length}
                       </p>
-                      <p className="font-paragraph text-sm text-muted-text">Publicaciones</p>
-                    </div>
-                    <div className="text-center md:text-left">
-                      <p className="font-heading font-bold text-2xl md:text-3xl text-foreground">
+                      <p className="font-paragraph text-xs md:text-sm text-muted-text">Trabajos</p>
+                    </motion.div>
+                    <motion.div 
+                      whileHover={{ y: -4 }}
+                      className="p-3 md:p-4 bg-white rounded-xl border border-border shadow-sm hover:shadow-md transition-all"
+                    >
+                      <p className="font-heading font-bold text-2xl md:text-3xl text-secondary">
                         {userRatings.length}
                       </p>
-                      <p className="font-paragraph text-sm text-muted-text">Reseñas</p>
-                    </div>
-                    <div className="text-center md:text-left">
-                      <p className="font-heading font-bold text-2xl md:text-3xl text-foreground">
+                      <p className="font-paragraph text-xs md:text-sm text-muted-text">Reseñas</p>
+                    </motion.div>
+                    <motion.div 
+                      whileHover={{ y: -4 }}
+                      className="p-3 md:p-4 bg-white rounded-xl border border-border shadow-sm hover:shadow-md transition-all"
+                    >
+                      <p className="font-heading font-bold text-2xl md:text-3xl text-accent">
                         {averageRating > 0 ? averageRating.toFixed(1) : '—'}
                       </p>
-                      <p className="font-paragraph text-sm text-muted-text">Calificación</p>
-                    </div>
+                      <p className="font-paragraph text-xs md:text-sm text-muted-text">Calificación</p>
+                    </motion.div>
                   </div>
 
                   {/* Bio Section */}
                   {isEditingOverview ? (
-                    <div className="space-y-3 mb-4">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-3 mt-6 p-4 bg-white rounded-xl border-2 border-primary/30"
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <input
                           type="text"
                           value={overviewData.firstName}
                           onChange={(e) => setOverviewData({ ...overviewData, firstName: e.target.value })}
-                          className="px-4 py-2 border-2 border-primary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                          className="px-4 py-3 border-2 border-primary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           placeholder="Nombre"
                         />
                         <input
                           type="text"
                           value={overviewData.lastName}
                           onChange={(e) => setOverviewData({ ...overviewData, lastName: e.target.value })}
-                          className="px-4 py-2 border-2 border-primary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                          className="px-4 py-3 border-2 border-primary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           placeholder="Apellido"
                         />
                       </div>
@@ -549,26 +583,26 @@ function ProfilePage() {
                           Cancelar
                         </motion.button>
                       </div>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <p className="font-paragraph text-foreground text-sm md:text-base leading-relaxed">
+                    <p className="font-paragraph text-foreground text-sm md:text-base leading-relaxed mt-4">
                       {overviewData.firstName || member?.contact?.firstName} {overviewData.lastName || member?.contact?.lastName}
                     </p>
                   )}
 
                   {/* Badges */}
                   {userBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="flex flex-wrap gap-2 mt-6">
                       {userBadges.map((badge, index) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: index * 0.1 }}
-                          className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 px-3 py-1 rounded-full shadow-lg"
+                          className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all"
                         >
-                          <Award size={14} className="text-white" />
-                          <span className="font-paragraph text-xs font-bold text-white">{badge}</span>
+                          <Award size={16} className="text-white" />
+                          <span className="font-paragraph text-sm font-bold text-white">{badge}</span>
                         </motion.div>
                       ))}
                     </div>
@@ -578,39 +612,41 @@ function ProfilePage() {
             </div>
           </div>
 
-          {/* Tab Navigation - Instagram Style */}
-          <div className="border-b border-border flex justify-center gap-8 md:gap-12 px-4 md:px-6">
-            {(['posts', 'about', 'settings'] as TabType[]).map((tab) => (
-              <motion.button
-                key={tab}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 font-paragraph font-semibold text-sm md:text-base transition-all border-b-2 ${
-                  activeTab === tab
-                    ? 'border-foreground text-foreground'
-                    : 'border-transparent text-muted-text hover:text-foreground'
-                }`}
-              >
-                {tab === 'posts' && <span className="flex items-center gap-2"><Grid3x3 size={16} /> Publicaciones</span>}
-                {tab === 'about' && <span className="flex items-center gap-2"><User size={16} /> Acerca de</span>}
-                {tab === 'settings' && <span className="flex items-center gap-2"><Settings size={16} /> Configuración</span>}
-              </motion.button>
-            ))}
+          {/* Tab Navigation - Enhanced */}
+          <div className="border-b border-border bg-white/50 backdrop-blur-sm sticky top-16 z-40">
+            <div className="max-w-[100rem] mx-auto px-4 md:px-6 flex justify-start md:justify-center gap-2 md:gap-8 overflow-x-auto">
+              {(['portfolio', 'about', 'settings'] as TabType[]).map((tab) => (
+                <motion.button
+                  key={tab}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 px-2 md:px-4 font-paragraph font-semibold text-sm md:text-base transition-all border-b-2 whitespace-nowrap ${
+                    activeTab === tab
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-text hover:text-foreground'
+                  }`}
+                >
+                  {tab === 'portfolio' && <span className="flex items-center gap-2"><Grid3x3 size={16} /> Portafolio</span>}
+                  {tab === 'about' && <span className="flex items-center gap-2"><User size={16} /> Acerca de</span>}
+                  {tab === 'settings' && <span className="flex items-center gap-2"><Settings size={16} /> Configuración</span>}
+                </motion.button>
+              ))}
+            </div>
           </div>
 
           {/* Tab Content */}
           <AnimatePresence mode="wait">
-            {/* Posts Tab - Instagram-style Gallery */}
-            {activeTab === 'posts' && (
-              <motion.div key="posts" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-6 py-8 md:py-12">
-                {/* Upload Section */}
+            {/* Portfolio Tab - Enhanced Gallery */}
+            {activeTab === 'portfolio' && (
+              <motion.div key="portfolio" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-6 py-8 md:py-12">
+                {/* Upload Section - Enhanced */}
                 <div className="mb-12">
                   {uploadError && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3"
+                      className="mb-6 p-4 bg-destructive/10 border-2 border-destructive/30 rounded-xl flex items-start gap-3"
                     >
                       <AlertCircle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
                       <p className="font-paragraph text-sm text-destructive">{uploadError}</p>
@@ -621,10 +657,10 @@ function ProfilePage() {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="mb-8 p-6 md:p-8 bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 rounded-2xl border-2 border-primary/40"
+                      className="mb-8 p-6 md:p-8 bg-white rounded-2xl border-2 border-primary/20 shadow-lg"
                     >
                       <div className="space-y-4">
-                        <div className="relative rounded-2xl overflow-hidden bg-gray-200 h-60 md:h-80 flex items-center justify-center shadow-lg">
+                        <div className="relative rounded-2xl overflow-hidden bg-gray-200 h-60 md:h-96 flex items-center justify-center shadow-lg">
                           <Image
                             src={previewUrl}
                             alt="Vista previa"
@@ -636,7 +672,7 @@ function ProfilePage() {
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <label className="block font-paragraph text-sm font-bold text-foreground">
-                              Descripción
+                              Descripción del trabajo
                             </label>
                             <span className="font-paragraph text-xs text-muted-text">
                               {captionCharCount}/{maxCaptionLength}
@@ -645,7 +681,7 @@ function ProfilePage() {
                           <textarea
                             value={photoCaption}
                             onChange={handleCaptionChange}
-                            placeholder="Agrega una descripción de tu trabajo..."
+                            placeholder="Describe tu trabajo, técnicas utilizadas, materiales..."
                             maxLength={maxCaptionLength}
                             rows={3}
                             className="w-full px-4 py-3 border-2 border-primary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white resize-none"
@@ -658,9 +694,10 @@ function ProfilePage() {
                             whileTap={{ scale: 0.98 }}
                             onClick={handleConfirmUpload}
                             disabled={isUploadingPhoto}
-                            className="flex-1 px-4 py-3 bg-primary text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 px-4 py-3 bg-primary text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           >
-                            {isUploadingPhoto ? 'Subiendo...' : 'Publicar'}
+                            <Upload size={16} />
+                            {isUploadingPhoto ? 'Subiendo...' : 'Publicar Trabajo'}
                           </motion.button>
                           <motion.button
                             whileHover={{ scale: 1.02 }}
@@ -675,18 +712,18 @@ function ProfilePage() {
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="mb-8 p-6 md:p-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border-3 border-dashed border-primary/40 hover:border-primary/60 transition-colors">
+                    <div className="mb-8 p-8 md:p-12 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 rounded-2xl border-3 border-dashed border-primary/40 hover:border-primary/60 transition-all hover:shadow-md">
                       <div className="flex flex-col items-center gap-4">
                         <motion.div
                           animate={{ y: [0, -8, 0] }}
                           transition={{ duration: 2, repeat: Infinity }}
-                          className="p-4 md:p-5 bg-primary rounded-full shadow-lg"
+                          className="p-4 md:p-6 bg-gradient-to-br from-primary to-secondary rounded-full shadow-lg"
                         >
-                          <Upload size={32} className="md:w-10 md:h-10 text-white" />
+                          <Upload size={40} className="md:w-12 md:h-12 text-white" />
                         </motion.div>
                         <div className="text-center">
-                          <p className="font-heading font-bold text-foreground mb-2 text-lg md:text-xl">Comparte una foto</p>
-                          <p className="font-paragraph text-sm md:text-base text-muted-text">Muestra tu trabajo y destaca tu portafolio</p>
+                          <p className="font-heading font-bold text-foreground mb-2 text-xl md:text-2xl">Comparte tu trabajo</p>
+                          <p className="font-paragraph text-sm md:text-base text-muted-text mb-4">Sube fotos de tus proyectos y destaca tu portafolio profesional</p>
                         </div>
                         <PortfolioUploaderBasic onFile={handleUploadPhoto} />
                       </div>
@@ -694,7 +731,7 @@ function ProfilePage() {
                   )}
                 </div>
 
-                {/* Photos Grid - Instagram Style */}
+                {/* Photos Grid - Enhanced */}
                 {userPhotos.length > 0 ? (
                   <div className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -704,7 +741,7 @@ function ProfilePage() {
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: index * 0.05 }}
-                          className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all"
+                          className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all border border-border/50"
                         >
                           {/* Photo Container */}
                           <div className="relative aspect-square overflow-hidden bg-gray-200">
@@ -716,7 +753,7 @@ function ProfilePage() {
                             />
 
                             {/* Overlay on Hover */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-6 opacity-0 group-hover:opacity-100">
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
                               <motion.button
                                 whileHover={{ scale: 1.2 }}
                                 whileTap={{ scale: 0.9 }}
@@ -775,13 +812,13 @@ function ProfilePage() {
 
                             {/* Caption */}
                             {photo.caption && (
-                              <p className="font-paragraph text-sm text-foreground line-clamp-2">
+                              <p className="font-paragraph text-sm text-foreground line-clamp-2 bg-background/50 p-2 rounded-lg">
                                 {photo.caption}
                               </p>
                             )}
 
                             {/* Likes and Comments */}
-                            <div className="flex items-center gap-4 pt-2 border-t border-border">
+                            <div className="flex items-center gap-4 pt-2 border-t border-border/50">
                               <button
                                 onClick={() => handleLikePhoto(photo._id)}
                                 className="flex items-center gap-1 text-sm font-paragraph font-semibold text-muted-text hover:text-primary transition-colors"
@@ -807,7 +844,7 @@ function ProfilePage() {
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="space-y-3 pt-3 border-t border-border"
+                                className="space-y-3 pt-3 border-t border-border/50"
                               >
                                 {/* Comments List */}
                                 <div className="max-h-40 overflow-y-auto space-y-2">
@@ -831,7 +868,7 @@ function ProfilePage() {
                                 </div>
 
                                 {/* Comment Input */}
-                                <div className="flex gap-2 pt-2 border-t border-border">
+                                <div className="flex gap-2 pt-2 border-t border-border/50">
                                   <input
                                     type="text"
                                     value={commentText}
@@ -862,16 +899,16 @@ function ProfilePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-16 md:py-20">
+                  <div className="text-center py-16 md:py-24">
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                       className="inline-block mb-4 p-4 bg-primary/10 rounded-full"
                     >
-                      <Upload size={32} className="md:w-10 md:h-10 text-primary" />
+                      <Grid3x3 size={40} className="md:w-12 md:h-12 text-primary" />
                     </motion.div>
-                    <p className="font-heading text-base md:text-lg font-bold text-foreground mb-2">Sin publicaciones aún</p>
-                    <p className="font-paragraph text-sm md:text-base text-muted-text">¡Sube tu primera foto para comenzar!</p>
+                    <p className="font-heading text-lg md:text-xl font-bold text-foreground mb-2">Sin trabajos publicados</p>
+                    <p className="font-paragraph text-sm md:text-base text-muted-text">¡Sube tu primer trabajo para comenzar a construir tu portafolio!</p>
                   </div>
                 )}
               </motion.div>
@@ -880,13 +917,20 @@ function ProfilePage() {
             {/* About Tab */}
             {activeTab === 'about' && (
               <motion.div key="about" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-6 py-8 md:py-12">
-                <div className="max-w-2xl space-y-6">
+                <div className="max-w-3xl space-y-8">
                   {/* Contact Info */}
-                  <div className="space-y-4">
-                    <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Información de Contacto</h3>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                      <Mail size={28} className="text-primary" />
+                      Información de Contacto
+                    </h3>
                     
                     {member?.loginEmail && (
-                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
+                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-primary/50 transition-all hover:shadow-md">
                         <Mail size={20} className="text-primary flex-shrink-0" />
                         <div className="min-w-0">
                           <p className="font-paragraph text-xs text-muted-text font-semibold">Email</p>
@@ -896,17 +940,17 @@ function ProfilePage() {
                     )}
 
                     {member?.contact?.firstName && (
-                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
+                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-primary/50 transition-all hover:shadow-md">
                         <User size={20} className="text-primary flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="font-paragraph text-xs text-muted-text font-semibold">Nombre</p>
+                          <p className="font-paragraph text-xs text-muted-text font-semibold">Nombre Completo</p>
                           <p className="font-paragraph text-foreground font-semibold">{member.contact.firstName} {member.contact.lastName}</p>
                         </div>
                       </motion.div>
                     )}
 
                     {member?._createdDate && (
-                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
+                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-primary/50 transition-all hover:shadow-md">
                         <Calendar size={20} className="text-primary flex-shrink-0" />
                         <div className="min-w-0">
                           <p className="font-paragraph text-xs text-muted-text font-semibold">Miembro desde</p>
@@ -914,16 +958,24 @@ function ProfilePage() {
                         </div>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Verification Status Section */}
                   {userRole === 'joseador' && (
-                    <div className="space-y-4 pt-6 border-t border-border">
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Estado de Verificación</h3>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="space-y-4 pt-6 border-t border-border"
+                    >
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                        <CheckCircle size={28} className="text-secondary" />
+                        Estado de Verificación
+                      </h3>
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
+                        className={`p-4 rounded-xl border-2 flex items-center gap-3 ${
                           verificationStatus === 'Aprobado'
                             ? 'bg-accent/10 border-accent'
                             : verificationStatus === 'Rechazado'
@@ -951,105 +1003,120 @@ function ProfilePage() {
                           </p>
                         </div>
                       </motion.div>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Professional Info */}
                   {userRole === 'joseador' && joseadorProfile && (
-                    <div className="space-y-4 pt-6 border-t border-border">
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Información Profesional</h3>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="space-y-4 pt-6 border-t border-border"
+                    >
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                        <Briefcase size={28} className="text-secondary" />
+                        Información Profesional
+                      </h3>
                       
-                      {editFormData.mainCategory && (
-                        <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
-                          <Briefcase size={20} className="text-secondary flex-shrink-0" />
-                          <div>
-                            <p className="font-paragraph text-xs text-muted-text font-semibold">Especialidad</p>
-                            <p className="font-paragraph text-foreground font-semibold">{editFormData.mainCategory}</p>
-                          </div>
-                        </motion.div>
-                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {editFormData.mainCategory && (
+                          <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-secondary/50 transition-all hover:shadow-md">
+                            <Briefcase size={20} className="text-secondary flex-shrink-0" />
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text font-semibold">Especialidad</p>
+                              <p className="font-paragraph text-foreground font-semibold">{editFormData.mainCategory}</p>
+                            </div>
+                          </motion.div>
+                        )}
 
-                      {editFormData.yearsOfExperience > 0 && (
-                        <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
-                          <Award size={20} className="text-secondary flex-shrink-0" />
-                          <div>
-                            <p className="font-paragraph text-xs text-muted-text font-semibold">Experiencia</p>
-                            <p className="font-paragraph text-foreground font-semibold">{editFormData.yearsOfExperience} años</p>
-                          </div>
-                        </motion.div>
-                      )}
+                        {editFormData.yearsOfExperience > 0 && (
+                          <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-secondary/50 transition-all hover:shadow-md">
+                            <Award size={20} className="text-secondary flex-shrink-0" />
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text font-semibold">Experiencia</p>
+                              <p className="font-paragraph text-foreground font-semibold">{editFormData.yearsOfExperience} años</p>
+                            </div>
+                          </motion.div>
+                        )}
 
-                      {editFormData.cityZone && (
-                        <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
-                          <MapPin size={20} className="text-secondary flex-shrink-0" />
-                          <div>
-                            <p className="font-paragraph text-xs text-muted-text font-semibold">Zona</p>
-                            <p className="font-paragraph text-foreground font-semibold">{editFormData.cityZone}</p>
-                          </div>
-                        </motion.div>
-                      )}
+                        {editFormData.cityZone && (
+                          <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-secondary/50 transition-all hover:shadow-md">
+                            <MapPin size={20} className="text-secondary flex-shrink-0" />
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text font-semibold">Zona</p>
+                              <p className="font-paragraph text-foreground font-semibold">{editFormData.cityZone}</p>
+                            </div>
+                          </motion.div>
+                        )}
 
-                      {editFormData.basePriceEstimate > 0 && (
-                        <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
-                          <FileText size={20} className="text-secondary flex-shrink-0" />
-                          <div>
-                            <p className="font-paragraph text-xs text-muted-text font-semibold">Precio Base</p>
-                            <p className="font-paragraph text-foreground font-semibold">RD$ {editFormData.basePriceEstimate.toFixed(2)}</p>
-                          </div>
-                        </motion.div>
-                      )}
+                        {editFormData.basePriceEstimate > 0 && (
+                          <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-secondary/50 transition-all hover:shadow-md">
+                            <FileText size={20} className="text-secondary flex-shrink-0" />
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text font-semibold">Precio Base</p>
+                              <p className="font-paragraph text-foreground font-semibold">RD$ {editFormData.basePriceEstimate.toFixed(2)}</p>
+                            </div>
+                          </motion.div>
+                        )}
 
-                      {editFormData.availability && (
-                        <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border">
-                          <Clock size={20} className="text-secondary flex-shrink-0" />
-                          <div>
-                            <p className="font-paragraph text-xs text-muted-text font-semibold">Disponibilidad</p>
-                            <p className="font-paragraph text-foreground font-semibold">{editFormData.availability}</p>
-                          </div>
-                        </motion.div>
-                      )}
+                        {editFormData.availability && (
+                          <motion.div whileHover={{ x: 4 }} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-secondary/50 transition-all hover:shadow-md md:col-span-2">
+                            <Clock size={20} className="text-secondary flex-shrink-0" />
+                            <div>
+                              <p className="font-paragraph text-xs text-muted-text font-semibold">Disponibilidad</p>
+                              <p className="font-paragraph text-foreground font-semibold">{editFormData.availability}</p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
 
                       {!isEditingProfile && (
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setIsEditingProfile(true)}
-                          className="w-full px-4 py-3 border-2 border-secondary text-secondary font-paragraph font-bold rounded-lg hover:bg-secondary hover:text-white transition-all mt-4"
+                          className="w-full px-4 py-3 border-2 border-secondary text-secondary font-paragraph font-bold rounded-xl hover:bg-secondary hover:text-white transition-all mt-4 flex items-center justify-center gap-2"
                         >
+                          <Edit2 size={18} />
                           Editar Información Profesional
                         </motion.button>
                       )}
 
                       {isEditingProfile && (
-                        <div className="space-y-4 mt-6 p-4 bg-background rounded-lg border border-border">
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-4 mt-6 p-4 bg-white rounded-xl border border-border"
+                        >
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                               type="text"
                               value={editFormData.mainCategory}
                               onChange={(e) => setEditFormData({ ...editFormData, mainCategory: e.target.value })}
                               placeholder="Especialidad"
-                              className="px-4 py-2 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                              className="px-4 py-3 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                             />
                             <input
                               type="number"
                               value={editFormData.yearsOfExperience}
                               onChange={(e) => setEditFormData({ ...editFormData, yearsOfExperience: parseInt(e.target.value) || 0 })}
                               placeholder="Años de experiencia"
-                              className="px-4 py-2 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                              className="px-4 py-3 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                             />
                             <input
                               type="text"
                               value={editFormData.cityZone}
                               onChange={(e) => setEditFormData({ ...editFormData, cityZone: e.target.value })}
                               placeholder="Zona"
-                              className="px-4 py-2 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                              className="px-4 py-3 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                             />
                             <input
                               type="number"
                               value={editFormData.basePriceEstimate}
                               onChange={(e) => setEditFormData({ ...editFormData, basePriceEstimate: parseFloat(e.target.value) || 0 })}
                               placeholder="Precio base"
-                              className="px-4 py-2 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
+                              className="px-4 py-3 border-2 border-secondary/30 rounded-lg font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                             />
                           </div>
                           <div className="flex gap-2">
@@ -1057,28 +1124,37 @@ function ProfilePage() {
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={handleSaveProfileChanges}
-                              className="flex-1 px-4 py-2 bg-secondary text-white font-paragraph font-bold rounded-lg hover:shadow-lg transition-all"
+                              className="flex-1 px-4 py-3 bg-secondary text-white font-paragraph font-bold rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
                             >
+                              <Check size={18} />
                               Guardar
                             </motion.button>
                             <motion.button
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={() => setIsEditingProfile(false)}
-                              className="flex-1 px-4 py-2 border-2 border-secondary/30 text-foreground font-paragraph font-bold rounded-lg hover:bg-secondary/5 transition-all"
+                              className="flex-1 px-4 py-3 border-2 border-secondary/30 text-foreground font-paragraph font-bold rounded-lg hover:bg-secondary/5 transition-all"
                             >
                               Cancelar
                             </motion.button>
                           </div>
-                        </div>
+                        </motion.div>
                       )}
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Ratings Section */}
                   {userRatings.length > 0 && (
-                    <div className="space-y-4 pt-6 border-t border-border">
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Reseñas ({userRatings.length})</h3>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="space-y-4 pt-6 border-t border-border"
+                    >
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                        <Star size={28} className="text-yellow-500" />
+                        Reseñas ({userRatings.length})
+                      </h3>
                       <div className="space-y-3">
                         {userRatings.slice(0, 5).map((rating, index) => (
                           <motion.div
@@ -1086,7 +1162,7 @@ function ProfilePage() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="p-4 bg-background rounded-lg border border-border"
+                            className="p-4 bg-white rounded-xl border border-border hover:border-yellow-500/50 hover:shadow-md transition-all"
                           >
                             <div className="flex items-start justify-between mb-2 gap-4">
                               <div className="min-w-0">
@@ -1101,7 +1177,7 @@ function ProfilePage() {
                                 {[...Array(5)].map((_, i) => (
                                   <Star
                                     key={i}
-                                    size={12}
+                                    size={14}
                                     className={i < (rating.ratingValue || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
                                   />
                                 ))}
@@ -1111,7 +1187,7 @@ function ProfilePage() {
                           </motion.div>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </motion.div>
@@ -1120,10 +1196,18 @@ function ProfilePage() {
             {/* Settings Tab */}
             {activeTab === 'settings' && (
               <motion.div key="settings" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-6 py-8 md:py-12">
-                <div className="max-w-2xl space-y-6">
+                <div className="max-w-3xl space-y-8">
                   {/* Role Selection */}
-                  <div className="space-y-4">
-                    <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Cambiar Rol</h3>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                      <Users size={28} className="text-primary" />
+                      Cambiar Rol
+                    </h3>
+                    <p className="font-paragraph text-foreground text-sm">Cambia entre tu rol de cliente y joseador</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <motion.button
                         whileHover={{ scale: 1.05, y: -4 }}
@@ -1132,8 +1216,9 @@ function ProfilePage() {
                           setUserRole('client');
                           window.location.href = '/client/dashboard';
                         }}
-                        className="w-full px-6 py-4 bg-primary text-white font-heading font-bold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                        className="w-full px-6 py-4 bg-gradient-to-br from-primary to-primary/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                       >
+                        <Users size={20} />
                         Dashboard Cliente
                       </motion.button>
                       <motion.button
@@ -1143,23 +1228,32 @@ function ProfilePage() {
                           setUserRole('joseador');
                           window.location.href = '/joseador/dashboard';
                         }}
-                        className="w-full px-6 py-4 bg-secondary text-white font-heading font-bold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                        className="w-full px-6 py-4 bg-gradient-to-br from-secondary to-secondary/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                       >
+                        <Briefcase size={20} />
                         Dashboard Joseador
                       </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Verification Section */}
                   {userRole === 'joseador' && (
-                    <div className="space-y-4 pt-6 border-t border-border">
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Verificación</h3>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="space-y-4 pt-6 border-t border-border"
+                    >
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                        <Shield size={28} className="text-accent" />
+                        Verificación
+                      </h3>
                       
                       {/* Verification Status Display */}
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
+                        className={`p-4 rounded-xl border-2 flex items-center gap-3 ${
                           verificationStatus === 'Aprobado'
                             ? 'bg-accent/10 border-accent'
                             : verificationStatus === 'Rechazado'
@@ -1189,41 +1283,54 @@ function ProfilePage() {
                       </motion.div>
 
                       <p className="font-paragraph text-foreground text-sm">
-                        Completa tu verificación para acceder a más oportunidades de trabajo.
+                        Completa tu verificación para acceder a más oportunidades de trabajo y aumentar tu credibilidad.
                       </p>
                       <motion.button
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate('/joseador/verification')}
-                        className="w-full px-6 py-3 bg-accent text-white font-heading font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-gradient-to-r from-accent to-accent/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                       >
-                        <CheckCircle size={18} />
+                        <CheckCircle size={20} />
                         Iniciar Verificación
                       </motion.button>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Admin Dashboard Access */}
                   {registeredUserRole === 'Admin' && (
-                    <div className="space-y-4 pt-6 border-t border-border">
-                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground">Panel de Administración</h3>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="space-y-4 pt-6 border-t border-border"
+                    >
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                        <Shield size={28} className="text-primary" />
+                        Panel de Administración
+                      </h3>
                       <p className="font-paragraph text-foreground text-sm">
-                        Accede al panel de administración para gestionar usuarios y verificaciones.
+                        Accede al panel de administración para gestionar usuarios, verificaciones y disputas.
                       </p>
                       <motion.button
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate('/admin/dashboard')}
-                        className="w-full px-6 py-3 bg-primary text-white font-heading font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                       >
-                        <Shield size={18} />
+                        <Shield size={20} />
                         Ir al Panel Admin
                       </motion.button>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Logout */}
-                  <div className="pt-6 border-t border-border">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="pt-6 border-t border-border"
+                  >
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -1232,12 +1339,12 @@ function ProfilePage() {
                         clearAllUserData();
                         actions.logout();
                       }}
-                      className="w-full px-6 py-3 border-3 border-destructive text-destructive font-heading font-bold rounded-lg hover:bg-destructive hover:text-white transition-all flex items-center justify-center gap-2"
+                      className="w-full px-6 py-3 border-3 border-destructive text-destructive font-heading font-bold rounded-xl hover:bg-destructive hover:text-white transition-all flex items-center justify-center gap-2 hover:shadow-lg"
                     >
-                      <LogOut size={18} />
+                      <LogOut size={20} />
                       Cerrar Sesión
                     </motion.button>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
             )}
