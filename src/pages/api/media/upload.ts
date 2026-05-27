@@ -79,29 +79,15 @@ async function uploadToWixMedia(
   memberId?: string
 ): Promise<string> {
   try {
-    // Create a blob from the buffer
-    const blob = new Blob([buffer], { type: mimeType });
+    // Convert buffer to base64 string
+    const base64String = Buffer.from(buffer).toString('base64');
     
-    // Convert to data URL for storage
-    const dataUrl = await blobToDataUrl(blob);
+    // Create data URL
+    const dataUrl = `data:${mimeType};base64,${base64String}`;
     
     return dataUrl;
   } catch (error) {
     console.error('Error uploading to Wix Media:', error);
     throw new Error('Failed to process image upload');
   }
-}
-
-/**
- * Convert blob to data URL
- */
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 }
