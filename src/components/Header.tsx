@@ -37,6 +37,12 @@ export default function Header() {
               Inicio
             </Link>
             <Link
+              to="/gallery"
+              className="font-paragraph text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Galería
+            </Link>
+            <Link
               to="/about"
               className="font-paragraph text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
@@ -105,6 +111,13 @@ export default function Header() {
               className="block font-paragraph text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               Inicio
+            </Link>
+            <Link
+              to="/gallery"
+              onClick={() => setIsMenuOpen(false)}
+              className="block font-paragraph text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Galería
             </Link>
             <Link
               to="/about"

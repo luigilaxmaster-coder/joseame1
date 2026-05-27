@@ -706,6 +706,31 @@ export interface SkillTests {
 
 
 /**
+ * Collection ID: user-photo-posts
+ * Interface for UserPhotoPosts
+ */
+export interface UserPhotoPosts {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType image - Contains image URL, render with <Image> component, NOT as text */
+  photoUrl?: string;
+  /** @wixFieldType text */
+  caption?: string;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  username?: string;
+  /** @wixFieldType datetime */
+  timestamp?: Date | string;
+  /** @wixFieldType number */
+  likes?: number;
+  /** @wixFieldType text */
+  comments?: string;
+}
+
+
+/**
  * Collection ID: userdirectory
  * Interface for UserDirectory
  */

@@ -28,6 +28,7 @@ import CheckoutPage from '@/components/pages/CheckoutPage';
 import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
 import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
 import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
+import GalleryPage from '@/components/pages/GalleryPage';
 
 // Layout component that includes ScrollToTop
 function Layout() {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "about",
         element: <AboutPage />,
+      },
+      {
+        path: "gallery",
+        element: <GalleryPage />,
       },
       {
         path: "role-selection",
