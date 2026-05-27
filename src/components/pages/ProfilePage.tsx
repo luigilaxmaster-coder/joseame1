@@ -6,7 +6,7 @@ import { BaseCrudService } from '@/integrations';
 import {
   ArrowLeft, User, Mail, Calendar, Star, Upload, Trash2, Edit2, Check, AlertCircle,
   CheckCircle, Award, Clock, Phone, MapPin, Briefcase, FileText, Settings,
-  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield
+  LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield, Send, X
 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
@@ -18,6 +18,20 @@ import { PortfolioUploaderBasic } from '@/components/PortfolioUploaderBasic';
 
 type TabType = 'posts' | 'about' | 'settings';
 
+interface PhotoComment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  timestamp: Date;
+}
+
+interface PhotoWithInteractions extends UserPhotos {
+  likes: number;
+  comments: PhotoComment[];
+  isLiked: boolean;
+}
+
 function ProfilePage() {
   const { member, actions } = useMember();
   const { userRole, setUserRole } = useRoleStore();
@@ -27,7 +41,7 @@ function ProfilePage() {
   // State Management
   const [activeTab, setActiveTab] = useState<TabType>('posts');
   const [userProfile, setUserProfile] = useState<UserProfiles | null>(null);
-  const [userPhotos, setUserPhotos] = useState<UserPhotos[]>([]);
+  const [userPhotos, setUserPhotos] = useState<PhotoWithInteractions[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [joseadorProfile, setJoseadorProfile] = useState<JoseadoresProfiles | null>(null);
@@ -41,6 +55,13 @@ function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [photoCaption, setPhotoCaption] = useState('');
+  const [captionCharCount, setCaptionCharCount] = useState(0);
+  const maxCaptionLength = 300;
+
+  // Comments State
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [showComments, setShowComments] = useState<Set<string>>(new Set());
 
   // Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -99,11 +120,17 @@ function ProfilePage() {
       // Load UserPhotos
       const { items: photos } = await BaseCrudService.getAll<UserPhotos>('userphotos');
       const userPhotosList = photos.filter(p => p.memberId === member.loginEmail);
-      setUserPhotos(userPhotosList.sort((a, b) => {
+      const photosWithInteractions: PhotoWithInteractions[] = userPhotosList.map(photo => ({
+        ...photo,
+        likes: 0,
+        comments: [],
+        isLiked: false
+      })).sort((a, b) => {
         const dateA = new Date(a.createdAt || 0).getTime();
         const dateB = new Date(b.createdAt || 0).getTime();
         return dateB - dateA;
-      }));
+      });
+      setUserPhotos(photosWithInteractions);
 
       // Load ratings
       const { items: ratings } = await BaseCrudService.getAll<UserRatings>('userratings');
@@ -224,6 +251,7 @@ function ProfilePage() {
       await BaseCrudService.create('userphotos', photoData);
 
       setPhotoCaption('');
+      setCaptionCharCount(0);
       setPreviewUrl('');
       setSelectedFile(null);
       setUploadError('');
@@ -242,8 +270,78 @@ function ProfilePage() {
     setPreviewUrl('');
     setSelectedFile(null);
     setPhotoCaption('');
+    setCaptionCharCount(0);
     setUploadError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleCaptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value.slice(0, maxCaptionLength);
+    setPhotoCaption(text);
+    setCaptionCharCount(text.length);
+  };
+
+  const handleLikePhoto = (photoId: string) => {
+    setUserPhotos(prev => prev.map(photo => {
+      if (photo._id === photoId) {
+        return {
+          ...photo,
+          isLiked: !photo.isLiked,
+          likes: photo.isLiked ? photo.likes - 1 : photo.likes + 1
+        };
+      }
+      return photo;
+    }));
+  };
+
+  const toggleComments = (photoId: string) => {
+    const newShowComments = new Set(showComments);
+    if (newShowComments.has(photoId)) {
+      newShowComments.delete(photoId);
+    } else {
+      newShowComments.add(photoId);
+    }
+    setShowComments(newShowComments);
+  };
+
+  const handleAddComment = (photoId: string) => {
+    if (!commentText.trim() || !member?.profile?.nickname) return;
+
+    setUserPhotos(prev => prev.map(photo => {
+      if (photo._id === photoId) {
+        return {
+          ...photo,
+          comments: [
+            ...photo.comments,
+            {
+              id: crypto.randomUUID(),
+              userId: member.loginEmail || '',
+              userName: member.profile?.nickname || 'Usuario',
+              text: commentText,
+              timestamp: new Date()
+            }
+          ]
+        };
+      }
+      return photo;
+    }));
+    setCommentText('');
+  };
+
+  const getRelativeTime = (date: Date | string | undefined) => {
+    if (!date) return 'Hace poco';
+    const now = new Date();
+    const postDate = new Date(date);
+    const diffMs = now.getTime() - postDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Ahora';
+    if (diffMins < 60) return `Hace ${diffMins}m`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays}d`;
+    return postDate.toLocaleDateString('es-DO');
   };
 
   const handleSaveProfileOverview = async () => {
@@ -503,7 +601,7 @@ function ProfilePage() {
 
           {/* Tab Content */}
           <AnimatePresence mode="wait">
-            {/* Posts Tab - Grid Layout */}
+            {/* Posts Tab - Instagram-style Gallery */}
             {activeTab === 'posts' && (
               <motion.div key="posts" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-6 py-8 md:py-12">
                 {/* Upload Section */}
@@ -536,15 +634,21 @@ function ProfilePage() {
                         </div>
 
                         <div>
-                          <label className="block font-paragraph text-sm font-bold text-foreground mb-3">
-                            Descripción (opcional)
-                          </label>
-                          <input
-                            type="text"
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="block font-paragraph text-sm font-bold text-foreground">
+                              Descripción
+                            </label>
+                            <span className="font-paragraph text-xs text-muted-text">
+                              {captionCharCount}/{maxCaptionLength}
+                            </span>
+                          </div>
+                          <textarea
                             value={photoCaption}
-                            onChange={(e) => setPhotoCaption(e.target.value)}
-                            placeholder="Agrega una descripción..."
-                            className="w-full px-4 py-3 border-2 border-primary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+                            onChange={handleCaptionChange}
+                            placeholder="Agrega una descripción de tu trabajo..."
+                            maxLength={maxCaptionLength}
+                            rows={3}
+                            className="w-full px-4 py-3 border-2 border-primary/30 rounded-xl font-paragraph text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white resize-none"
                           />
                         </div>
 
@@ -590,41 +694,168 @@ function ProfilePage() {
                   )}
                 </div>
 
-                {/* Photos Grid */}
+                {/* Photos Grid - Instagram Style */}
                 {userPhotos.length > 0 ? (
                   <div className="space-y-8">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {userPhotos.map((photo, index) => (
                         <motion.div
                           key={photo._id}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: index * 0.05 }}
-                          className="group relative aspect-square rounded-lg overflow-hidden bg-gray-200 cursor-pointer"
+                          className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all"
                         >
-                          <Image
-                            src={photo.photoUrl || ''}
-                            alt={photo.altText || 'Foto'}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            width={300}
-                          />
+                          {/* Photo Container */}
+                          <div className="relative aspect-square overflow-hidden bg-gray-200">
+                            <Image
+                              src={photo.photoUrl || ''}
+                              alt={photo.altText || 'Foto'}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              width={400}
+                            />
 
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
-                            <motion.button
-                              whileHover={{ scale: 1.2 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors"
-                            >
-                              <Heart size={20} className="text-destructive" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.2 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors"
-                              onClick={() => handleDeletePhoto(photo._id)}
-                            >
-                              <Trash2 size={20} className="text-destructive" />
-                            </motion.button>
+                            {/* Overlay on Hover */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-6 opacity-0 group-hover:opacity-100">
+                              <motion.button
+                                whileHover={{ scale: 1.2 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleLikePhoto(photo._id)}
+                                className="p-3 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors"
+                              >
+                                <Heart
+                                  size={24}
+                                  className={photo.isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}
+                                />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.2 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => toggleComments(photo._id)}
+                                className="p-3 bg-white rounded-full shadow-lg hover:bg-blue-50 transition-colors"
+                              >
+                                <MessageCircle size={24} className="text-gray-400" />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.2 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleDeletePhoto(photo._id)}
+                                className="p-3 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors"
+                              >
+                                <Trash2 size={24} className="text-destructive" />
+                              </motion.button>
+                            </div>
+                          </div>
+
+                          {/* Photo Info Card */}
+                          <div className="p-4 space-y-3">
+                            {/* User Info */}
+                            <div className="flex items-center gap-3">
+                              {member?.profile?.photo?.url ? (
+                                <Image
+                                  src={member.profile.photo.url}
+                                  alt={member.profile.nickname || 'Usuario'}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                  width={32}
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                                  <User size={16} className="text-primary" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-heading font-semibold text-sm text-foreground">
+                                  {member?.profile?.nickname || 'Usuario'}
+                                </p>
+                                <p className="font-paragraph text-xs text-muted-text">
+                                  {getRelativeTime(photo.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Caption */}
+                            {photo.caption && (
+                              <p className="font-paragraph text-sm text-foreground line-clamp-2">
+                                {photo.caption}
+                              </p>
+                            )}
+
+                            {/* Likes and Comments */}
+                            <div className="flex items-center gap-4 pt-2 border-t border-border">
+                              <button
+                                onClick={() => handleLikePhoto(photo._id)}
+                                className="flex items-center gap-1 text-sm font-paragraph font-semibold text-muted-text hover:text-primary transition-colors"
+                              >
+                                <Heart
+                                  size={16}
+                                  className={photo.isLiked ? 'fill-red-500 text-red-500' : ''}
+                                />
+                                <span>{photo.likes}</span>
+                              </button>
+                              <button
+                                onClick={() => toggleComments(photo._id)}
+                                className="flex items-center gap-1 text-sm font-paragraph font-semibold text-muted-text hover:text-primary transition-colors"
+                              >
+                                <MessageCircle size={16} />
+                                <span>{photo.comments.length}</span>
+                              </button>
+                            </div>
+
+                            {/* Comments Section */}
+                            {showComments.has(photo._id) && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="space-y-3 pt-3 border-t border-border"
+                              >
+                                {/* Comments List */}
+                                <div className="max-h-40 overflow-y-auto space-y-2">
+                                  {photo.comments.length > 0 ? (
+                                    photo.comments.map((comment) => (
+                                      <div key={comment.id} className="text-sm">
+                                        <p className="font-paragraph">
+                                          <span className="font-semibold text-foreground">{comment.userName}</span>
+                                          <span className="text-muted-text ml-2">{comment.text}</span>
+                                        </p>
+                                        <p className="text-xs text-muted-text mt-1">
+                                          {getRelativeTime(comment.timestamp)}
+                                        </p>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p className="font-paragraph text-xs text-muted-text text-center py-2">
+                                      Sin comentarios aún
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Comment Input */}
+                                <div className="flex gap-2 pt-2 border-t border-border">
+                                  <input
+                                    type="text"
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    placeholder="Agrega un comentario..."
+                                    className="flex-1 px-3 py-2 border border-border rounded-lg font-paragraph text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleAddComment(photo._id);
+                                      }
+                                    }}
+                                  />
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => handleAddComment(photo._id)}
+                                    disabled={!commentText.trim()}
+                                    className="p-2 bg-primary text-white rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    <Send size={16} />
+                                  </motion.button>
+                                </div>
+                              </motion.div>
+                            )}
                           </div>
                         </motion.div>
                       ))}
