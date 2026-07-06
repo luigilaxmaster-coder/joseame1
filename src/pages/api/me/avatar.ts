@@ -82,22 +82,32 @@ export async function POST(request: Request) {
       userProfile.updatedAt = new Date().toISOString();
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        url: dataUrl,
-        profile: userProfile,
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    const responseBody = JSON.stringify({
+      success: true,
+      url: dataUrl,
+      profile: userProfile,
+    });
+
+    return new Response(responseBody, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(responseBody).toString(),
+      },
+    });
   } catch (error) {
     console.error('Error in POST /api/me/avatar:', error);
-    return new Response(
-      JSON.stringify({
-        error: 'Failed to upload avatar',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    const errorBody = JSON.stringify({
+      error: 'Failed to upload avatar',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return new Response(errorBody, {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(errorBody).toString(),
+      },
+    });
   }
 }
