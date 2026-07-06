@@ -7,7 +7,7 @@ import {
   ArrowLeft, User, Mail, Calendar, Star, Upload, Trash2, Edit2, Check, AlertCircle,
   CheckCircle, Award, Clock, Phone, MapPin, Briefcase, FileText, Settings,
   LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield, Send, X,
-  Zap, TrendingUp, Users, Eye
+  Zap, TrendingUp, Users, Eye, Camera, Save, Copy, ExternalLink
 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
@@ -40,7 +40,7 @@ function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State Management
-  const [activeTab, setActiveTab] = useState<TabType>('posts');
+  const [activeTab, setActiveTab] = useState<TabType>('portfolio');
   const [userProfile, setUserProfile] = useState<UserProfiles | null>(null);
   const [userPhotos, setUserPhotos] = useState<PhotoWithInteractions[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
@@ -50,7 +50,13 @@ function ProfilePage() {
   const [userBadges, setUserBadges] = useState<string[]>([]);
   const [registeredUserRole, setRegisteredUserRole] = useState<string>('');
 
-  // Upload & Preview State
+  // Avatar Upload State
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Portfolio Upload & Preview State
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
@@ -408,6 +414,89 @@ function ProfilePage() {
     }
   };
 
+  const handleAvatarSelect = async (file: File) => {
+    if (!file || !member?.loginEmail) {
+      setUploadError('Por favor, selecciona un archivo y asegúrate de estar autenticado.');
+      return;
+    }
+
+    if (!isValidImageFile(file)) {
+      setUploadError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 10MB.');
+      return;
+    }
+
+    setUploadError('');
+    setIsUploadingAvatar(true);
+
+    try {
+      const preview = await createPreviewUrl(file);
+      if (!preview) throw new Error('No se pudo crear la vista previa de la imagen');
+      setAvatarPreviewUrl(preview);
+      setAvatarFile(file);
+    } catch (error) {
+      console.error('Error in handleAvatarSelect:', error);
+      setUploadError(getUploadErrorMessage(error));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleConfirmAvatarUpload = async () => {
+    if (!avatarFile || !member?.loginEmail || !avatarPreviewUrl) {
+      setUploadError('Error: Faltan datos necesarios para subir el avatar.');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      if (!isValidImageFile(avatarFile)) {
+        throw new Error('El archivo no es válido.');
+      }
+
+      // Upload to Wix Media Manager
+      const uploadResponse = await WixMediaService.uploadImage(avatarFile, member.loginEmail);
+
+      // Update member profile photo via Wix Members API
+      // Note: This would require backend integration with Wix Members API
+      // For now, we'll store it in UserProfiles collection
+      if (userProfile) {
+        await BaseCrudService.update('userprofiles', {
+          _id: userProfile._id,
+          profilePhoto: uploadResponse.url
+        });
+      } else {
+        const profileId = crypto.randomUUID();
+        await BaseCrudService.create('userprofiles', {
+          _id: profileId,
+          memberId: member.loginEmail,
+          firstName: member.contact?.firstName || '',
+          lastName: member.contact?.lastName || '',
+          profilePhoto: uploadResponse.url,
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      setAvatarPreviewUrl('');
+      setAvatarFile(null);
+      setUploadError('');
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+
+      await loadProfileData();
+    } catch (error) {
+      console.error('Error in handleConfirmAvatarUpload:', error);
+      setUploadError(getUploadErrorMessage(error));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleCancelAvatarUpload = () => {
+    setAvatarPreviewUrl('');
+    setAvatarFile(null);
+    setUploadError('');
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
+  };
+
   const tabVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -454,13 +543,20 @@ function ProfilePage() {
             
             <div className="relative px-4 md:px-6 py-8 md:py-12">
               <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start md:items-end">
-                {/* Profile Picture with Badge */}
+                {/* Profile Picture with Badge - Enhanced Avatar Upload */}
                 <motion.div 
                   whileHover={{ scale: 1.05 }} 
-                  className="flex-shrink-0 relative"
+                  className="flex-shrink-0 relative group"
                 >
                   <div className="relative">
-                    {member?.profile?.photo?.url ? (
+                    {avatarPreviewUrl ? (
+                      <Image
+                        src={avatarPreviewUrl}
+                        alt="Vista previa del avatar"
+                        className="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-cover border-4 border-white shadow-2xl"
+                        width={192}
+                      />
+                    ) : member?.profile?.photo?.url ? (
                       <Image
                         src={member.profile.photo.url}
                         alt={member.profile.nickname || 'Usuario'}
@@ -472,6 +568,24 @@ function ProfilePage() {
                         <User size={80} className="md:w-32 md:h-32 text-primary" />
                       </div>
                     )}
+                    
+                    {/* Avatar Upload Overlay */}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="absolute bottom-2 right-2 p-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Camera size={20} />
+                    </motion.button>
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => e.target.files?.[0] && handleAvatarSelect(e.target.files[0])}
+                      className="hidden"
+                    />
+
                     {verificationStatus === 'Aprobado' && (
                       <motion.div 
                         initial={{ scale: 0 }}
@@ -650,6 +764,55 @@ function ProfilePage() {
                     >
                       <AlertCircle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
                       <p className="font-paragraph text-sm text-destructive">{uploadError}</p>
+                    </motion.div>
+                  )}
+
+                  {/* Avatar Upload Section - New */}
+                  {avatarPreviewUrl && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-12 p-6 md:p-8 bg-white rounded-2xl border-2 border-primary/20 shadow-lg"
+                    >
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-4">Cambiar Avatar</h3>
+                      <div className="space-y-4">
+                        <div className="flex flex-col md:flex-row gap-6 items-center">
+                          <div className="relative rounded-2xl overflow-hidden bg-gray-200 w-32 h-32 md:w-48 md:h-48 flex-shrink-0 shadow-lg">
+                            <Image
+                              src={avatarPreviewUrl}
+                              alt="Vista previa del avatar"
+                              className="w-full h-full object-cover"
+                              width={192}
+                            />
+                          </div>
+                          <div className="flex-1 space-y-3">
+                            <p className="font-paragraph text-sm text-muted-text">
+                              Vista previa de tu nuevo avatar. Haz clic en confirmar para guardar los cambios.
+                            </p>
+                            <div className="flex gap-3">
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleConfirmAvatarUpload}
+                                disabled={isUploadingAvatar}
+                                className="flex-1 px-4 py-3 bg-primary text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                              >
+                                <Check size={16} />
+                                {isUploadingAvatar ? 'Guardando...' : 'Confirmar Avatar'}
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleCancelAvatarUpload}
+                                disabled={isUploadingAvatar}
+                                className="flex-1 px-4 py-3 border-2 border-primary/30 text-foreground font-paragraph font-bold rounded-xl hover:bg-primary/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Cancelar
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
 
