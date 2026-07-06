@@ -240,12 +240,16 @@ function ProfilePageRefactored() {
         throw new Error('El archivo no es válido.');
       }
 
-      // Use the new hook to upload avatar
+      // Use the new hook to upload avatar with callbacks
       const result = await new Promise<any>((resolve, reject) => {
         uploadAvatar(avatarFile, {
-          onSuccess: resolve,
-          onError: reject,
-        } as any);
+          onSuccess: (data) => {
+            resolve(data);
+          },
+          onError: (error) => {
+            reject(error);
+          },
+        });
       });
 
       if (result) {

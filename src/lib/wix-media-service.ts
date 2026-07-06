@@ -37,11 +37,36 @@ export class WixMediaService {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || error.message || 'Failed to upload image');
+        let errorData;
+        try {
+          const text = await response.text();
+          if (!text) {
+            throw new Error(`HTTP ${response.status}: Empty response`);
+          }
+          errorData = JSON.parse(text);
+        } catch (parseErr) {
+          console.error('Failed to parse error response:', parseErr);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        throw new Error(errorData.error || errorData.message || 'Failed to upload image');
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        const text = await response.text();
+        if (!text) {
+          throw new Error('Empty response from server');
+        }
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.error('Failed to parse success response:', parseErr);
+        throw new Error('Invalid response format from server');
+      }
+
+      if (!data.url) {
+        throw new Error('No URL returned from server');
+      }
+
       return {
         url: data.url,
         mediaId: data.mediaId,

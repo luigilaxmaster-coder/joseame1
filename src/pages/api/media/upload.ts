@@ -8,65 +8,96 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   try {
     // Check if request is multipart/form-data
-    if (!request.headers.get('content-type')?.includes('multipart/form-data')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid content type' }),
-        { status: 400 }
+    const contentType = request.headers.get('content-type');
+    if (!contentType?.includes('multipart/form-data')) {
+      return createJsonResponse(
+        { error: 'Invalid content type' },
+        400
       );
     }
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const memberId = formData.get('memberId') as string;
+    let formData;
+    try {
+      formData = await request.formData();
+    } catch (err) {
+      console.error('Error parsing form data:', err);
+      return createJsonResponse(
+        { error: 'Failed to parse form data' },
+        400
+      );
+    }
+
+    const file = formData.get('file') as File | null;
+    const memberId = formData.get('memberId') as string | null;
 
     if (!file) {
-      return new Response(
-        JSON.stringify({ error: 'No file provided' }),
-        { status: 400 }
+      return createJsonResponse(
+        { error: 'No file provided' },
+        400
       );
     }
 
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
     if (!validTypes.includes(file.type)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid file type' }),
-        { status: 400 }
+      return createJsonResponse(
+        { error: 'Invalid file type. Allowed: JPG, PNG, GIF, WebP' },
+        400
       );
     }
 
     // Validate file size (10MB max)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      return new Response(
-        JSON.stringify({ error: 'File too large' }),
-        { status: 400 }
+      return createJsonResponse(
+        { error: 'File too large. Maximum size: 10MB' },
+        400
       );
     }
 
     // Convert file to buffer
-    const buffer = await file.arrayBuffer();
+    let buffer;
+    try {
+      buffer = await file.arrayBuffer();
+    } catch (err) {
+      console.error('Error reading file:', err);
+      return createJsonResponse(
+        { error: 'Failed to read file' },
+        400
+      );
+    }
 
     // Use Wix Media Manager API to upload
-    const mediaUrl = await uploadToWixMedia(buffer, file.name, file.type, memberId);
+    const mediaUrl = await uploadToWixMedia(buffer, file.name, file.type, memberId || undefined);
 
-    return new Response(
-      JSON.stringify({
-        url: mediaUrl,
-        mediaId: `media-${Date.now()}`,
-      }),
-      { status: 200 }
-    );
+    return createJsonResponse({
+      url: mediaUrl,
+      mediaId: `media-${Date.now()}`,
+      success: true,
+    }, 200);
   } catch (error) {
     console.error('Upload error:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Upload failed',
-      }),
-      { status: 500 }
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+    return createJsonResponse(
+      { error: errorMessage },
+      500
     );
   }
 };
+
+/**
+ * Helper function to create JSON responses with proper headers
+ */
+function createJsonResponse(data: any, status: number): Response {
+  const jsonString = JSON.stringify(data);
+  return new Response(jsonString, {
+    status,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    },
+  });
+}
 
 /**
  * Upload file to Wix Media Manager
@@ -80,7 +111,12 @@ async function uploadToWixMedia(
 ): Promise<string> {
   try {
     // Convert buffer to base64 string
-    const base64String = Buffer.from(buffer).toString('base64');
+    const uint8Array = new Uint8Array(buffer);
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    const base64String = Buffer.from(binaryString, 'binary').toString('base64');
     
     // Create data URL
     const dataUrl = `data:${mimeType};base64,${base64String}`;

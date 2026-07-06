@@ -116,9 +116,11 @@ export function useMyProfile() {
 
   // Upload avatar
   const uploadAvatar = useCallback(
-    async (file: File) => {
+    async (file: File, callbacks?: { onSuccess?: (data: AvatarUploadResponse) => void; onError?: (error: Error) => void }) => {
       if (!member?.loginEmail) {
+        const error = new Error('No authenticated user');
         setUploadError('No authenticated user');
+        callbacks?.onError?.(error);
         return null;
       }
 
@@ -144,11 +146,14 @@ export function useMyProfile() {
         }
 
         setProfile(response.data?.profile || null);
+        callbacks?.onSuccess?.(response.data!);
         return response.data;
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+        const error = err instanceof Error ? err : new Error('Unknown error');
+        const errorMsg = error.message;
         setUploadError(errorMsg);
         console.error('Error uploading avatar:', err);
+        callbacks?.onError?.(error);
         return null;
       } finally {
         setIsUploadingAvatar(false);
