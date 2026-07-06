@@ -406,11 +406,11 @@ function ProfilePageRefactored() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          className="p-4 bg-primary/20 rounded-full"
+          className="p-4 bg-primary/10 rounded-full"
         >
           <Loader size={40} className="text-primary" />
         </motion.div>
@@ -419,21 +419,21 @@ function ProfilePageRefactored() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-white text-foreground">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-[100rem] mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <motion.button
             whileHover={{ x: -4 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(getBackButtonPath())}
-            className="inline-flex items-center gap-2 transition-all font-paragraph font-semibold text-sm md:text-base h-11 px-4 rounded-xl text-slate-300 hover:text-primary hover:bg-primary/10"
+            className="inline-flex items-center gap-2 transition-all font-paragraph font-semibold text-sm md:text-base h-11 px-4 rounded-lg text-muted-text hover:text-primary hover:bg-primary/5"
           >
             <ArrowLeft size={18} />
             <span className="hidden sm:inline">Volver</span>
           </motion.button>
 
-          <h1 className="font-heading font-bold text-xl md:text-2xl text-white">Mi Perfil</h1>
+          <h1 className="font-heading font-bold text-xl md:text-2xl text-foreground">Mi Perfil</h1>
 
           <div className="w-11" />
         </div>
@@ -452,176 +452,160 @@ function ProfilePageRefactored() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mx-4 md:mx-8 mt-4 p-4 bg-red-500/20 border-l-4 border-red-500 rounded-lg flex items-start gap-3"
+              className="mx-4 md:mx-8 mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start gap-3"
             >
-              <AlertCircle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="font-paragraph text-sm text-red-300">{error}</p>
+              <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="font-paragraph text-sm text-red-700">{error}</p>
             </motion.div>
           )}
 
-          {/* Hero Section - Asymmetrical Layout */}
+          {/* Hero Section - Centered Layout */}
           <div className="relative overflow-hidden px-4 md:px-8 py-12 md:py-20">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16 items-start">
-              {/* Left: Avatar & Quick Stats */}
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                className="lg:col-span-1 space-y-8"
-              >
-                {/* Avatar */}
-                <motion.div whileHover={{ scale: 1.02 }} className="relative group">
-                  <div className="relative w-full aspect-square">
-                    {avatarPreviewUrl ? (
-                      <Image
-                        src={avatarPreviewUrl}
-                        alt="Vista previa del avatar"
-                        className="w-full h-full rounded-3xl object-cover border-4 border-primary/30 shadow-2xl"
-                        width={300}
-                      />
-                    ) : profile?.profilePhoto ? (
-                      <Image
-                        src={profile.profilePhoto}
-                        alt={profile.firstName || 'Usuario'}
-                        className="w-full h-full rounded-3xl object-cover border-4 border-primary/30 shadow-2xl"
-                        width={300}
-                      />
-                    ) : member?.profile?.photo?.url ? (
-                      <Image
-                        src={member.profile.photo.url}
-                        alt={member.profile.nickname || 'Usuario'}
-                        className="w-full h-full rounded-3xl object-cover border-4 border-primary/30 shadow-2xl"
-                        width={300}
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-3xl bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center shadow-2xl border-4 border-primary/30">
-                        <User size={96} className="text-primary/60" />
-                      </div>
-                    )}
-
-                    {/* Camera Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => avatarInputRef.current?.click()}
-                      className="absolute bottom-4 right-4 p-4 bg-gradient-to-br from-primary to-primary/80 text-white rounded-full shadow-xl hover:shadow-2xl transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <Camera size={24} />
-                    </motion.button>
-                    <input
-                      ref={avatarInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && handleAvatarSelect(e.target.files[0])}
-                      className="hidden"
+            <div className="max-w-2xl mx-auto text-center space-y-12">
+              {/* Avatar */}
+              <motion.div whileHover={{ scale: 1.02 }} className="relative group">
+                <div className="relative w-40 h-40 md:w-56 md:h-56 mx-auto">
+                  {avatarPreviewUrl ? (
+                    <Image
+                      src={avatarPreviewUrl}
+                      alt="Vista previa del avatar"
+                      className="w-full h-full rounded-2xl object-cover border-2 border-border"
+                      width={224}
                     />
-
-                    {/* Verification Badge */}
-                    {verificationStatus === 'Aprobado' && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -bottom-2 -right-2 bg-gradient-to-br from-accent to-accent/80 rounded-full p-3 border-4 border-slate-900 shadow-xl"
-                      >
-                        <CheckCircle size={28} className="text-white" />
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-
-                {/* Quick Stats */}
-                <div className="space-y-3">
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl backdrop-blur-sm"
-                  >
-                    <p className="font-paragraph text-xs text-slate-400 mb-1">Trabajos</p>
-                    <p className="font-heading text-3xl font-bold text-primary">{userPhotos.length}</p>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl backdrop-blur-sm"
-                  >
-                    <p className="font-paragraph text-xs text-slate-400 mb-1">Reseñas</p>
-                    <p className="font-heading text-3xl font-bold text-secondary">{userRatings.length}</p>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl backdrop-blur-sm"
-                  >
-                    <p className="font-paragraph text-xs text-slate-400 mb-1">Calificación</p>
-                    <div className="flex items-center gap-2">
-                      <p className="font-heading text-3xl font-bold text-accent">
-                        {averageRating > 0 ? averageRating.toFixed(1) : '—'}
-                      </p>
-                      {averageRating > 0 && <Star size={20} className="text-accent fill-accent" />}
+                  ) : profile?.profilePhoto ? (
+                    <Image
+                      src={profile.profilePhoto}
+                      alt={profile.firstName || 'Usuario'}
+                      className="w-full h-full rounded-2xl object-cover border-2 border-border"
+                      width={224}
+                    />
+                  ) : member?.profile?.photo?.url ? (
+                    <Image
+                      src={member.profile.photo.url}
+                      alt={member.profile.nickname || 'Usuario'}
+                      className="w-full h-full rounded-2xl object-cover border-2 border-border"
+                      width={224}
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center border-2 border-border">
+                      <User size={80} className="text-primary/40" />
                     </div>
-                  </motion.div>
+                  )}
+
+                  {/* Camera Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="absolute bottom-2 right-2 p-3 bg-primary text-white rounded-full hover:shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <Camera size={20} />
+                  </motion.button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleAvatarSelect(e.target.files[0])}
+                    className="hidden"
+                  />
+
+                  {/* Verification Badge */}
+                  {verificationStatus === 'Aprobado' && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -bottom-1 -right-1 bg-accent rounded-full p-2 border-2 border-white"
+                    >
+                      <CheckCircle size={24} className="text-white" />
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
 
-              {/* Right: Profile Info & Badges */}
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="lg:col-span-2 space-y-8"
-              >
-                {/* Name & Bio */}
-                <div className="space-y-4">
-                  <div>
-                    <h1 className="font-heading text-5xl md:text-7xl font-bold text-white leading-tight">
-                      {profile?.firstName || member?.profile?.nickname || member?.contact?.firstName || 'Usuario'}
-                    </h1>
-                    {profile?.lastName && (
-                      <p className="font-heading text-2xl md:text-3xl font-semibold text-slate-400 mt-2">
-                        {profile.lastName}
-                      </p>
-                    )}
-                  </div>
-                  {profile?.bio && (
-                    <p className="font-paragraph text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                      {profile.bio}
+              {/* Name & Bio */}
+              <div className="space-y-4">
+                <div>
+                  <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                    {profile?.firstName || member?.profile?.nickname || member?.contact?.firstName || 'Usuario'}
+                  </h1>
+                  {profile?.lastName && (
+                    <p className="font-heading text-xl md:text-2xl font-semibold text-muted-text mt-2">
+                      {profile.lastName}
                     </p>
                   )}
                 </div>
-
-                {/* Badges */}
-                {userBadges.length > 0 && (
-                  <div className="flex flex-wrap gap-3">
-                    {userBadges.map((badge, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all"
-                      >
-                        <Sparkles size={16} className="text-white" />
-                        <span className="font-paragraph text-sm font-bold text-white">{badge}</span>
-                      </motion.div>
-                    ))}
-                  </div>
+                {profile?.bio && (
+                  <p className="font-paragraph text-base md:text-lg text-foreground/70 max-w-2xl leading-relaxed">
+                    {profile.bio}
+                  </p>
                 )}
+              </div>
 
-                {/* Contact Info */}
-                <div className="space-y-3 pt-6 border-t border-slate-700/50">
-                  {member?.loginEmail && (
-                    <motion.div whileHover={{ x: 4 }} className="flex items-center gap-3">
-                      <Mail size={18} className="text-primary flex-shrink-0" />
-                      <p className="font-paragraph text-slate-300">{member.loginEmail}</p>
+              {/* Badges */}
+              {userBadges.length > 0 && (
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {userBadges.map((badge, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-full"
+                    >
+                      <Sparkles size={16} className="text-amber-600" />
+                      <span className="font-paragraph text-sm font-bold text-amber-900">{badge}</span>
                     </motion.div>
-                  )}
-                  {member?._createdDate && (
-                    <motion.div whileHover={{ x: 4 }} className="flex items-center gap-3">
-                      <Calendar size={18} className="text-primary flex-shrink-0" />
-                      <p className="font-paragraph text-slate-300">
-                        Miembro desde {new Date(member._createdDate).toLocaleDateString('es-DO')}
-                      </p>
-                    </motion.div>
-                  )}
+                  ))}
                 </div>
-              </motion.div>
+              )}
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border">
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="p-4 bg-background rounded-lg border border-border text-center"
+                >
+                  <p className="font-paragraph text-xs text-muted-text mb-1">Trabajos</p>
+                  <p className="font-heading text-2xl font-bold text-primary">{userPhotos.length}</p>
+                </motion.div>
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="p-4 bg-background rounded-lg border border-border text-center"
+                >
+                  <p className="font-paragraph text-xs text-muted-text mb-1">Reseñas</p>
+                  <p className="font-heading text-2xl font-bold text-secondary">{userRatings.length}</p>
+                </motion.div>
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="p-4 bg-background rounded-lg border border-border text-center"
+                >
+                  <p className="font-paragraph text-xs text-muted-text mb-1">Calificación</p>
+                  <div className="flex items-center justify-center gap-1">
+                    <p className="font-heading text-2xl font-bold text-accent">
+                      {averageRating > 0 ? averageRating.toFixed(1) : '—'}
+                    </p>
+                    {averageRating > 0 && <Star size={16} className="text-accent fill-accent" />}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-2 pt-6 border-t border-border">
+                {member?.loginEmail && (
+                  <motion.div whileHover={{ x: 2 }} className="flex items-center justify-center gap-2">
+                    <Mail size={16} className="text-primary flex-shrink-0" />
+                    <p className="font-paragraph text-sm text-foreground/70">{member.loginEmail}</p>
+                  </motion.div>
+                )}
+                {member?._createdDate && (
+                  <motion.div whileHover={{ x: 2 }} className="flex items-center justify-center gap-2">
+                    <Calendar size={16} className="text-primary flex-shrink-0" />
+                    <p className="font-paragraph text-sm text-foreground/70">
+                      Miembro desde {new Date(member._createdDate).toLocaleDateString('es-DO')}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -630,15 +614,15 @@ function ProfilePageRefactored() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mx-4 md:mx-8 mb-8 p-6 md:p-8 bg-slate-800/50 border border-slate-700/50 rounded-3xl backdrop-blur-sm"
+              className="mx-4 md:mx-8 mb-8 p-6 md:p-8 bg-background border border-border rounded-2xl"
             >
-              <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-6 flex items-center gap-3">
+              <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-6 flex items-center gap-3">
                 <Camera size={28} className="text-primary" />
                 Cambiar Avatar
               </h3>
               <div className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-8 items-center">
-                  <div className="relative rounded-3xl overflow-hidden bg-slate-700 w-40 h-40 md:w-56 md:h-56 flex-shrink-0 shadow-xl">
+                  <div className="relative rounded-2xl overflow-hidden bg-background w-40 h-40 md:w-56 md:h-56 flex-shrink-0 border border-border">
                     <Image
                       src={avatarPreviewUrl}
                       alt="Vista previa del avatar"
@@ -647,7 +631,7 @@ function ProfilePageRefactored() {
                     />
                   </div>
                   <div className="flex-1 space-y-4">
-                    <p className="font-paragraph text-base text-slate-300">
+                    <p className="font-paragraph text-base text-foreground/70">
                       Vista previa de tu nuevo avatar. Confirma para guardar los cambios.
                     </p>
                     <div className="flex gap-3">
@@ -656,7 +640,7 @@ function ProfilePageRefactored() {
                         whileTap={{ scale: 0.98 }}
                         onClick={handleConfirmAvatarUpload}
                         disabled={isUploadingAvatar}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 px-6 py-3 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <Check size={18} />
                         {isUploadingAvatar ? 'Guardando...' : 'Confirmar'}
@@ -666,7 +650,7 @@ function ProfilePageRefactored() {
                         whileTap={{ scale: 0.98 }}
                         onClick={handleCancelAvatarUpload}
                         disabled={isUploadingAvatar}
-                        className="flex-1 px-6 py-3 border-2 border-slate-600 text-slate-300 font-paragraph font-bold rounded-xl hover:bg-slate-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-6 py-3 border-2 border-border text-foreground font-paragraph font-bold rounded-lg hover:bg-background transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Cancelar
                       </motion.button>
@@ -678,7 +662,7 @@ function ProfilePageRefactored() {
           )}
 
           {/* Tab Navigation */}
-          <div className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-xl sticky top-[73px] z-40">
+          <div className="border-b border-border bg-white sticky top-[73px] z-40">
             <div className="max-w-[100rem] mx-auto px-4 md:px-8 flex justify-start md:justify-center gap-1 md:gap-8 overflow-x-auto">
               {(['overview', 'gallery', 'testimonials', 'settings'] as TabType[]).map((tab) => (
                 <motion.button
@@ -689,7 +673,7 @@ function ProfilePageRefactored() {
                   className={`py-4 px-3 md:px-5 font-paragraph font-semibold text-sm md:text-base transition-all border-b-2 whitespace-nowrap ${
                     activeTab === tab
                       ? 'border-primary text-primary'
-                      : 'border-transparent text-slate-400 hover:text-slate-300'
+                      : 'border-transparent text-muted-text hover:text-foreground'
                   }`}
                 >
                   {tab === 'overview' && <span className="flex items-center gap-2"><User size={16} /> Resumen</span>}
@@ -713,114 +697,114 @@ function ProfilePageRefactored() {
                 transition={{ duration: 0.3 }}
                 className="px-4 md:px-8 py-8 md:py-12"
               >
-                <div className="max-w-4xl space-y-8">
+                <div className="max-w-4xl mx-auto space-y-8">
                   {isEditingProfile ? (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="space-y-6 p-8 bg-slate-800/50 border border-slate-700/50 rounded-3xl backdrop-blur-sm"
+                      className="space-y-6 p-8 bg-background border border-border rounded-2xl"
                     >
-                      <h3 className="font-heading text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
                         <Edit2 size={28} className="text-primary" />
                         Editar Perfil
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Nombre</label>
+                          <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Nombre</label>
                           <input
                             type="text"
                             value={editFormData.firstName}
                             onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
                             placeholder="Tu nombre"
-                            className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                            className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           />
                         </div>
                         <div>
-                          <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Apellido</label>
+                          <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Apellido</label>
                           <input
                             type="text"
                             value={editFormData.lastName}
                             onChange={(e) => setEditFormData({ ...editFormData, lastName: e.target.value })}
                             placeholder="Tu apellido"
-                            className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                            className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Biografía</label>
+                        <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Biografía</label>
                         <textarea
                           value={editFormData.bio}
                           onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
                           placeholder="Cuéntanos sobre ti..."
                           rows={4}
-                          className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
+                          className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
                         />
                       </div>
 
                       {userRole === 'joseador' && (
                         <>
-                          <div className="pt-6 border-t border-slate-700">
-                            <h4 className="font-heading text-lg font-bold text-white mb-4">Información Profesional</h4>
+                          <div className="pt-6 border-t border-border">
+                            <h4 className="font-heading text-lg font-bold text-foreground mb-4">Información Profesional</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Teléfono</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Teléfono</label>
                                 <input
                                   type="text"
                                   value={editFormData.phoneNumber}
                                   onChange={(e) => setEditFormData({ ...editFormData, phoneNumber: e.target.value })}
                                   placeholder="+1 (555) 000-0000"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Zona/Ciudad</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Zona/Ciudad</label>
                                 <input
                                   type="text"
                                   value={editFormData.cityZone}
                                   onChange={(e) => setEditFormData({ ...editFormData, cityZone: e.target.value })}
                                   placeholder="Tu zona o ciudad"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Especialidad</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Especialidad</label>
                                 <input
                                   type="text"
                                   value={editFormData.mainCategory}
                                   onChange={(e) => setEditFormData({ ...editFormData, mainCategory: e.target.value })}
                                   placeholder="Tu especialidad principal"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Años de Experiencia</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Años de Experiencia</label>
                                 <input
                                   type="number"
                                   value={editFormData.yearsOfExperience}
                                   onChange={(e) => setEditFormData({ ...editFormData, yearsOfExperience: parseInt(e.target.value) || 0 })}
                                   placeholder="0"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Precio Base</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Precio Base</label>
                                 <input
                                   type="number"
                                   value={editFormData.basePriceEstimate}
                                   onChange={(e) => setEditFormData({ ...editFormData, basePriceEstimate: parseFloat(e.target.value) || 0 })}
                                   placeholder="0.00"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                               <div>
-                                <label className="block font-paragraph text-sm font-semibold text-slate-300 mb-2">Disponibilidad</label>
+                                <label className="block font-paragraph text-sm font-semibold text-foreground mb-2">Disponibilidad</label>
                                 <input
                                   type="text"
                                   value={editFormData.availability}
                                   onChange={(e) => setEditFormData({ ...editFormData, availability: e.target.value })}
                                   placeholder="Ej: Lunes a Viernes"
-                                  className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+                                  className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                                 />
                               </div>
                             </div>
@@ -834,7 +818,7 @@ function ProfilePageRefactored() {
                           whileTap={{ scale: 0.98 }}
                           onClick={handleSaveProfile}
                           disabled={isProfileUpdating}
-                          className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          className="flex-1 px-6 py-3 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                           <Check size={18} />
                           {isProfileUpdating ? 'Guardando...' : 'Guardar Cambios'}
@@ -843,7 +827,7 @@ function ProfilePageRefactored() {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setIsEditingProfile(false)}
-                          className="flex-1 px-6 py-3 border-2 border-slate-600 text-slate-300 font-paragraph font-bold rounded-xl hover:bg-slate-700/50 transition-all"
+                          className="flex-1 px-6 py-3 border-2 border-border text-foreground font-paragraph font-bold rounded-lg hover:bg-background transition-all"
                         >
                           Cancelar
                         </motion.button>
@@ -854,7 +838,7 @@ function ProfilePageRefactored() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setIsEditingProfile(true)}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-primary to-primary/80 text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 text-lg"
+                      className="w-full px-6 py-4 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2 text-lg"
                     >
                       <Edit2 size={20} />
                       Editar Perfil
@@ -867,19 +851,19 @@ function ProfilePageRefactored() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="space-y-4 pt-6 border-t border-slate-700/50"
+                      className="space-y-4 pt-6 border-t border-border"
                     >
-                      <h3 className="font-heading text-2xl font-bold text-white flex items-center gap-3">
+                      <h3 className="font-heading text-2xl font-bold text-foreground flex items-center gap-3">
                         <CheckCircle size={28} className="text-secondary" />
                         Estado de Verificación
                       </h3>
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-xl border-2 flex items-center gap-3 ${
+                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
                           verificationStatus === 'Aprobado'
-                            ? 'bg-accent/20 border-accent'
-                            : 'bg-secondary/20 border-secondary'
+                            ? 'bg-accent/10 border-accent'
+                            : 'bg-secondary/10 border-secondary'
                         }`}
                       >
                         {verificationStatus === 'Aprobado' ? (
@@ -888,7 +872,7 @@ function ProfilePageRefactored() {
                           <Clock size={24} className="text-secondary flex-shrink-0" />
                         )}
                         <div>
-                          <p className="font-heading font-bold text-white text-sm">Estado Actual</p>
+                          <p className="font-heading font-bold text-foreground text-sm">Estado Actual</p>
                           <p className={`font-paragraph text-sm font-semibold ${
                             verificationStatus === 'Aprobado' ? 'text-accent' : 'text-secondary'
                           }`}>
@@ -918,14 +902,14 @@ function ProfilePageRefactored() {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-8 bg-slate-800/50 border border-slate-700/50 rounded-3xl backdrop-blur-sm"
+                      className="p-8 bg-background border border-border rounded-2xl"
                     >
-                      <h3 className="font-heading text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                      <h3 className="font-heading text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
                         <Upload size={28} className="text-primary" />
                         Publicar Trabajo
                       </h3>
                       <div className="space-y-6">
-                        <div className="relative rounded-3xl overflow-hidden bg-slate-700 h-72 md:h-96 flex items-center justify-center shadow-lg">
+                        <div className="relative rounded-2xl overflow-hidden bg-background h-72 md:h-96 flex items-center justify-center border border-border">
                           <Image
                             src={previewUrl}
                             alt="Vista previa"
@@ -935,7 +919,7 @@ function ProfilePageRefactored() {
                         </div>
 
                         <div>
-                          <label className="block font-heading text-lg font-bold text-white mb-3">
+                          <label className="block font-heading text-lg font-bold text-foreground mb-3">
                             Descripción del Trabajo
                           </label>
                           <textarea
@@ -944,9 +928,9 @@ function ProfilePageRefactored() {
                             placeholder="Describe tu trabajo, técnicas utilizadas, materiales, tiempo invertido..."
                             maxLength={maxCaptionLength}
                             rows={4}
-                            className="w-full px-4 py-3 border border-slate-600 rounded-xl font-paragraph text-sm bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                            className="w-full px-4 py-3 border border-border rounded-lg font-paragraph text-sm bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                           />
-                          <p className="font-paragraph text-xs text-slate-400 mt-2">
+                          <p className="font-paragraph text-xs text-muted-text mt-2">
                             {photoCaption.length}/{maxCaptionLength}
                           </p>
                         </div>
@@ -957,7 +941,7 @@ function ProfilePageRefactored() {
                             whileTap={{ scale: 0.98 }}
                             onClick={handleConfirmUpload}
                             disabled={isUploadingPhoto}
-                            className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="flex-1 px-6 py-3 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           >
                             <Upload size={18} />
                             {isUploadingPhoto ? 'Subiendo...' : 'Publicar Trabajo'}
@@ -967,7 +951,7 @@ function ProfilePageRefactored() {
                             whileTap={{ scale: 0.98 }}
                             onClick={handleCancelUpload}
                             disabled={isUploadingPhoto}
-                            className="flex-1 px-6 py-3 border-2 border-slate-600 text-slate-300 font-paragraph font-bold rounded-xl hover:bg-slate-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 px-6 py-3 border-2 border-border text-foreground font-paragraph font-bold rounded-lg hover:bg-background transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Cancelar
                           </motion.button>
@@ -975,18 +959,18 @@ function ProfilePageRefactored() {
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="p-12 md:p-16 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-3xl border-3 border-dashed border-primary/30 hover:border-primary/50 transition-all hover:shadow-md">
+                    <div className="p-12 md:p-16 bg-background border-2 border-dashed border-primary/30 rounded-2xl hover:border-primary/50 transition-all hover:shadow-sm">
                       <div className="flex flex-col items-center gap-6">
                         <motion.div
                           animate={{ y: [0, -10, 0] }}
                           transition={{ duration: 2, repeat: Infinity }}
-                          className="p-6 md:p-8 bg-gradient-to-br from-primary to-secondary rounded-full shadow-lg"
+                          className="p-6 md:p-8 bg-primary/10 rounded-full"
                         >
-                          <ImagePlus size={48} className="text-white" />
+                          <ImagePlus size={48} className="text-primary" />
                         </motion.div>
                         <div className="text-center">
-                          <p className="font-heading font-bold text-white mb-2 text-2xl md:text-3xl">Comparte tu Trabajo</p>
-                          <p className="font-paragraph text-base md:text-lg text-slate-300 mb-6">Sube fotos de tus proyectos y destaca tu portafolio profesional</p>
+                          <p className="font-heading font-bold text-foreground mb-2 text-2xl md:text-3xl">Comparte tu Trabajo</p>
+                          <p className="font-paragraph text-base md:text-lg text-muted-text mb-6">Sube fotos de tus proyectos y destaca tu portafolio profesional</p>
                         </div>
                         <input
                           ref={fileInputRef}
@@ -999,7 +983,7 @@ function ProfilePageRefactored() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-8 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-paragraph font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                          className="px-8 py-3 bg-primary text-white font-paragraph font-bold rounded-lg hover:shadow-md transition-all flex items-center gap-2"
                         >
                           <Plus size={20} />
                           Seleccionar Imagen
@@ -1017,9 +1001,9 @@ function ProfilePageRefactored() {
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: index * 0.05 }}
-                          className="group bg-slate-800/50 border border-slate-700/50 rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all backdrop-blur-sm"
+                          className="group bg-white border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all"
                         >
-                          <div className="relative aspect-square overflow-hidden bg-slate-700">
+                          <div className="relative aspect-square overflow-hidden bg-background">
                             <Image
                               src={photo.photoUrl || ''}
                               alt={photo.altText || 'Foto'}
@@ -1060,30 +1044,30 @@ function ProfilePageRefactored() {
                                   width={40}
                                 />
                               ) : (
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                                   <User size={18} className="text-primary" />
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="font-heading font-semibold text-sm text-white">
+                                <p className="font-heading font-semibold text-sm text-foreground">
                                   {member?.profile?.nickname || 'Usuario'}
                                 </p>
-                                <p className="font-paragraph text-xs text-slate-400">
+                                <p className="font-paragraph text-xs text-muted-text">
                                   {getRelativeTime(photo.createdAt)}
                                 </p>
                               </div>
                             </div>
 
                             {photo.caption && (
-                              <p className="font-paragraph text-sm text-slate-300 line-clamp-2 bg-slate-700/50 p-3 rounded-lg">
+                              <p className="font-paragraph text-sm text-foreground/70 line-clamp-2 bg-background p-3 rounded-lg border border-border">
                                 {photo.caption}
                               </p>
                             )}
 
-                            <div className="flex items-center gap-4 pt-3 border-t border-slate-700">
+                            <div className="flex items-center gap-4 pt-3 border-t border-border">
                               <button
                                 onClick={() => handleLikePhoto(photo._id)}
-                                className="flex items-center gap-2 text-sm font-paragraph font-semibold text-slate-400 hover:text-primary transition-colors"
+                                className="flex items-center gap-2 text-sm font-paragraph font-semibold text-muted-text hover:text-primary transition-colors"
                               >
                                 <Heart
                                   size={18}
@@ -1105,8 +1089,8 @@ function ProfilePageRefactored() {
                       >
                         <Grid3x3 size={48} className="text-primary" />
                       </motion.div>
-                      <p className="font-heading text-2xl md:text-3xl font-bold text-white mb-3">Sin trabajos publicados</p>
-                      <p className="font-paragraph text-base md:text-lg text-slate-400">¡Sube tu primer trabajo para comenzar a construir tu portafolio!</p>
+                      <p className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">Sin trabajos publicados</p>
+                      <p className="font-paragraph text-base md:text-lg text-muted-text">¡Sube tu primer trabajo para comenzar a construir tu portafolio!</p>
                     </div>
                   )}
                 </div>
@@ -1123,14 +1107,14 @@ function ProfilePageRefactored() {
                 transition={{ duration: 0.3 }}
                 className="px-4 md:px-8 py-8 md:py-12"
               >
-                <div className="max-w-4xl space-y-8">
+                <div className="max-w-4xl mx-auto space-y-8">
                   {userRatings.length > 0 ? (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-4"
                     >
-                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
                         <Star size={28} className="text-yellow-500" />
                         Reseñas ({userRatings.length})
                       </h3>
@@ -1141,14 +1125,14 @@ function ProfilePageRefactored() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl hover:border-yellow-500/50 hover:shadow-md transition-all backdrop-blur-sm"
+                            className="p-4 bg-background border border-border rounded-lg hover:border-yellow-500/50 hover:shadow-sm transition-all"
                           >
                             <div className="flex items-start justify-between mb-2 gap-4">
                               <div className="min-w-0">
-                                <p className="font-heading font-bold text-white text-sm">
+                                <p className="font-heading font-bold text-foreground text-sm">
                                   {rating.reviewerIdentifier || 'Usuario'}
                                 </p>
-                                <p className="font-paragraph text-xs text-slate-400">
+                                <p className="font-paragraph text-xs text-muted-text">
                                   {rating.ratingDate ? new Date(rating.ratingDate).toLocaleDateString('es-DO') : ''}
                                 </p>
                               </div>
@@ -1157,12 +1141,12 @@ function ProfilePageRefactored() {
                                   <Star
                                     key={i}
                                     size={14}
-                                    className={i < (rating.ratingValue || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}
+                                    className={i < (rating.ratingValue || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
                                   />
                                 ))}
                               </div>
                             </div>
-                            <p className="font-paragraph text-sm text-slate-300">{rating.reviewText}</p>
+                            <p className="font-paragraph text-sm text-foreground/70">{rating.reviewText}</p>
                           </motion.div>
                         ))}
                       </div>
@@ -1176,8 +1160,8 @@ function ProfilePageRefactored() {
                       >
                         <Star size={40} className="md:w-12 md:h-12 text-yellow-500" />
                       </motion.div>
-                      <p className="font-heading text-lg md:text-xl font-bold text-white mb-2">Sin reseñas aún</p>
-                      <p className="font-paragraph text-sm md:text-base text-slate-400">Completa trabajos para recibir reseñas de tus clientes</p>
+                      <p className="font-heading text-lg md:text-xl font-bold text-foreground mb-2">Sin reseñas aún</p>
+                      <p className="font-paragraph text-sm md:text-base text-muted-text">Completa trabajos para recibir reseñas de tus clientes</p>
                     </div>
                   )}
                 </div>
@@ -1194,18 +1178,18 @@ function ProfilePageRefactored() {
                 transition={{ duration: 0.3 }}
                 className="px-4 md:px-8 py-8 md:py-12"
               >
-                <div className="max-w-4xl space-y-8">
+                <div className="max-w-4xl mx-auto space-y-8">
                   {/* Role Selection */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-6 p-8 bg-slate-800/50 border border-slate-700/50 rounded-3xl backdrop-blur-sm"
+                    className="space-y-6 p-8 bg-background border border-border rounded-2xl"
                   >
-                    <h3 className="font-heading text-3xl font-bold text-white flex items-center gap-3">
+                    <h3 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
                       <Users size={32} className="text-primary" />
                       Cambiar Rol
                     </h3>
-                    <p className="font-paragraph text-slate-300 text-base">Cambia entre tu rol de cliente y joseador</p>
+                    <p className="font-paragraph text-foreground/70 text-base">Cambia entre tu rol de cliente y joseador</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <motion.button
                         whileHover={{ scale: 1.05, y: -4 }}
@@ -1214,7 +1198,7 @@ function ProfilePageRefactored() {
                           setUserRole('client');
                           window.location.href = '/client/dashboard';
                         }}
-                        className="w-full px-6 py-4 bg-gradient-to-br from-primary to-primary/80 text-white font-heading font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg"
+                        className="w-full px-6 py-4 bg-primary text-white font-heading font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2 text-lg"
                       >
                         <Users size={22} />
                         Dashboard Cliente
@@ -1226,7 +1210,7 @@ function ProfilePageRefactored() {
                           setUserRole('joseador');
                           window.location.href = '/joseador/dashboard';
                         }}
-                        className="w-full px-6 py-4 bg-gradient-to-br from-secondary to-secondary/80 text-white font-heading font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg"
+                        className="w-full px-6 py-4 bg-secondary text-white font-heading font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2 text-lg"
                       >
                         <Briefcase size={22} />
                         Dashboard Joseador
@@ -1240,9 +1224,9 @@ function ProfilePageRefactored() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="space-y-4 pt-6 border-t border-slate-700/50"
+                      className="space-y-4 pt-6 border-t border-border"
                     >
-                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
                         <Shield size={28} className="text-accent" />
                         Verificación
                       </h3>
@@ -1250,10 +1234,10 @@ function ProfilePageRefactored() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-xl border-2 flex items-center gap-3 ${
+                        className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
                           verificationStatus === 'Aprobado'
-                            ? 'bg-accent/20 border-accent'
-                            : 'bg-secondary/20 border-secondary'
+                            ? 'bg-accent/10 border-accent'
+                            : 'bg-secondary/10 border-secondary'
                         }`}
                       >
                         {verificationStatus === 'Aprobado' ? (
@@ -1262,7 +1246,7 @@ function ProfilePageRefactored() {
                           <Clock size={24} className="text-secondary flex-shrink-0" />
                         )}
                         <div>
-                          <p className="font-heading font-bold text-white text-sm">Estado de Verificación</p>
+                          <p className="font-heading font-bold text-foreground text-sm">Estado de Verificación</p>
                           <p className={`font-paragraph text-sm font-semibold ${
                             verificationStatus === 'Aprobado' ? 'text-accent' : 'text-secondary'
                           }`}>
@@ -1275,7 +1259,7 @@ function ProfilePageRefactored() {
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate('/joseador/verification')}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-accent to-accent/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-accent text-white font-heading font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2"
                       >
                         <CheckCircle size={20} />
                         Iniciar Verificación
@@ -1289,9 +1273,9 @@ function ProfilePageRefactored() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="space-y-4 pt-6 border-t border-slate-700/50"
+                      className="space-y-4 pt-6 border-t border-border"
                     >
-                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
                         <Shield size={28} className="text-primary" />
                         Panel de Administración
                       </h3>
@@ -1299,7 +1283,7 @@ function ProfilePageRefactored() {
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate('/admin/dashboard')}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-heading font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-primary text-white font-heading font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2"
                       >
                         <Shield size={20} />
                         Ir al Panel Admin
@@ -1312,7 +1296,7 @@ function ProfilePageRefactored() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="pt-8 border-t border-slate-700/50"
+                    className="pt-8 border-t border-border"
                   >
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -1322,7 +1306,7 @@ function ProfilePageRefactored() {
                         clearAllUserData();
                         actions.logout();
                       }}
-                      className="w-full px-6 py-4 border-3 border-red-500 text-red-400 font-heading font-bold rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 text-lg hover:shadow-lg"
+                      className="w-full px-6 py-4 border-2 border-red-500 text-red-600 font-heading font-bold rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2 text-lg"
                     >
                       <LogOut size={22} />
                       Cerrar Sesión
