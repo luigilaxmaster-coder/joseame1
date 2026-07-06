@@ -212,7 +212,7 @@ function ProfilePageRefactored() {
     }
 
     if (!isValidImageFile(file)) {
-      setError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 10MB.');
+      setError('Por favor, sube una imagen válida (JPEG, PNG, GIF o WebP) de menos de 20MB.');
       return;
     }
 

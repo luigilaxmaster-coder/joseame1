@@ -46,11 +46,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024;
+    // Validate file size (20MB max)
+    const maxSize = 20 * 1024 * 1024;
     if (file.size > maxSize) {
       return createJsonResponse(
-        { error: 'File too large. Maximum size: 10MB' },
+        { error: 'File too large. Maximum size: 20MB' },
         400
       );
     }
