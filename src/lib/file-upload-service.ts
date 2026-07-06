@@ -47,7 +47,7 @@ export function createPreviewUrl(file: File): Promise<string> {
  */
 export function isValidImageFile(file: File): boolean {
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 5 * 1024 * 1024; // 5MB (reduced from 10MB to avoid 413 errors)
 
   // Check file type
   if (!validTypes.includes(file.type)) {
@@ -76,6 +76,9 @@ export function getUploadErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
     
+    if (message.includes('413') || message.includes('payload too large')) {
+      return 'El archivo es demasiado grande. Por favor, sube una imagen más pequeña (máximo 5MB).';
+    }
     if (message.includes('file reading')) {
       return 'Error al leer el archivo. Por favor, intenta con otro archivo.';
     }
@@ -193,7 +196,7 @@ export async function compressImage(
 export async function uploadFile(file: File): Promise<string> {
   // Validate the file
   if (!isValidImageFile(file)) {
-    throw new Error('Archivo inválido. Por favor, sube una imagen válida (JPG, PNG, GIF, WEBP) menor a 10MB.');
+    throw new Error('Archivo inválido. Por favor, sube una imagen válida (JPG, PNG, GIF, WEBP) menor a 5MB.');
   }
 
   try {
