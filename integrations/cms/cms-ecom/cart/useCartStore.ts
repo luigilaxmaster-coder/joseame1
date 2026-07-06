@@ -311,9 +311,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
  * Hook to access cart state and actions.
  * No provider needed - works anywhere in the app.
  *
+ * For currency formatting, use the separate `useCurrency()` hook.
+ *
  * @example
  * ```tsx
+ * import { useCurrency, formatPrice, DEFAULT_CURRENCY } from '@/integrations';
+ *
  * const { items, addingItemId, actions } = useCart();
+ * const { currency } = useCurrency();
+ *
+ * // Format price with site currency
+ * <span>{formatPrice(item.price, currency ?? DEFAULT_CURRENCY)}</span>
  *
  * // Add item (shows loading only on this button)
  * <Button
