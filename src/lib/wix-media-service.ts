@@ -84,7 +84,7 @@ export class WixMediaService {
    */
   static validateImageFile(file: File): { isValid: boolean; error?: string } {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
-    const maxSize = 20 * 1024 * 1024; // 20MB
+    const maxSize = 100 * 1024 * 1024; // 100MB - increased limit
 
     if (!validTypes.includes(file.type)) {
       return {
@@ -96,7 +96,7 @@ export class WixMediaService {
     if (file.size > maxSize) {
       return {
         isValid: false,
-        error: 'El archivo no debe exceder 20MB',
+        error: 'El archivo no debe exceder 100MB',
       };
     }
 

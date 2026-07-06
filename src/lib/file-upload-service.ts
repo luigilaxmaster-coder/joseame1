@@ -47,14 +47,14 @@ export function createPreviewUrl(file: File): Promise<string> {
  */
 export function isValidImageFile(file: File): boolean {
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
-  const maxSize = 20 * 1024 * 1024; // 20MB
+  const maxSize = 100 * 1024 * 1024; // 100MB - increased limit
 
   // Check file type
   if (!validTypes.includes(file.type)) {
     return false;
   }
 
-  // Check file size
+  // Check file size - only reject if truly massive
   if (file.size > maxSize) {
     return false;
   }
