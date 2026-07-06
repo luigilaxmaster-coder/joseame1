@@ -17,7 +17,7 @@ import PublishJobPage from '@/components/pages/PublishJobPage';
 import JobDetailsPage from '@/components/pages/JobDetailsPage';
 import WalletPage from '@/components/pages/WalletPage';
 import BuyPiquetesPage from '@/components/pages/BuyPiquetesPage';
-import ProfilePage from '@/components/pages/ProfilePage';
+import ProfilePageRefactored from '@/components/pages/ProfilePageRefactored';
 import ClientMyJobsPage from '@/components/pages/ClientMyJobsPage';
 import JoseadorMyJobsPage from '@/components/pages/JoseadorMyJobsPage';
 import InboxPage from '@/components/pages/InboxPage';
@@ -93,7 +93,7 @@ const router = createBrowserRouter([
         path: "profile",
         element: (
           <MemberProtectedRoute>
-            <ProfilePage />
+            <ProfilePageRefactored />
           </MemberProtectedRoute>
         ),
       },
