@@ -29,6 +29,7 @@ import AdminDashboardPage from '@/components/pages/AdminDashboardPage';
 import AdminUsersVerificationPage from '@/components/pages/AdminUsersVerificationPage';
 import JoseadorVerificationPage from '@/components/pages/JoseadorVerificationPage';
 import GalleryPage from '@/components/pages/GalleryPage';
+import WithdrawalFlow from '@/components/wallet/WithdrawalFlow';
 
 // Layout component that includes ScrollToTop
 function Layout() {
@@ -175,6 +176,14 @@ const router = createBrowserRouter([
         element: (
           <MemberProtectedRoute>
             <BuyPiquetesPage />
+          </MemberProtectedRoute>
+        ),
+      },
+      {
+        path: "joseador/withdraw",
+        element: (
+          <MemberProtectedRoute>
+            <WithdrawalFlow />
           </MemberProtectedRoute>
         ),
       },

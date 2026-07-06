@@ -27,6 +27,29 @@ export interface SystemAuditLogs {
 
 
 /**
+ * Collection ID: bankaccounts
+ * Interface for BankAccounts
+ */
+export interface BankAccounts {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  bankName?: string;
+  /** @wixFieldType text */
+  accountNumber?: string;
+  /** @wixFieldType text */
+  accountHolderName?: string;
+  /** @wixFieldType text */
+  identificationNumber?: string;
+  /** @wixFieldType text */
+  accountType?: string;
+}
+
+
+/**
  * Collection ID: completionattachments
  * Interface for CompletionAttachments
  */
@@ -280,6 +303,31 @@ export interface JoseadoresProfiles {
 
 
 /**
+ * Collection ID: ledger
+ * Interface for LedgerTransactions
+ */
+export interface LedgerTransactions {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  transactionId?: string;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  transactionType?: string;
+  /** @wixFieldType number */
+  amount?: number;
+  /** @wixFieldType datetime */
+  transactionTimestamp?: Date | string;
+  /** @wixFieldType text */
+  description?: string;
+  /** @wixFieldType number */
+  balanceAfter?: number;
+}
+
+
+/**
  * Collection ID: messages
  * Interface for Messages
  */
@@ -363,7 +411,33 @@ export interface PiqueteBalances {
 
 
 /**
+ * Collection ID: piqueteorders
+ * Interface for PiqueteOrders
+ */
+export interface PiqueteOrders {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType text */
+  packageId?: string;
+  /** @wixFieldType number */
+  amount?: number;
+  /** @wixFieldType text */
+  currency?: string;
+  /** @wixFieldType text */
+  paymentStatus?: string;
+  /** @wixFieldType datetime */
+  orderDate?: Date | string;
+  /** @wixFieldType text */
+  transactionId?: string;
+}
+
+
+/**
  * Collection ID: piquetepackages
+ * @catalog This collection is an eCommerce catalog
  * Interface for PiquetePackages
  */
 export interface PiquetePackages {
@@ -947,4 +1021,50 @@ export interface UserVerification {
   verificationDate?: Date | string;
   /** @wixFieldType text */
   verifiedByAdmin?: string;
+}
+
+
+/**
+ * Collection ID: wallets
+ * Interface for Wallets
+ */
+export interface Wallets {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  joseadorId?: string;
+  /** @wixFieldType number */
+  totalBalance?: number;
+  /** @wixFieldType number */
+  purchasedPiquetesBalance?: number;
+  /** @wixFieldType number */
+  freePiquetesBalance?: number;
+  /** @wixFieldType datetime */
+  lastUpdated?: Date | string;
+}
+
+
+/**
+ * Collection ID: withdrawals
+ * Interface for WithdrawalRequests
+ */
+export interface WithdrawalRequests {
+  _id: string;
+  _createdDate?: Date;
+  _updatedDate?: Date;
+  /** @wixFieldType text */
+  userId?: string;
+  /** @wixFieldType number */
+  amount?: number;
+  /** @wixFieldType text */
+  status?: string;
+  /** @wixFieldType text */
+  bankAccountId?: string;
+  /** @wixFieldType datetime */
+  requestTimestamp?: Date | string;
+  /** @wixFieldType datetime */
+  processedTimestamp?: Date | string;
+  /** @wixFieldType text */
+  adminNotes?: string;
 }
