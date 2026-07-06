@@ -19,7 +19,7 @@ export default {
                 '9xl': ['8rem', { lineHeight: '1', letterSpacing: '0.01em', fontWeight: '700' }],
             },
             fontFamily: {
-                heading: ["Poppins-v2"],
+                heading: ["montserrat", "sans-serif"],
                 paragraph: ["Roboto"]
             },
             colors: {
