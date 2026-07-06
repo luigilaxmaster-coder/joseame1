@@ -7,7 +7,7 @@ import {
   ArrowLeft, User, Mail, Calendar, Star, Upload, Trash2, Edit2, Check, AlertCircle,
   CheckCircle, Award, Clock, Phone, MapPin, Briefcase, FileText, Settings,
   LogOut, Grid3x3, Heart, MessageCircle, Share2, Lock, MoreHorizontal, Shield, Send, X,
-  Zap, TrendingUp, Users, Eye, Camera, Save, Copy, ExternalLink, Loader, Sparkles
+  Zap, TrendingUp, Users, Eye, Camera, Save, Copy, ExternalLink, Loader, Sparkles, ImagePlus
 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useState, useEffect, useRef } from 'react';
@@ -33,7 +33,6 @@ function ProfilePageRefactored() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Use the new hook for real profile data
   const {
     profile,
     isLoading: isProfileLoading,
@@ -48,38 +47,28 @@ function ProfilePageRefactored() {
     refetch: refetchProfile,
   } = useMyProfile();
 
-  // Tab State
   const [activeTab, setActiveTab] = useState<TabType>('summary');
-
-  // Loading States
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-
-  // Error State
   const [error, setError] = useState('');
 
-  // Additional Profile Data
   const [joseadorProfile, setJoseadorProfile] = useState<JoseadoresProfiles | null>(null);
   const [registeredUser, setRegisteredUser] = useState<RegisteredUsers | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<string>('Pendiente');
   const [userBadges, setUserBadges] = useState<string[]>([]);
 
-  // Photos & Ratings
   const [userPhotos, setUserPhotos] = useState<PhotoWithInteractions[]>([]);
   const [userRatings, setUserRatings] = useState<UserRatings[]>([]);
   const [averageRating, setAverageRating] = useState(0);
 
-  // Avatar Upload State
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  // Portfolio Upload State
   const [previewUrl, setPreviewUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [photoCaption, setPhotoCaption] = useState('');
   const maxCaptionLength = 300;
 
-  // Edit States
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFormData, setEditFormData] = useState({
     firstName: '',
@@ -96,12 +85,10 @@ function ProfilePageRefactored() {
 
   useSyncUser();
 
-  // Load additional profile data
   useEffect(() => {
     loadAdditionalData();
   }, [member?.loginEmail]);
 
-  // Update edit form when profile loads
   useEffect(() => {
     if (profile) {
       setEditFormData(prev => ({
@@ -113,12 +100,10 @@ function ProfilePageRefactored() {
     }
   }, [profile]);
 
-  // Update loading state based on profile loading
   useEffect(() => {
     setIsLoading(isProfileLoading);
   }, [isProfileLoading]);
 
-  // Update error state
   useEffect(() => {
     if (profileError) {
       setError(profileError instanceof Error ? profileError.message : 'Error loading profile');
@@ -135,7 +120,6 @@ function ProfilePageRefactored() {
     if (!member?.loginEmail) return;
 
     try {
-      // Load UserPhotos
       const { items: photos } = await BaseCrudService.getAll<UserPhotos>('userphotos');
       const userPhotosList = photos.filter(p => p.memberId === member.loginEmail);
       const photosWithInteractions: PhotoWithInteractions[] = userPhotosList.map(photo => ({
@@ -150,7 +134,6 @@ function ProfilePageRefactored() {
       });
       setUserPhotos(photosWithInteractions);
 
-      // Load ratings
       const { items: ratings } = await BaseCrudService.getAll<UserRatings>('userratings');
       const userRatingsList = ratings.filter(r => r.ratedUserIdentifier === member.loginEmail);
       setUserRatings(userRatingsList);
@@ -159,7 +142,6 @@ function ProfilePageRefactored() {
         setAverageRating(Math.round(avg * 10) / 10);
       }
 
-      // Load joseador profile if applicable
       if (userRole === 'joseador') {
         const { items: joseadorProfiles } = await BaseCrudService.getAll<JoseadoresProfiles>('joseadores');
         const userJoseadorProfile = joseadorProfiles.find(p => p.userId === member.loginEmail);
@@ -178,18 +160,15 @@ function ProfilePageRefactored() {
         }
       }
 
-      // Load registered user data
       const { items: users } = await BaseCrudService.getAll<RegisteredUsers>('registeredusers');
       const currentUser = users.find(u => u.email === member.loginEmail);
       if (currentUser) {
         setRegisteredUser(currentUser);
 
-        // Load verification status
         const { items: verificationItems } = await BaseCrudService.getAll<UserVerification>('userverification');
         const userVerification = verificationItems.find(v => v.joseadorId === currentUser.userId);
         setVerificationStatus(userVerification?.isVerified ? 'Aprobado' : 'Pendiente');
 
-        // Parse badges safely
         if (currentUser.badges) {
           try {
             const badgesArray = currentUser.badges.split(',').map(b => b.trim()).filter(b => b);
@@ -240,7 +219,6 @@ function ProfilePageRefactored() {
         throw new Error('El archivo no es válido.');
       }
 
-      // Use the new hook to upload avatar with callbacks
       const result = await new Promise<any>((resolve, reject) => {
         uploadAvatar(avatarFile, {
           onSuccess: (data) => {
@@ -354,14 +332,12 @@ function ProfilePageRefactored() {
     if (!member?.loginEmail || !profile) return;
 
     try {
-      // Update profile via API
       await updateProfile({
         firstName: editFormData.firstName,
         lastName: editFormData.lastName,
         bio: editFormData.bio,
       });
 
-      // Update joseador profile if applicable
       if (userRole === 'joseador' && joseadorProfile) {
         await BaseCrudService.update('joseadores', {
           _id: joseadorProfile._id,
@@ -436,7 +412,7 @@ function ProfilePageRefactored() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background via-white to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -451,7 +427,7 @@ function ProfilePageRefactored() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Premium Header */}
-      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[100rem] mx-auto px-4 md:px-8 py-4 md:py-5 flex items-center justify-between">
           <motion.button
             whileHover={{ x: -4 }}
@@ -491,18 +467,16 @@ function ProfilePageRefactored() {
 
           {/* Premium Profile Hero */}
           <div className="relative overflow-hidden">
-            {/* Gradient Background */}
-            <div className="absolute inset-0 h-64 md:h-80 bg-gradient-to-br from-primary/15 via-secondary/10 to-accent/15 pointer-events-none" />
+            <div className="absolute inset-0 h-64 md:h-80 bg-gradient-to-br from-primary/10 via-secondary/8 to-accent/10 pointer-events-none" />
 
             <div className="relative px-4 md:px-8 py-12 md:py-16">
               <div className="flex flex-col md:flex-row gap-10 md:gap-16 items-start md:items-end">
-                {/* Avatar Section - Premium */}
+                {/* Avatar Section */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   className="flex-shrink-0 relative group"
                 >
                   <div className="relative">
-                    {/* Avatar Container */}
                     <div className="relative w-40 h-40 md:w-56 md:h-56">
                       {avatarPreviewUrl ? (
                         <Image
@@ -562,7 +536,7 @@ function ProfilePageRefactored() {
                   </div>
                 </motion.div>
 
-                {/* Profile Info - Premium */}
+                {/* Profile Info */}
                 <div className="flex-1">
                   <div className="flex flex-col gap-4 mb-8">
                     <div>
@@ -638,7 +612,7 @@ function ProfilePageRefactored() {
             </div>
           </div>
 
-          {/* Avatar Upload Preview - Premium */}
+          {/* Avatar Upload Preview */}
           {avatarPreviewUrl && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -690,7 +664,7 @@ function ProfilePageRefactored() {
             </motion.div>
           )}
 
-          {/* Tab Navigation - Premium */}
+          {/* Tab Navigation */}
           <div className="border-b border-slate-200/50 bg-white/80 backdrop-blur-xl sticky top-[73px] z-40">
             <div className="max-w-[100rem] mx-auto px-4 md:px-8 flex justify-start md:justify-center gap-1 md:gap-8 overflow-x-auto">
               {(['summary', 'portfolio', 'reviews', 'settings'] as TabType[]).map((tab) => (
@@ -720,7 +694,7 @@ function ProfilePageRefactored() {
             {activeTab === 'summary' && (
               <motion.div key="summary" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-8 py-8 md:py-12">
                 <div className="max-w-4xl space-y-8">
-                  {/* Edit Profile Section - Premium */}
+                  {/* Edit Profile Section */}
                   {isEditingProfile ? (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -868,7 +842,7 @@ function ProfilePageRefactored() {
                     </motion.button>
                   )}
 
-                  {/* Contact Info - Premium */}
+                  {/* Contact Info */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -945,7 +919,7 @@ function ProfilePageRefactored() {
             {activeTab === 'portfolio' && (
               <motion.div key="portfolio" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-8 py-8 md:py-12">
                 <div className="space-y-8">
-                  {/* Upload Section - Premium */}
+                  {/* Upload Section */}
                   {previewUrl ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
@@ -1014,7 +988,7 @@ function ProfilePageRefactored() {
                           transition={{ duration: 2, repeat: Infinity }}
                           className="p-6 md:p-8 bg-gradient-to-br from-primary to-secondary rounded-full shadow-lg"
                         >
-                          <Upload size={48} className="text-white" />
+                          <ImagePlus size={48} className="text-white" />
                         </motion.div>
                         <div className="text-center">
                           <p className="font-heading font-bold text-foreground mb-2 text-2xl md:text-3xl">Comparte tu Trabajo</p>
@@ -1025,7 +999,7 @@ function ProfilePageRefactored() {
                     </div>
                   )}
 
-                  {/* Photos Grid - Premium */}
+                  {/* Photos Grid */}
                   {userPhotos.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {userPhotos.map((photo, index) => (
@@ -1198,7 +1172,7 @@ function ProfilePageRefactored() {
             {activeTab === 'settings' && (
               <motion.div key="settings" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="px-4 md:px-8 py-8 md:py-12">
                 <div className="max-w-4xl space-y-8">
-                  {/* Role Selection - Premium */}
+                  {/* Role Selection */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1310,7 +1284,7 @@ function ProfilePageRefactored() {
                     </motion.div>
                   )}
 
-                  {/* Logout - Premium */}
+                  {/* Logout */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

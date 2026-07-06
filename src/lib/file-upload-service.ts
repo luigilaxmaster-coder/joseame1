@@ -77,7 +77,7 @@ export function getUploadErrorMessage(error: unknown): string {
     const message = error.message.toLowerCase();
     
     if (message.includes('413') || message.includes('payload too large')) {
-      return 'El archivo es demasiado grande. Por favor, sube una imagen más pequeña (máximo 20MB).';
+      return 'El archivo es demasiado grande. Por favor, sube una imagen más pequeña (máximo 100MB).';
     }
     if (message.includes('file reading')) {
       return 'Error al leer el archivo. Por favor, intenta con otro archivo.';
@@ -196,7 +196,7 @@ export async function compressImage(
 export async function uploadFile(file: File): Promise<string> {
   // Validate the file
   if (!isValidImageFile(file)) {
-    throw new Error('Archivo inválido. Por favor, sube una imagen válida (JPG, PNG, GIF, WEBP) menor a 20MB.');
+    throw new Error('Archivo inválido. Por favor, sube una imagen válida (JPG, PNG, GIF, WEBP) menor a 100MB.');
   }
 
   try {
